@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文取名神器 - 智能起名助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .results-header h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .name-item {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .name-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .name-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .name-score {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .name-details {
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #444;
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        .wuxing-tags {
+            margin-top: 10px;
+        }
+
+        .wuxing-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            margin: 2px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .wuxing-金 { background: #ffd700; color: #333; }
+        .wuxing-木 { background: #228b22; }
+        .wuxing-水 { background: #4169e1; }
+        .wuxing-火 { background: #dc143c; }
+        .wuxing-土 { background: #daa520; color: #333; }
+
+        .recommendations {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0fff0 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .recommendations h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .recommendations li {
+            padding: 5px 0;
+            color: #444;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .recommendations li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-row .form-group {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                border-radius: 15px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>🌟 中文取名神器</h1>
+            <p>基于传统文化与现代算法的智能起名助手</p>
+        </header>
+
+        <!-- 输入表单 -->
+        <div class="card">
+            <form id="nameForm">
+                <div class="form-group">
+                    <label for="surname">姓氏 *</label>
+                    <input type="text" id="surname" name="surname" placeholder="请输入姓氏，如：李、王、张" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gender">性别</label>
+                        <select id="gender" name="gender">
+                            <option value="neutral">中性</option>
+                            <option value="male">男孩</option>
+                            <option value="female">女孩</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birthDate">生日</label>
+                        <input type="date" id="birthDate" name="birthDate">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="meaningPreference">期望寓意</label>
+                        <select id="meaningPreference" name="meaningPreference">
+                            <option value="聪慧">聪明智慧</option>
+                            <option value="品德">品德高尚</option>
+                            <option value="成功">事业成功</option>
+                            <option value="健康">健康平安</option>
+                            <option value="美好">美好幸福</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="count">生成数量</label>
+                        <select id="count" name="count">
+                            <option value="5">5个</option>
+                            <option value="10" selected>10个</option>
+                            <option value="15">15个</option>
+                            <option value="20">20个</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">🎯 开始取名</button>
+            </form>
+        </div>
+
+        <!-- 加载状态 -->
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>正在为您精心挑选好名字...</p>
+        </div>
+
+        <!-- 结果展示 -->
+        <div class="results-section" id="resultsSection">
+            <div class="card">
+                <div class="results-header">
+                    <h2>🎉 为您推荐的好名字</h2>
+                    <p>以下名字按照综合评分排序</p>
+                </div>
+
+                <div id="nameResults"></div>
+
+                <div class="recommendations" id="recommendations">
+                    <h3>💡 专业建议</h3>
+                    <ul id="recommendationList"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>© 2024 中文取名神器 | 传承文化，智慧取名</p>
+        </footer>
+    </div>
+
+    <script src="name-generator.js"></script>
+    <script src="app.js"></script>
+    <script src="enhancer.js"></script>
+    <!-- 开发测试脚本，生产环境可移除 -->
+    <script src="test.js"></script>
+</body>
+</html>

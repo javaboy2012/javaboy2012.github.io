@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中秋节快乐 - 玉兔摘月</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(to bottom, #0c1445, #1c1f4d, #2e2a5e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #ffce54;
+            text-shadow: 0 0 10px rgba(255, 206, 84, 0.5);
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a5b1c2;
+            margin-bottom: 20px;
+        }
+        .game-container {
+            position: relative;
+            width: 800px;
+            max-width: 100%;
+        }
+        #gameCanvas {
+            background: #0b0f2e;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 215, 100, 0.3);
+            display: block;
+            margin: 0 auto;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 800px;
+            max-width: 100%;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .score-board {
+            display: flex;
+            gap: 20px;
+        }
+        .score, .lives {
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+        .score span, .lives span {
+            color: #ffce54;
+            font-weight: bold;
+        }
+        .instructions {
+            text-align: center;
+            margin-top: 15px;
+            color: #a5b1c2;
+            font-size: 1rem;
+        }
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 10;
+            border: 2px solid #ffce54;
+            width: 80%;
+            max-width: 400px;
+        }
+        .message h2 {
+            color: #ffce54;
+            margin-bottom: 15px;
+        }
+        .message p {
+            margin: 10px 0;
+            font-size: 1.2rem;
+        }
+        .message button {
+            background: #ffce54;
+            color: #0c1445;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .message button:hover {
+            background: #ffd67f;
+            transform: scale(1.05);
+        }
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .start-screen h2 {
+            color: #ffce54;
+            font-size: 2rem;
+        }
+        .start-screen p {
+            text-align: center;
+            line-height: 1.6;
+        }
+        #startButton {
+            background: #ffce54;
+            color: #0c1445;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        #startButton:hover {
+            background: #ffd67f;
+            transform: scale(1.05);
+        }
+        .mooncakes {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+        .mooncake {
+            width: 60px;
+            height: 60px;
+            background: #e67e22;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 10px rgba(230, 126, 34, 0.5);
+        }
+        .mooncake::before {
+            content: "";
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: #d35400;
+            border-radius: 50%;
+            top: 10%;
+            left: 10%;
+        }
+        .pattern {
+            position: absolute;
+            color: #f1c40f;
+            font-size: 1.5rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #a5b1c2;
+            font-size: 0.9rem;
+        }
+        .sound-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+        }
+        .sound-control i {
+            font-size: 20px;
+            color: #ffce54;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 820px) {
+            .game-container, .controls {
+                width: 100%;
+            }
+            #gameCanvas {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1>中秋节快乐 - 玉兔摘月</h1>
+        <p class="subtitle">控制玉兔收集月亮，避开乌云，庆祝中秋佳节！</p>
+    </div>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <div class="sound-control" id="soundControl">
+            <i class="fas fa-volume-up"></i>
+        </div>
+        
+        <div id="startScreen" class="message">
+            <div class="start-screen">
+                <h2>玉兔摘月</h2>
+                <p>中秋节到了，帮助玉兔收集天上的月亮吧！</p>
+                <p>使用 ← → 方向键控制玉兔移动</p>
+                <p>收集月亮获得分数，避开乌云保护生命</p>
+                <button id="startButton">开始游戏</button>
+            </div>
+        </div>
+        
+        <div id="gameOverScreen" class="message hidden">
+            <h2>游戏结束</h2>
+            <p>最终得分: <span id="finalScore">0</span></p>
+            <button id="restartButton">再玩一次</button>
+        </div>
+    </div>
+
+    <div class="controls hidden">
+        <div class="score-board">
+            <div class="score">得分: <span id="score">0</span></div>
+            <div class="lives">生命: <span id="lives">3</span></div>
+        </div>
+        <div class="instructions">
+            使用 ← → 方向键控制玉兔移动
+        </div>
+    </div>
+
+    <div class="mooncakes">
+        <div class="mooncake"><div class="pattern">囍</div></div>
+        <div class="mooncake"><div class="pattern">福</div></div>
+        <div class="mooncake"><div class="pattern">月</div></div>
+    </div>
+
+    <div class="footer">
+        <p>祝您和您的家人中秋节快乐，团团圆圆，幸福美满！</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreElement = document.getElementById('score');
+            const livesElement = document.getElementById('lives');
+            const startScreen = document.getElementById('startScreen');
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            const finalScoreElement = document.getElementById('finalScore');
+            const startButton = document.getElementById('startButton');
+            const restartButton = document.getElementById('restartButton');
+            const controls = document.querySelector('.controls');
+            const soundControl = document.getElementById('soundControl');
+            
+            // ================================
+            // 配置您的背景音乐MP3地址
+            // ================================
+            const BACKGROUND_MUSIC_URL = 'music.mp3';
+            
+            // 音效变量
+            let moonSound = null;
+            let cloudSound = null;
+            let audioContext = null;
+            let backgroundMusic = null;
+            
+            // 游戏变量
+            let score = 0;
+            let lives = 3;
+            let gameOver = false;
+            let gameRunning = false;
+            let gameSpeed = 2;
+            let soundEnabled = true;
+            
+            // 玩家对象
+            const player = {
+                x: canvas.width / 2,
+                y: canvas.height - 50,
+                width: 60,
+                height: 40,
+                speed: 6,
+                moveLeft: false,
+                moveRight: false
+            };
+            
+            // 月亮数组
+            let moons = [];
+            
+            // 乌云数组
+            let clouds = [];
+            
+            // 星星数组（背景）
+            let stars = [];
+            
+            // 初始化音频
+            function initAudio() {
+                try {
+                    // 创建音频上下文
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // 创建收集月亮的音效（清脆的铃声）
+                    function createMoonSound() {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5
+                        oscillator.frequency.exponentialRampToValueAtTime(1760, audioContext.currentTime + 0.2); // A6
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.start();
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }
+                    
+                    // 创建碰撞乌云音效（低沉的碰撞声）
+                    function createCloudSound() {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.setValueAtTime(110, audioContext.currentTime); // A2
+                        oscillator.frequency.exponentialRampToValueAtTime(55, audioContext.currentTime + 0.2); // A1
+                        
+                        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.start();
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }
+                    
+                    // 分配音效函数
+                    moonSound = createMoonSound;
+                    cloudSound = createCloudSound;
+                    
+                    // 创建背景音乐
+                    if (BACKGROUND_MUSIC_URL && BACKGROUND_MUSIC_URL !== 'https://example.com/your-music.mp3') {
+                        backgroundMusic = new Audio(BACKGROUND_MUSIC_URL);
+                        backgroundMusic.loop = true;
+                        backgroundMusic.volume = 0.5;
+                        console.log("背景音乐加载成功");
+                    } else {
+                        console.warn("请配置有效的背景音乐URL");
+                    }
+                    
+                } catch (e) {
+                    console.error("音频初始化失败:", e);
+                    soundEnabled = false;
+                    soundControl.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                }
+            }
+            
+            // 播放音效
+            function playSound(soundFunction) {
+                if (!soundEnabled || !audioContext) return;
+                
+                try {
+                    // 恢复音频上下文（如果被暂停）
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    
+                    soundFunction();
+                } catch (e) {
+                    console.error("播放音效失败:", e);
+                }
+            }
+            
+            // 播放背景音乐
+            function playBackgroundMusic() {
+                if (!soundEnabled || !backgroundMusic) return;
+                
+                try {
+                    backgroundMusic.currentTime = 0;
+                    backgroundMusic.play().catch(e => {
+                        console.error("播放背景音乐失败:", e);
+                    });
+                } catch (e) {
+                    console.error("播放背景音乐失败:", e);
+                }
+            }
+            
+            // 停止背景音乐
+            function stopBackgroundMusic() {
+                if (backgroundMusic) {
+                    try {
+                        backgroundMusic.pause();
+                    } catch (e) {
+                        console.error("停止背景音乐失败:", e);
+                    }
+                }
+            }
+            
+            // 初始化星星
+            function initStars() {
+                stars = [];
+                for (let i = 0; i < 100; i++) {
+                    stars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 2 + 1,
+                        brightness: Math.random() * 0.5 + 0.5
+                    });
+                }
+            }
+            
+            // 绘制星星
+            function drawStars() {
+                ctx.save();
+                stars.forEach(star => {
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.restore();
+            }
+            
+            // 绘制玩家（玉兔）
+            function drawPlayer() {
+                ctx.save();
+                
+                // 玉兔身体
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.ellipse(player.x, player.y, player.width/2, player.height/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 玉兔耳朵
+                ctx.beginPath();
+                ctx.ellipse(player.x - 15, player.y - 25, 8, 20, -0.3, 0, Math.PI * 2);
+                ctx.ellipse(player.x + 15, player.y - 25, 8, 20, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 玉兔眼睛
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(player.x - 10, player.y - 5, 4, 0, Math.PI * 2);
+                ctx.arc(player.x + 10, player.y - 5, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 玉兔鼻子
+                ctx.fillStyle = '#ff6b6b';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y + 2, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            // 创建月亮
+            function createMoon() {
+                if (Math.random() < 0.03) {
+                    moons.push({
+                        x: Math.random() * (canvas.width - 30),
+                        y: -30,
+                        radius: 15 + Math.random() * 10,
+                        speed: 2 + Math.random() * 2
+                    });
+                }
+            }
+            
+            // 绘制月亮
+            function drawMoons() {
+                ctx.save();
+                moons.forEach(moon => {
+                    // 月亮主体
+                    const gradient = ctx.createRadialGradient(
+                        moon.x, moon.y, 0,
+                        moon.x, moon.y, moon.radius
+                    );
+                    gradient.addColorStop(0, '#fff9c4');
+                    gradient.addColorStop(1, '#ffce54');
+                    
+                    ctx.beginPath();
+                    ctx.arc(moon.x, moon.y, moon.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // 月亮光环
+                    ctx.beginPath();
+                    ctx.arc(moon.x, moon.y, moon.radius + 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(255, 206, 84, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+                ctx.restore();
+            }
+            
+            // 更新月亮位置
+            function updateMoons() {
+                for (let i = moons.length - 1; i >= 0; i--) {
+                    moons[i].y += moons[i].speed;
+                    
+                    // 检测碰撞
+                    const dx = player.x - moons[i].x;
+                    const dy = player.y - moons[i].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < moons[i].radius + player.width/2) {
+                        // 收集月亮，增加分数
+                        score += Math.floor(moons[i].radius / 5);
+                        scoreElement.textContent = score;
+                        
+                        // 播放收集月亮的音效
+                        playSound(moonSound);
+                        
+                        moons.splice(i, 1);
+                        continue;
+                    }
+                    
+                    // 移除超出屏幕的月亮
+                    if (moons[i].y > canvas.height + 30) {
+                        moons.splice(i, 1);
+                    }
+                }
+            }
+            
+            // 创建乌云
+            function createCloud() {
+                if (Math.random() < 0.02) {
+                    clouds.push({
+                        x: Math.random() * (canvas.width - 60),
+                        y: -50,
+                        width: 40 + Math.random() * 40,
+                        height: 30 + Math.random() * 20,
+                        speed: 1 + Math.random() * 2
+                    });
+                }
+            }
+            
+            // 绘制乌云
+            function drawClouds() {
+                ctx.save();
+                clouds.forEach(cloud => {
+                    ctx.fillStyle = '#7f8c8d';
+                    ctx.beginPath();
+                    ctx.ellipse(cloud.x, cloud.y, cloud.width/2, cloud.height/2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 乌云细节
+                    ctx.fillStyle = '#636e72';
+                    ctx.beginPath();
+                    ctx.ellipse(cloud.x - cloud.width/4, cloud.y - cloud.height/4, cloud.width/4, cloud.height/4, 0, 0, Math.PI * 2);
+                    ctx.ellipse(cloud.x + cloud.width/4, cloud.y - cloud.height/4, cloud.width/4, cloud.height/4, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.restore();
+            }
+            
+            // 更新乌云位置
+            function updateClouds() {
+                for (let i = clouds.length - 1; i >= 0; i--) {
+                    clouds[i].y += clouds[i].speed;
+                    
+                    // 检测碰撞
+                    if (
+                        player.x < clouds[i].x + clouds[i].width &&
+                        player.x + player.width/2 > clouds[i].x &&
+                        player.y < clouds[i].y + clouds[i].height &&
+                        player.y + player.height/2 > clouds[i].y
+                    ) {
+                        // 碰到乌云，减少生命
+                        lives--;
+                        livesElement.textContent = lives;
+                        
+                        // 播放碰撞乌云音效
+                        playSound(cloudSound);
+                        
+                        clouds.splice(i, 1);
+                        
+                        if (lives <= 0) {
+                            endGame();
+                        }
+                        continue;
+                    }
+                    
+                    // 移除超出屏幕的乌云
+                    if (clouds[i].y > canvas.height + 50) {
+                        clouds.splice(i, 1);
+                    }
+                }
+            }
+            
+            // 更新玩家位置
+            function updatePlayer() {
+                if (player.moveLeft && player.x > player.width/2) {
+                    player.x -= player.speed;
+                }
+                if (player.moveRight && player.x < canvas.width - player.width/2) {
+                    player.x += player.speed;
+                }
+            }
+            
+            // 绘制背景
+            function drawBackground() {
+                // 绘制夜空
+                ctx.fillStyle = '#0b0f2e';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制星星
+                drawStars();
+                
+                // 绘制远处的山
+                ctx.fillStyle = '#1e272e';
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+                for (let i = 0; i < canvas.width; i += 20) {
+                    const height = canvas.height - 150 - Math.sin(i * 0.01) * 20;
+                    ctx.lineTo(i, height);
+                }
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.fill();
+                
+                // 绘制月亮（背景装饰）
+                ctx.save();
+                const gradient = ctx.createRadialGradient(
+                    canvas.width - 100, 100, 0,
+                    canvas.width - 100, 100, 60
+                );
+                gradient.addColorStop(0, 'rgba(255, 249, 196, 0.8)');
+                gradient.addColorStop(1, 'rgba(255, 206, 84, 0.3)');
+                
+                ctx.beginPath();
+                ctx.arc(canvas.width - 100, 100, 60, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.restore();
+            }
+            
+            // 切换音效
+            function toggleSound() {
+                soundEnabled = !soundEnabled;
+                
+                if (soundEnabled) {
+                    soundControl.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    // 重新开始背景音乐
+                    playBackgroundMusic();
+                } else {
+                    soundControl.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    if (audioContext) {
+                        audioContext.suspend();
+                    }
+                    // 停止背景音乐
+                    stopBackgroundMusic();
+                }
+            }
+            
+            // 游戏结束
+            function endGame() {
+                gameOver = true;
+                gameRunning = false;
+                finalScoreElement.textContent = score;
+                gameOverScreen.classList.remove('hidden');
+                controls.classList.add('hidden');
+                
+                // 停止背景音乐
+                stopBackgroundMusic();
+            }
+            
+            // 重置游戏
+            function resetGame() {
+                score = 0;
+                lives = 3;
+                gameOver = false;
+                scoreElement.textContent = score;
+                livesElement.textContent = lives;
+                player.x = canvas.width / 2;
+                moons = [];
+                clouds = [];
+                gameOverScreen.classList.add('hidden');
+                controls.classList.remove('hidden');
+            }
+            
+            // 开始游戏
+            function startGame() {
+                resetGame();
+                gameRunning = true;
+                startScreen.classList.add('hidden');
+                controls.classList.remove('hidden');
+                
+                // 初始化音频（如果尚未初始化）
+                if (!audioContext) {
+                    initAudio();
+                } else if (soundEnabled) {
+                    // 恢复音频
+                    audioContext.resume();
+                }
+                
+                // 开始背景音乐
+                if (soundEnabled) {
+                    playBackgroundMusic();
+                }
+                
+                gameLoop();
+            }
+            
+            // 游戏主循环
+            function gameLoop() {
+                if (!gameRunning) return;
+                
+                // 清空画布
+                drawBackground();
+                
+                // 更新和绘制游戏对象
+                updatePlayer();
+                drawPlayer();
+                
+                createMoon();
+                updateMoons();
+                drawMoons();
+                
+                createCloud();
+                updateClouds();
+                drawClouds();
+                
+                // 每100分增加游戏速度
+                if (score > 0 && score % 100 === 0) {
+                    gameSpeed = 2 + Math.floor(score / 100) * 0.5;
+                }
+                
+                requestAnimationFrame(gameLoop);
+            }
+            
+            // 初始化游戏
+            function initGame() {
+                initStars();
+                
+                // 事件监听
+                window.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowLeft') player.moveLeft = true;
+                    if (e.key === 'ArrowRight') player.moveRight = true;
+                });
+                
+                window.addEventListener('keyup', function(e) {
+                    if (e.key === 'ArrowLeft') player.moveLeft = false;
+                    if (e.key === 'ArrowRight') player.moveRight = false;
+                });
+                
+                startButton.addEventListener('click', startGame);
+                restartButton.addEventListener('click', startGame);
+                soundControl.addEventListener('click', toggleSound);
+                
+                // 初始绘制
+                drawBackground();
+                drawPlayer();
+                
+                // 预初始化音频
+                initAudio();
+            }
+            
+            // 启动游戏
+            initGame();
+        });
+    </script>
+</body>
+</html>

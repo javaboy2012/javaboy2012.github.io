@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>封面编辑器</title>
+    <link rel="stylesheet" href="style12.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>超简封面文字编辑器</h1>
+            <div class="header-actions">
+                <button id="addTextBtn" class="btn btn-primary" disabled>添加文本</button>
+                <button id="exportBtn" class="btn btn-success" disabled>导出图片</button>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageInput" accept="image/*" hidden>
+                <div class="upload-placeholder">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <p>点击或拖拽图片到此处</p>
+                    <span>支持 JPG、PNG 格式</span>
+                </div>
+            </div>
+
+            <div class="canvas-container" id="canvasContainer" style="display: none;">
+                <canvas id="canvas"></canvas>
+            </div>
+
+            <div class="toolbar" id="toolbar" style="display: none;">
+                <div class="toolbar-section">
+                    <label>字体</label>
+                    <select id="fontFamily">
+                        <option value="Arial">Arial</option>
+                        <option value="微软雅黑">微软雅黑</option>
+                        <option value="宋体">宋体</option>
+                        <option value="黑体">黑体</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                    </select>
+                </div>
+
+                <div class="toolbar-section">
+                    <label>大小</label>
+                    <input type="number" id="fontSize" min="12" max="200" value="32">
+                </div>
+
+                <div class="toolbar-section">
+                    <label>颜色</label>
+                    <input type="color" id="fontColor" value="#ffffff">
+                </div>
+
+                <div class="toolbar-section">
+                    <label>样式</label>
+                    <div class="btn-group">
+                        <button id="boldBtn" class="btn-icon" title="粗体">
+                            <strong>B</strong>
+                        </button>
+                        <button id="italicBtn" class="btn-icon" title="斜体">
+                            <em>I</em>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="toolbar-section">
+                    <label>对齐</label>
+                    <div class="btn-group">
+                        <button id="alignLeft" class="btn-icon" title="左对齐">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="17" y1="10" x2="3" y2="10"></line>
+                                <line x1="21" y1="6" x2="3" y2="6"></line>
+                                <line x1="21" y1="14" x2="3" y2="14"></line>
+                                <line x1="17" y1="18" x2="3" y2="18"></line>
+                            </svg>
+                        </button>
+                        <button id="alignCenter" class="btn-icon active" title="居中">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="10" x2="6" y2="10"></line>
+                                <line x1="21" y1="6" x2="3" y2="6"></line>
+                                <line x1="21" y1="14" x2="3" y2="14"></line>
+                                <line x1="18" y1="18" x2="6" y2="18"></line>
+                            </svg>
+                        </button>
+                        <button id="alignRight" class="btn-icon" title="右对齐">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="21" y1="10" x2="7" y2="10"></line>
+                                <line x1="21" y1="6" x2="3" y2="6"></line>
+                                <line x1="21" y1="14" x2="3" y2="14"></line>
+                                <line x1="21" y1="18" x2="7" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="toolbar-section">
+                    <button id="deleteBtn" class="btn btn-danger" disabled>删除文本</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app12.js"></script>
+</body>
+</html>

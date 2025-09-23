@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片边框与阴影效果生成器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #f0f0f0;
+            --accent: #00b4d8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            min-height: 100vh;
+            color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 背景动画元素 */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(106,17,203,0.2) 0%, rgba(37,117,252,0.1) 50%, transparent 70%);
+            animation: float 15s infinite linear;
+        }
+        
+        .bg-circle:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+        
+        .bg-circle:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 70%;
+            left: 80%;
+            animation-delay: 5s;
+        }
+        
+        .bg-circle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            top: 30%;
+            left: 60%;
+            animation-delay: 10s;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(20px, 20px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 15px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        
+        .preview-section {
+            flex: 1;
+            min-width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .preview-container {
+            width: 100%;
+            max-width: 400px;
+            height: 250px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+            background: rgba(30, 30, 50, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .preview-container.has-image {
+            border: none;
+            background: transparent;
+        }
+        
+        #preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .preview-controls {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 15px;
+        }
+        
+        .controls-section {
+            flex: 1;
+            min-width: 350px;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+        
+        .control-group {
+            background: rgba(22, 33, 62, 0.7);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        h2 i {
+            font-size: 1.1rem;
+        }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        label {
+            width: 110px;
+            font-weight: 500;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(100, 100, 150, 0.3);
+            outline: none;
+            margin: 0 10px;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        input[type="color"] {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 8px;
+            background: transparent;
+        }
+        
+        .value-display {
+            width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(0, 180, 216, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        select {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            outline: none;
+            background: rgba(30, 30, 50, 0.8);
+            color: var(--light);
+            font-size: 0.9rem;
+        }
+        
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .preset {
+            padding: 8px;
+            text-align: center;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.8rem;
+        }
+        
+        .preset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent);
+        }
+        
+        .preset.active {
+            background: var(--accent);
+            color: var(--darker);
+            border-color: var(--accent);
+        }
+        
+        .preset i {
+            font-size: 1rem;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        #upload-btn {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        
+        #download-btn {
+            background: linear-gradient(90deg, #00b09b 0%, #96c93d 100%);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .instructions {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .instructions h3 {
+            color: var(--accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .instructions ul {
+            padding-left: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .feature {
+            background: rgba(30, 30, 50, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .feature:hover {
+            transform: translateY(-3px);
+        }
+        
+        .feature i {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        
+        .feature h3 {
+            color: var(--light);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .feature p {
+            color: #ccc;
+            font-size: 0.75rem;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .preview-section, .controls-section {
+                width: 100%;
+            }
+            
+            .presets {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .preview-section, .controls-section {
+                min-width: 100%;
+            }
+            
+            .preview-container {
+                height: 200px;
+            }
+            
+            .control-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            label {
+                width: 100%;
+            }
+            
+            input[type="range"] {
+                width: 100%;
+                margin: 0;
+            }
+            
+            .presets {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .container {
+                max-height: 98vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-border-style"></i> 图片边框与阴影效果生成器</h1>
+            <p class="subtitle">上传图片并自定义专业级边框与阴影效果</p>
+        </header>
+        
+        <div class="main-content">
+            <section class="preview-section">
+                <div class="preview-container" id="preview-container">
+                    <img id="preview-image" src="" alt="预览图片">
+                    <p id="upload-text">请上传图片</p>
+                </div>
+                
+                <div class="preview-controls">
+                    <div class="buttons">
+                        <button id="upload-btn">
+                            <i class="fas fa-upload"></i> 上传图片
+                        </button>
+                        <button id="download-btn">
+                            <i class="fas fa-download"></i> 下载图片
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-lightbulb"></i> 使用说明</h3>
+                    <ul>
+                        <li>点击"上传图片"按钮选择本地图片文件</li>
+                        <li>使用右侧控制面板调整边框和阴影效果</li>
+                        <li>可选择预设效果快速应用</li>
+                        <li>调整满意后点击"下载图片"保存结果</li>
+                    </ul>
+                </div>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-palette"></i>
+                        <h3>丰富样式</h3>
+                        <p>多种边框样式与阴影效果可选</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <h3>实时预览</h3>
+                        <p>所有调整立即生效，无需等待</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3>响应式设计</h3>
+                        <p>在各类设备上完美展示</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>隐私保护</h3>
+                        <p>图片处理在本地完成，不上传服务器</p>
+                    </div>
+                </div>
+                
+                <input type="file" id="file-input" accept="image/*">
+            </section>
+            
+            <section class="controls-section">
+                <div class="control-group">
+                    <h2><i class="fas fa-square"></i> 边框设置</h2>
+                    
+                    <div class="control-row">
+                        <label for="border-width"><i class="fas fa-arrows-alt-h"></i> 边框宽度</label>
+                        <input type="range" id="border-width" min="0" max="50" value="5">
+                        <span class="value-display" id="border-width-value">5px</span>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label for="border-color"><i class="fas fa-palette"></i> 边框颜色</label>
+                        <input type="color" id="border-color" value="#6a11cb">
+                    </div>
+                    
+                    <div class="control-row">
+                        <label for="border-style"><i class="fas fa-brush"></i> 边框样式</label>
+                        <select id="border-style">
+                            <option value="solid">实线</option>
+                            <option value="dashed">虚线</option>
+                            <option value="dotted">点线</option>
+                            <option value="double">双线</option>
+                            <option value="groove">凹槽</option>
+                            <option value="ridge">凸槽</option>
+                            <option value="inset">内凹</option>
+                            <option value="outset">外凸</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h2><i class="fas fa-cloud"></i> 阴影设置</h2>
+                    
+                    <div class="control-row">
+                        <label for="shadow-h"><i class="fas fa-arrows-alt-h"></i> 水平偏移</label>
+                        <input type="range" id="shadow-h" min="-50" max="50" value="10">
+                        <span class="value-display" id="shadow-h-value">10px</span>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label for="shadow-v"><i class="fas fa-arrows-alt-v"></i> 垂直偏移</label>
+                        <input type="range" id="shadow-v" min="-50" max="50" value="10">
+                        <span class="value-display" id="shadow-v-value">10px</span>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label for="shadow-blur"><i class="fas fa-expand"></i> 模糊半径</label>
+                        <input type="range" id="shadow-blur" min="0" max="100" value="15">
+                        <span class="value-display" id="shadow-blur-value">15px</span>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label for="shadow-color"><i class="fas fa-tint"></i> 阴影颜色</label>
+                        <input type="color" id="shadow-color" value="#000000">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h2><i class="fas fa-magic"></i> 预设效果</h2>
+                    <div class="presets">
+                        <div class="preset" data-preset="elegant">
+                            <i class="fas fa-crown"></i>
+                            <span>优雅边框</span>
+                        </div>
+                        <div class="preset" data-preset="shadow-heavy">
+                            <i class="fas fa-moon"></i>
+                            <span>重阴影</span>
+                        </div>
+                        <div class="preset" data-preset="shadow-light">
+                            <i class="fas fa-sun"></i>
+                            <span>轻阴影</span>
+                        </div>
+                        <div class="preset" data-preset="vintage">
+                            <i class="fas fa-history"></i>
+                            <span>复古效果</span>
+                        </div>
+                        <div class="preset" data-preset="modern">
+                            <i class="fas fa-building"></i>
+                            <span>现代风格</span>
+                        </div>
+                        <div class="preset" data-preset="minimal">
+                            <i class="fas fa-minimize"></i>
+                            <span>极简风格</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImage = document.getElementById('preview-image');
+        const uploadText = document.getElementById('upload-text');
+        
+        // 边框控制元素
+        const borderWidth = document.getElementById('border-width');
+        const borderWidthValue = document.getElementById('border-width-value');
+        const borderColor = document.getElementById('border-color');
+        const borderStyle = document.getElementById('border-style');
+        
+        // 阴影控制元素
+        const shadowH = document.getElementById('shadow-h');
+        const shadowHValue = document.getElementById('shadow-h-value');
+        const shadowV = document.getElementById('shadow-v');
+        const shadowVValue = document.getElementById('shadow-v-value');
+        const shadowBlur = document.getElementById('shadow-blur');
+        const shadowBlurValue = document.getElementById('shadow-blur-value');
+        const shadowColor = document.getElementById('shadow-color');
+        
+        // 预设效果按钮
+        const presets = document.querySelectorAll('.preset');
+        
+        // 上传按钮点击事件
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // 文件选择事件
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.classList.add('has-image');
+                    uploadText.style.display = 'none';
+                    updateImageStyle();
+                };
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // 更新图片样式
+        function updateImageStyle() {
+            const borderWidthVal = borderWidth.value + 'px';
+            const borderColorVal = borderColor.value;
+            const borderStyleVal = borderStyle.value;
+            
+            const shadowHVal = shadowH.value + 'px';
+            const shadowVVal = shadowV.value + 'px';
+            const shadowBlurVal = shadowBlur.value + 'px';
+            const shadowColorVal = shadowColor.value;
+            
+            previewImage.style.border = `${borderWidthVal} ${borderStyleVal} ${borderColorVal}`;
+            previewImage.style.boxShadow = `${shadowHVal} ${shadowVVal} ${shadowBlurVal} ${shadowColorVal}`;
+        }
+        
+        // 边框宽度变化事件
+        borderWidth.addEventListener('input', function() {
+            borderWidthValue.textContent = this.value + 'px';
+            updateImageStyle();
+        });
+        
+        // 边框颜色变化事件
+        borderColor.addEventListener('input', updateImageStyle);
+        
+        // 边框样式变化事件
+        borderStyle.addEventListener('change', updateImageStyle);
+        
+        // 阴影水平偏移变化事件
+        shadowH.addEventListener('input', function() {
+            shadowHValue.textContent = this.value + 'px';
+            updateImageStyle();
+        });
+        
+        // 阴影垂直偏移变化事件
+        shadowV.addEventListener('input', function() {
+            shadowVValue.textContent = this.value + 'px';
+            updateImageStyle();
+        });
+        
+        // 阴影模糊半径变化事件
+        shadowBlur.addEventListener('input', function() {
+            shadowBlurValue.textContent = this.value + 'px';
+            updateImageStyle();
+        });
+        
+        // 阴影颜色变化事件
+        shadowColor.addEventListener('input', updateImageStyle);
+        
+        // 预设效果点击事件
+        presets.forEach(preset => {
+            preset.addEventListener('click', function() {
+                // 移除所有预设的active类
+                presets.forEach(p => p.classList.remove('active'));
+                // 为当前点击的预设添加active类
+                this.classList.add('active');
+                
+                const presetType = this.getAttribute('data-preset');
+                
+                switch(presetType) {
+                    case 'elegant':
+                        borderWidth.value = 8;
+                        borderColor.value = '#6a11cb';
+                        borderStyle.value = 'solid';
+                        shadowH.value = 15;
+                        shadowV.value = 15;
+                        shadowBlur.value = 20;
+                        shadowColor.value = '#000000';
+                        break;
+                    case 'shadow-heavy':
+                        borderWidth.value = 0;
+                        shadowH.value = 20;
+                        shadowV.value = 20;
+                        shadowBlur.value = 30;
+                        shadowColor.value = '#000000';
+                        break;
+                    case 'shadow-light':
+                        borderWidth.value = 0;
+                        shadowH.value = 5;
+                        shadowV.value = 5;
+                        shadowBlur.value = 10;
+                        shadowColor.value = '#000000';
+                        break;
+                    case 'vintage':
+                        borderWidth.value = 15;
+                        borderColor.value = '#8B4513';
+                        borderStyle.value = 'double';
+                        shadowH.value = 10;
+                        shadowV.value = 10;
+                        shadowBlur.value = 15;
+                        shadowColor.value = '#8B4513';
+                        break;
+                    case 'modern':
+                        borderWidth.value = 2;
+                        borderColor.value = '#333';
+                        borderStyle.value = 'solid';
+                        shadowH.value = 0;
+                        shadowV.value = 10;
+                        shadowBlur.value = 20;
+                        shadowColor.value = '#000000';
+                        break;
+                    case 'minimal':
+                        borderWidth.value = 1;
+                        borderColor.value = '#ddd';
+                        borderStyle.value = 'solid';
+                        shadowH.value = 0;
+                        shadowV.value = 0;
+                        shadowBlur.value = 0;
+                        break;
+                }
+                
+                // 更新显示的值
+                borderWidthValue.textContent = borderWidth.value + 'px';
+                shadowHValue.textContent = shadowH.value + 'px';
+                shadowVValue.textContent = shadowV.value + 'px';
+                shadowBlurValue.textContent = shadowBlur.value + 'px';
+                
+                updateImageStyle();
+            });
+        });
+        
+        // 下载按钮点击事件
+        downloadBtn.addEventListener('click', function() {
+            if (!previewImage.src) {
+                alert('请先上传图片！');
+                return;
+            }
+            
+            // 创建一个canvas元素来绘制带效果的图片
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置canvas尺寸与图片相同
+            canvas.width = previewImage.naturalWidth;
+            canvas.height = previewImage.naturalHeight;
+            
+            // 绘制阴影
+            ctx.shadowOffsetX = parseInt(shadowH.value);
+            ctx.shadowOffsetY = parseInt(shadowV.value);
+            ctx.shadowBlur = parseInt(shadowBlur.value);
+            ctx.shadowColor = shadowColor.value;
+            
+            // 绘制边框
+            const borderWidthVal = parseInt(borderWidth.value);
+            if (borderWidthVal > 0) {
+                ctx.fillStyle = borderColor.value;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // 绘制图片（减去边框宽度）
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.shadowBlur = 0;
+            ctx.drawImage(
+                previewImage, 
+                borderWidthVal, 
+                borderWidthVal, 
+                canvas.width - borderWidthVal * 2, 
+                canvas.height - borderWidthVal * 2
+            );
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.download = 'styled-image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+        
+        // 初始化
+        updateImageStyle();
+    </script>
+</body>
+</html>

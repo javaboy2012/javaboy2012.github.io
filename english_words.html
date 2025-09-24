@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初中单词卡片学习</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            margin: 0 auto 30px;
+        }
+        
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+            cursor: pointer;
+            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            border-radius: 15px;
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+        
+        .card-front {
+            background-color: #ffffff;
+            color: #2c3e50;
+        }
+        
+        .card-back {
+            background-color: #3498db;
+            color: white;
+            transform: rotateY(180deg);
+            text-align: left;
+            overflow-y: auto;
+        }
+        
+        .word {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .pronunciation {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #7f8c8d;
+        }
+        
+        .hint {
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+        
+        .part-of-speech {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .definition {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .example {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .example-en {
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        
+        .example-cn {
+            color: #ecf0f1;
+        }
+        
+        .word-image {
+            width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .sound-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #3498db;
+            margin-left: 10px;
+        }
+        
+        .progress {
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            .card-container {
+                height: 400px;
+            }
+            
+            .word {
+                font-size: 2.5rem;
+            }
+            
+            .card-face {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>初中单词卡片学习</h1>
+            <p class="subtitle">点击卡片查看释义，点击"下一个"学习新单词</p>
+        </header>
+        
+        <div class="card-container">
+            <div class="card">
+                <div class="card-face card-front">
+                    <div class="word" id="word">Vocabulary</div>
+                    <div class="pronunciation" id="pronunciation">/vəˈkæbjələri/</div>
+                    <button class="sound-btn" id="sound-btn-front">🔊</button>
+                    <p class="hint">点击卡片查看释义</p>
+                </div>
+                <div class="card-face card-back">
+                    <div class="pronunciation" id="pronunciation-back">/vəˈkæbjələri/</div>
+                    <button class="sound-btn" id="sound-btn-back">🔊</button>
+                    <span class="part-of-speech" id="part-of-speech">n. 名词</span>
+                    <div class="definition" id="definition">词汇；词汇量</div>
+                    <div class="example">
+                        <div class="example-en" id="example-en">Reading books regularly can help you expand your vocabulary.</div>
+                        <div class="example-cn" id="example-cn">定期阅读书籍可以帮助你扩大词汇量。</div>
+                    </div>
+                    <img class="word-image" id="word-image" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="单词配图">
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="flip-btn">翻转卡片</button>
+            <button id="next-btn">下一个单词</button>
+        </div>
+        
+        <div class="progress" id="progress">单词 1/10</div>
+    </div>
+
+    <script>
+        // 初中单词数据库 - 可以轻松添加或修改单词
+        const wordDatabase = [
+            {
+                word: "Apple",
+                pronunciation: "/ˈæpl/",
+                partOfSpeech: "n. 名词",
+                definition: "苹果",
+                exampleEn: "I eat an apple every day.",
+                exampleCn: "我每天吃一个苹果。",
+                image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Book",
+                pronunciation: "/bʊk/",
+                partOfSpeech: "n. 名词",
+                definition: "书；书籍",
+                exampleEn: "I read a book before going to bed.",
+                exampleCn: "我睡觉前读一本书。",
+                image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Classroom",
+                pronunciation: "/ˈklæsruːm/",
+                partOfSpeech: "n. 名词",
+                definition: "教室",
+                exampleEn: "Our classroom is bright and clean.",
+                exampleCn: "我们的教室明亮又干净。",
+                image: "https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Dance",
+                pronunciation: "/dæns/",
+                partOfSpeech: "v. 动词",
+                definition: "跳舞",
+                exampleEn: "She loves to dance to pop music.",
+                exampleCn: "她喜欢跟着流行音乐跳舞。",
+                image: "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Elephant",
+                pronunciation: "/ˈelɪfənt/",
+                partOfSpeech: "n. 名词",
+                definition: "大象",
+                exampleEn: "The elephant is the largest land animal.",
+                exampleCn: "大象是最大的陆地动物。",
+                image: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Family",
+                pronunciation: "/ˈfæməli/",
+                partOfSpeech: "n. 名词",
+                definition: "家庭；家人",
+                exampleEn: "My family has four members.",
+                exampleCn: "我的家庭有四名成员。",
+                image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Garden",
+                pronunciation: "/ˈɡɑːrdn/",
+                partOfSpeech: "n. 名词",
+                definition: "花园",
+                exampleEn: "We grow vegetables in our garden.",
+                exampleCn: "我们在花园里种蔬菜。",
+                image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Homework",
+                pronunciation: "/ˈhoʊmwɜːrk/",
+                partOfSpeech: "n. 名词",
+                definition: "家庭作业",
+                exampleEn: "I need to finish my homework before dinner.",
+                exampleCn: "我需要在晚饭前完成家庭作业。",
+                image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Internet",
+                pronunciation: "/ˈɪntərnet/",
+                partOfSpeech: "n. 名词",
+                definition: "互联网",
+                exampleEn: "We use the internet to search for information.",
+                exampleCn: "我们使用互联网搜索信息。",
+                image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            },
+            {
+                word: "Journey",
+                pronunciation: "/ˈdʒɜːrni/",
+                partOfSpeech: "n. 名词",
+                definition: "旅程；旅行",
+                exampleEn: "The journey from Beijing to Shanghai takes about five hours by train.",
+                exampleCn: "从北京到上海的火车旅程大约需要五个小时。",
+                image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            }
+        ];
+
+        // 获取DOM元素
+        const card = document.querySelector('.card');
+        const flipBtn = document.getElementById('flip-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const wordElement = document.getElementById('word');
+        const pronunciationElement = document.getElementById('pronunciation');
+        const pronunciationBackElement = document.getElementById('pronunciation-back');
+        const partOfSpeechElement = document.getElementById('part-of-speech');
+        const definitionElement = document.getElementById('definition');
+        const exampleEnElement = document.getElementById('example-en');
+        const exampleCnElement = document.getElementById('example-cn');
+        const wordImageElement = document.getElementById('word-image');
+        const progressElement = document.getElementById('progress');
+        const soundBtnFront = document.getElementById('sound-btn-front');
+        const soundBtnBack = document.getElementById('sound-btn-back');
+
+        // 当前单词索引
+        let currentIndex = 0;
+        let usedIndices = new Set();
+
+        // 翻转卡片功能
+        function flipCard() {
+            card.classList.toggle('flipped');
+        }
+
+        // 发音功能
+        function speakWord() {
+            const currentWord = wordDatabase[currentIndex].word;
+            const utterance = new SpeechSynthesisUtterance(currentWord);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8; // 稍慢的语速，适合学习
+            
+            // 检查浏览器是否支持语音合成
+            if ('speechSynthesis' in window) {
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('抱歉，您的浏览器不支持语音合成功能。');
+            }
+        }
+
+        // 显示随机单词
+        function showRandomWord() {
+            // 确保卡片翻回正面
+            card.classList.remove('flipped');
+            
+            // 如果所有单词都已使用，重置
+            if (usedIndices.size >= wordDatabase.length) {
+                usedIndices.clear();
+            }
+            
+            // 获取随机索引（确保不重复）
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * wordDatabase.length);
+            } while (usedIndices.has(randomIndex));
+            
+            usedIndices.add(randomIndex);
+            currentIndex = randomIndex;
+            
+            // 更新单词信息
+            const currentWord = wordDatabase[currentIndex];
+            wordElement.textContent = currentWord.word;
+            pronunciationElement.textContent = currentWord.pronunciation;
+            pronunciationBackElement.textContent = currentWord.pronunciation;
+            partOfSpeechElement.textContent = currentWord.partOfSpeech;
+            definitionElement.textContent = currentWord.definition;
+            exampleEnElement.textContent = currentWord.exampleEn;
+            exampleCnElement.textContent = currentWord.exampleCn;
+            wordImageElement.src = currentWord.image;
+            wordImageElement.alt = currentWord.word;
+            
+            // 更新进度
+            progressElement.textContent = `单词 ${usedIndices.size}/${wordDatabase.length}`;
+        }
+
+        // 事件监听
+        card.addEventListener('click', flipCard);
+        flipBtn.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', showRandomWord);
+        soundBtnFront.addEventListener('click', speakWord);
+        soundBtnBack.addEventListener('click', speakWord);
+
+        // 初始化显示第一个单词
+        showRandomWord();
+    </script>
+</body>
+</html>

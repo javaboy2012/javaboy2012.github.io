@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>红包封面生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: #333;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" width="100" height="100"/><path fill="%23ff6b6b" opacity="0.1" d="M30,30 L30,70 L70,70 L70,30 Z M20,20 L20,80 L80,80 L80,20 Z M10,10 L10,90 L90,90 L90,10 Z"/></svg>');
+            z-index: -1;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #ff4e4e, #ff9d4e);
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 6px 16px rgba(255, 78, 78, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "福";
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 60px;
+            opacity: 0.2;
+            transform: rotate(15deg);
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .input-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .prompt-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .prompt-input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+        
+        .generate-btn {
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #ff6b6b, #ff9d4e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .generate-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .style-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #fff;
+            position: relative;
+            padding-left: 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            height: 25px;
+            width: 6px;
+            background: linear-gradient(to bottom, #ff6b6b, #ff9d4e);
+            border-radius: 3px;
+        }
+        
+        .style-templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .template {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            background: white;
+        }
+        
+        .template:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .template.active {
+            box-shadow: 0 0 0 4px #ff6b6b, 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .template-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .template-name {
+            padding: 15px;
+            text-align: center;
+            background: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #d32f2f;
+        }
+        
+        .preview-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .preview-title {
+            font-size: 1.3rem;
+            color: #d32f2f;
+            font-weight: 500;
+        }
+        
+        .preview-image {
+            width: 320px;
+            height: 420px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            border: 8px solid white;
+        }
+        
+        .preview-placeholder {
+            color: #d32f2f;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .preview-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 8px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 107, 107, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff6b6b;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .regenerate-btn {
+            background: linear-gradient(135deg, #2196F3, #0b7dda);
+            color: white;
+        }
+        
+        .regenerate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .action-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .error-message {
+            color: #f44336;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .style-templates {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .preview-image {
+                width: 100%;
+                max-width: 300px;
+                height: 400px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🧧 红包封面生成器</h1>
+        <p class="subtitle">AI智能生成专属红包封面，让祝福更有心意</p>
+    </header>
+    
+    <section class="input-section">
+        <div class="input-group">
+            <input type="text" class="prompt-input" placeholder="请输入红包封面的主题，例如：新春祝福、生日快乐、结婚喜庆..." id="promptInput">
+            <button class="generate-btn" id="generateBtn">生成红包封面</button>
+        </div>
+        <p style="color: #d32f2f; margin-top: 10px;">提示：输入越详细，生成效果越好。例如："带有金色福字和红色背景的新春红包"</p>
+    </section>
+    
+    <section class="style-section">
+        <h2 class="section-title">选择风格模板</h2>
+        <div class="style-templates" id="styleTemplates">
+            <!-- 模板将通过JavaScript动态生成 -->
+        </div>
+    </section>
+    
+    <section class="preview-section">
+        <h2 class="section-title" style="color: #d32f2f;">预览与下载</h2>
+        <div class="preview-container">
+            <p class="preview-title">生成的红包封面将显示在这里</p>
+            <div class="preview-image">
+                <div class="preview-placeholder">输入提示词并选择风格后点击生成</div>
+                <img id="previewImg" src="" alt="生成的红包封面">
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <p style="color: #d32f2f; font-weight: 500;">AI正在生成红包封面，请稍候...</p>
+                </div>
+            </div>
+            <div class="error-message" id="errorMessage">
+                生成失败，请重试或检查网络连接
+            </div>
+            <div class="result-actions">
+                <button class="action-btn download-btn" id="downloadBtn" disabled>下载封面</button>
+                <button class="action-btn regenerate-btn" id="regenerateBtn" disabled>重新生成</button>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <p>红包封面生成器 &copy; 2023 | 本工具仅用于演示目的</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // API配置
+            const API_URL = 'https://api.coze.cn/v1/workflow/run';
+            const BEARER_TOKEN = 'pat_12Fdm4MJfNbzAiLo4Z0dqhkoD2xgMYNhYxK33iTpDTb9obgWv8fpjMo4JaugTrcyMGgnV333';
+            const WORKFLOW_ID = '7561275430251823158';
+            
+            // 模板数据 - 添加了喜庆的图片URL
+            const templates = [
+                { 
+                    id: 1, 
+                    name: "传统中国风", 
+                    value: "传统中国风",
+                    image: "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 2, 
+                    name: "简约现代风", 
+                    value: "简约现代风",
+                    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 3, 
+                    name: "可爱卡通风", 
+                    value: "可爱卡通风",
+                    image: "https://images.unsplash.com/photo-1578632749014-ca77efd052eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 4, 
+                    name: "喜庆节日风", 
+                    value: "喜庆节日风",
+                    image: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 5, 
+                    name: "商务典雅风", 
+                    value: "商务典雅风",
+                    image: "https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                },
+                { 
+                    id: 6, 
+                    name: "国潮新中式", 
+                    value: "国潮新中式",
+                    image: "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                }
+            ];
+            
+            // 获取DOM元素
+            const styleTemplates = document.getElementById('styleTemplates');
+            const promptInput = document.getElementById('promptInput');
+            const generateBtn = document.getElementById('generateBtn');
+            const previewImg = document.getElementById('previewImg');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const regenerateBtn = document.getElementById('regenerateBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            let selectedTemplate = null;
+            let generatedImageUrl = null;
+            
+            // 渲染风格模板
+            templates.forEach(template => {
+                const templateElement = document.createElement('div');
+                templateElement.className = 'template';
+                templateElement.innerHTML = `
+                    <div class="template-img" style="background-image: url('${template.image}'); background-size: cover; background-position: center;"></div>
+                    <div class="template-name">${template.name}</div>
+                `;
+                
+                templateElement.addEventListener('click', () => {
+                    // 移除所有模板的active类
+                    document.querySelectorAll('.template').forEach(t => t.classList.remove('active'));
+                    // 添加当前模板的active类
+                    templateElement.classList.add('active');
+                    selectedTemplate = template;
+                });
+                
+                styleTemplates.appendChild(templateElement);
+            });
+            
+            // 生成按钮点击事件
+            generateBtn.addEventListener('click', generateRedPacket);
+            
+            // 重新生成按钮点击事件
+            regenerateBtn.addEventListener('click', generateRedPacket);
+            
+            // 下载按钮点击事件
+            downloadBtn.addEventListener('click', function() {
+                if (generatedImageUrl) {
+                    // 创建一个临时链接进行下载
+                    const link = document.createElement('a');
+                    link.href = generatedImageUrl;
+                    link.download = '红包封面.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            });
+            
+            // 生成红包封面函数
+            async function generateRedPacket() {
+                const prompt = promptInput.value.trim();
+                
+                if (!prompt) {
+                    alert('请输入红包封面的描述');
+                    return;
+                }
+                
+                if (!selectedTemplate) {
+                    alert('请选择一个风格模板');
+                    return;
+                }
+                
+                // 显示加载状态
+                loadingIndicator.style.display = 'flex';
+                errorMessage.style.display = 'none';
+                generateBtn.disabled = true;
+                previewImg.style.display = 'none';
+                document.querySelector('.preview-placeholder').style.display = 'none';
+                
+                try {
+                    // 调用API生成红包封面
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${BEARER_TOKEN}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            workflow_id: WORKFLOW_ID,
+                            parameters: {
+                                input: prompt,
+                                stye: selectedTemplate.value
+                            }
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API请求失败: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    // 检查API响应是否成功
+                    if (result && result.code === 0) {
+                        // 解析data字段中的JSON字符串
+                        const dataObj = JSON.parse(result.data);
+                        
+                        // 从dataObj中获取图片URL
+                        if (dataObj && dataObj.data) {
+                            generatedImageUrl = dataObj.data;
+                            
+                            // 更新预览
+                            previewImg.src = generatedImageUrl;
+                            previewImg.style.display = 'block';
+                            
+                            // 启用下载和重新生成按钮
+                            downloadBtn.disabled = false;
+                            regenerateBtn.disabled = false;
+                        } else {
+                            throw new Error('API响应中没有找到图片URL');
+                        }
+                    } else {
+                        throw new Error(`API返回错误: ${result.msg || '未知错误'}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('生成红包封面时出错:', error);
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = `生成失败: ${error.message}`;
+                } finally {
+                    // 隐藏加载状态
+                    loadingIndicator.style.display = 'none';
+                    generateBtn.disabled = false;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

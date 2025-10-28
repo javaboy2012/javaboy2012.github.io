@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二康的Vibe Coding编程设计作品</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #ff00cc, #3333ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 0, 204, 0.3);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff00cc, #3333ff);
+            border-radius: 3px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #a0a0e0;
+            max-width: 700px;
+            margin: 20px auto;
+            line-height: 1.6;
+        }
+
+        .author-tag {
+            display: inline-block;
+            background: rgba(255, 0, 204, 0.1);
+            color: #ff66cc;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 0, 204, 0.3);
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.2);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .work-card {
+            background: rgba(20, 20, 35, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 100, 255, 0.1);
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .work-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(51, 51, 255, 0.2);
+            border-color: rgba(100, 100, 255, 0.4);
+        }
+
+        .work-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff00cc, #3333ff);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+            z-index: 2;
+        }
+
+        .work-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .work-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            filter: brightness(0.9);
+        }
+
+        .work-card:hover .work-image {
+            transform: scale(1.08);
+            filter: brightness(1.1);
+        }
+
+        .work-info {
+            padding: 25px;
+        }
+
+        .work-title {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: #ff66cc;
+            font-weight: 600;
+        }
+
+        .work-description {
+            color: #b8c2e0;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            gap: 12px;
+        }
+
+        .page-btn {
+            background: rgba(20, 20, 35, 0.8);
+            color: #fff;
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .page-btn:hover {
+            background: rgba(255, 0, 204, 0.2);
+            border-color: rgba(255, 0, 204, 0.5);
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.3);
+        }
+
+        .page-btn.active {
+            background: rgba(255, 0, 204, 0.3);
+            border-color: rgba(255, 0, 204, 0.8);
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.4);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #a0a0e0;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .vibe-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff00cc, #3333ff);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>二康的Vibe Coding</h1>
+            <p class="subtitle">探索编程与设计的完美融合，展现创意与技术的无限可能。二康的Vibe Coding作品集展示了前沿的编程美学与创新的用户体验设计。</p>
+            <div class="author-tag">编程设计师 · 二康</div>
+        </header>
+
+        <div class="gallery" id="gallery">
+            <!-- 作品将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="pagination" id="pagination">
+            <!-- 分页按钮将通过JavaScript动态生成 -->
+        </div>
+
+        <footer>
+            <p>© 2025 二康的Vibe Coding | 编程与设计的融合</p>
+            <div class="vibe-badge">VIBE CODING</div>
+        </footer>
+    </div>
+
+    <script>
+        // 作品数据 - 可以替换为您自己的数据
+        const works = [
+            {
+                id: 1,
+                title: "抖音视频文案提取和改写",
+                description: "抖音视频文案提取和改写。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1760600840036-0fbbe56a32d41171b4fe74a84730df89.png",
+                linkUrl: "https://javaboy2012.github.io/douyintiqu.html"
+            },
+            {
+                id: 2,
+                title: "量子压缩工具",
+                description: "量子压缩工具。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1761637516978-33c3e1cb-23f9-4dd3-8a38-7b9ad9fc43f7.png",
+                linkUrl: "https://javaboy2012.github.io/yasuo.html"
+            },
+            {
+                id: 3,
+                title: "经典俄罗斯方块小游戏",
+                description: "经典俄罗斯方块小游戏",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758350998666-3e93502b03b2b350d7f7e7d31c673fcc.png",
+                linkUrl: "https://javaboy2012.github.io/tetris.html"
+            },
+            {
+                id: 4,
+                title: "英语单词学习卡片",
+                description: "英语单词学习卡片。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758693286806-f42ca3d9-066b-4572-88c0-531f746519e6.png",
+                linkUrl: "https://javaboy2012.github.io/english_words.html"
+            },
+            {
+                id: 5,
+                title: "节日红包封面生成器",
+                description: "节日红包封面生成器。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1760602117777-1428bcc1a32c40f50cc034d8d8a7e4b5.png",
+                linkUrl: "https://javaboy2012.github.io/redpackage.html"
+            },
+            {
+                id: 6,
+                title: "图片边框阴影设计器",
+                description: "图片边框阴影设计器。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758618010994-c412e65d-a9a4-46c4-b5b1-d28b2c3300d3.png",
+                linkUrl: "https://javaboy2012.github.io/border_edit.html"
+            },
+            {
+                id: 7,
+                title: "中秋赏月-古诗词精选",
+                description: "中秋赏月-古诗词精选。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758810500105-eaa7a6ec-83fb-46eb-a9cb-3f0d49e5dbd1.png",
+                linkUrl: "https://javaboy2012.github.io/shige.html"
+            },
+            {
+                id: 8,
+                title: "新鲜出炉的提示词网站静态页面站点",
+                description: "新鲜出炉的提示词网站静态页面站点",
+                imageUrl: "https://cdn.aipoju-showcase.online/1760610138322-02712a26-8b0e-47de-aecd-8110488fa4cb.png",
+                linkUrl: "https://javaboy2012.github.io/prompt.html"
+            },
+            {
+                id: 9,
+                title: "个人网站",
+                description: "个人网站。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1760601200209-84b225d7-3e8d-4f7a-a71d-c8f8e4f1a366.png",
+                linkUrl: "https://erkang.online"
+            },
+            {
+                id: 10,
+                title: "多主题风格MP3播放器",
+                description: "主题风格MP3播放器。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758450357529-502ecbc0-e68b-43cd-9451-43253f3478b5.png",
+                linkUrl: "https://javaboy2012.github.io/mp3_player.html"
+            },
+            {
+                id: 11,
+                title: "MP4转MP3专业工具",
+                description: "MP4转MP3专业工具。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1760258898179-ff2902b0-e5e5-4bef-9178-0a0a2bbc92ba.png",
+                linkUrl: "https://cdn.aipoju-showcase.online/1760258898179-ff2902b0-e5e5-4bef-9178-0a0a2bbc92ba.png"
+            },
+            {
+                id: 12,
+                title: "中秋节快乐-玉兔摘月小游戏",
+                description: "中秋节快乐-玉兔摘月小游戏",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758431085591-94f5d61e-c33c-40a5-a7de-7889157b96cd.png",
+                linkUrl: "https://javaboy2012.github.io/zhongqiugame2025.html"
+            },
+            {
+                id: 13,
+                title: "简易图片文字编辑器",
+                description: "简易图片文字编辑器。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758618910322-1adf08c5-a053-4360-a5e3-f2282795f2e2.png",
+                linkUrl: "https://javaboy2012.github.io/cover_editor.html"
+            },
+            {
+                id: 14,
+                title: "web网页调用Deepseek聊天",
+                description: "web网页调用Deepseek聊天。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758352003413-8bca404b-2cba-4efd-a8e5-c1599d237484.png",
+                linkUrl: "https://cdn.aipoju-showcase.online/1758352006543-ai-chat-assistant_demo.html"
+            },
+            {
+                id: 15,
+                title: "订单管理系统",
+                description: "结订单管理系统。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758358103785-349b29c84a75b8d2fcb5417d8cb64ed1.png",
+                linkUrl: "https://cdn.aipoju-showcase.online/1758358103785-349b29c84a75b8d2fcb5417d8cb64ed1.png"
+            },
+            {
+                id: 16,
+                title: "订单管理系统",
+                description: "订单管理系统。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758361419859-ordernew.png",
+                linkUrl: "https://javaboy2012.github.io/ordernew.png"
+            },
+            {
+                id: 17,
+                title: "中文起名",
+                description: "支持多人实时协作的在线代码编辑器，提升团队编程效率。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758351166640-89688d0f-3434-4cc2-940a-20068383fadf.png",
+                linkUrl: "https://javaboy2012.github.io/"
+            },
+            {
+                id: 18,
+                title: "我的待办事项",
+                description: "我的待办事项。",
+                imageUrl: "https://cdn.aipoju-showcase.online/1758351425593-cc996935-16b4-41de-8164-0a356abe20e5.png",
+                linkUrl: "https://javaboy2012.github.io/todo-app.html"
+            }
+        ];
+
+        // 分页配置
+        const itemsPerPage = 6;
+        let currentPage = 1;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            renderWorks();
+            renderPagination();
+        });
+
+        // 渲染作品
+        function renderWorks() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const worksToShow = works.slice(startIndex, endIndex);
+
+            worksToShow.forEach(work => {
+                const workCard = document.createElement('div');
+                workCard.className = 'work-card';
+                workCard.innerHTML = `
+                    <img src="${work.imageUrl}" alt="${work.title}" class="work-image" onclick="openProject('${work.linkUrl}')">
+                    <div class="work-info">
+                        <h3 class="work-title">${work.title}</h3>
+                        <p class="work-description">${work.description}</p>
+                    </div>
+                `;
+                gallery.appendChild(workCard);
+            });
+        }
+
+        // 渲染分页按钮
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = Math.ceil(works.length / itemsPerPage);
+
+            // 上一页按钮
+            const prevButton = document.createElement('button');
+            prevButton.className = 'page-btn';
+            prevButton.textContent = '上一页';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderWorks();
+                    renderPagination();
+                }
+            });
+            pagination.appendChild(prevButton);
+
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageButton.textContent = i;
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    renderWorks();
+                    renderPagination();
+                });
+                pagination.appendChild(pageButton);
+            }
+
+            // 下一页按钮
+            const nextButton = document.createElement('button');
+            nextButton.className = 'page-btn';
+            nextButton.textContent = '下一页';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderWorks();
+                    renderPagination();
+                }
+            });
+            pagination.appendChild(nextButton);
+        }
+
+        // 打开项目链接
+        function openProject(url) {
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

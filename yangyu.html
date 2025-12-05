@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>梦幻互动水族馆 | 在线养鱼游戏</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a2a43 0%, #1a5a7a 100%);
+            color: #e6f7ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0 30px;
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #80e1ff, #4a9dff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 150, 255, 0.2);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .aquarium-container {
+            flex: 1;
+            min-width: 700px;
+            background: rgba(0, 20, 40, 0.7);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(100, 200, 255, 0.1);
+            position: relative;
+        }
+        
+        .aquarium-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #051a2d 0%, #093353 30%, #0a4a75 100%);
+        }
+        
+        #aquariumCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .aquarium-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .controls-panel {
+            flex: 0 0 350px;
+            background: rgba(10, 30, 50, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 200, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        
+        .panel-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #80e1ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            font-size: 1.6rem;
+        }
+        
+        .control-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.1);
+        }
+        
+        .control-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #a6e3ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-section h3 i {
+            font-size: 1.1rem;
+        }
+        
+        .fish-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .fish-btn {
+            background: linear-gradient(to bottom right, #1a5a7a, #0e3a5c);
+            border: none;
+            border-radius: 12px;
+            padding: 15px 10px;
+            color: #e6f7ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fish-btn:hover {
+            background: linear-gradient(to bottom right, #2a6a8a, #1e4a6c);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fish-btn i {
+            font-size: 1.8rem;
+        }
+        
+        .food-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .food-btn {
+            flex: 1;
+            min-width: 80px;
+            background: linear-gradient(to bottom right, #2d7a5c, #1a5a3c);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 8px;
+            color: #e6f7ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .food-btn:hover {
+            background: linear-gradient(to bottom right, #3d8a6c, #2a6a4c);
+            transform: translateY(-2px);
+        }
+        
+        .slider-container {
+            margin-top: 10px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #0e3a5c;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a9dff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(74, 157, 255, 0.7);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 30, 60, 0.5);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #80e1ff;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0, 40, 80, 0.4);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .instructions h4 {
+            color: #a6e3ff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .aquarium-decoration {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .seaweed {
+            position: absolute;
+            bottom: 0;
+            width: 40px;
+            height: 200px;
+            background: linear-gradient(to right, #0a5, #0c7, #0a5);
+            border-radius: 20px 20px 0 0;
+            opacity: 0.7;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .aquarium-container, .controls-panel {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .aquarium-canvas-container {
+                height: 500px;
+            }
+            
+            .fish-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-fish"></i> 梦幻互动水族馆</h1>
+            <p class="subtitle">一个动态的在线养鱼游戏。点击添加不同种类的鱼，投喂食物，调整水族馆环境，打造属于你的海底世界。</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="aquarium-container">
+                <div class="aquarium-canvas-container">
+                    <canvas id="aquariumCanvas"></canvas>
+                    <div class="aquarium-overlay">
+                        <!-- 水族馆装饰元素 -->
+                        <div class="seaweed" style="left: 10%;"></div>
+                        <div class="seaweed" style="left: 20%; height: 150px;"></div>
+                        <div class="seaweed" style="right: 15%; height: 180px;"></div>
+                        <div class="seaweed" style="right: 5%; height: 120px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title"><i class="fas fa-sliders-h"></i> 控制面板</h2>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-fish"></i> 添加鱼类</h3>
+                    <div class="fish-buttons">
+                        <button class="fish-btn" data-fish="clownfish">
+                            <i class="fas fa-fish"></i>
+                            <span>小丑鱼</span>
+                        </button>
+                        <button class="fish-btn" data-fish="angelfish">
+                            <i class="fas fa-fish"></i>
+                            <span>神仙鱼</span>
+                        </button>
+                        <button class="fish-btn" data-fish="goldfish">
+                            <i class="fas fa-fish"></i>
+                            <span>金鱼</span>
+                        </button>
+                        <button class="fish-btn" data-fish="pufferfish">
+                            <i class="fas fa-fish"></i>
+                            <span>河豚</span>
+                        </button>
+                        <button class="fish-btn" data-fish="betta">
+                            <i class="fas fa-fish"></i>
+                            <span>斗鱼</span>
+                        </button>
+                        <button class="fish-btn" data-fish="shark">
+                            <i class="fas fa-fish"></i>
+                            <span>小鲨鱼</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-utensils"></i> 投喂食物</h3>
+                    <div class="food-buttons">
+                        <button class="food-btn" data-food="flakes">
+                            <i class="fas fa-seedling"></i>
+                            <span>鱼食片</span>
+                        </button>
+                        <button class="food-btn" data-food="pellets">
+                            <i class="fas fa-dot-circle"></i>
+                            <span>颗粒饲料</span>
+                        </button>
+                        <button class="food-btn" data-food="worms">
+                            <i class="fas fa-worm"></i>
+                            <span>红虫</span>
+                        </button>
+                        <button class="food-btn" data-food="plankton">
+                            <i class="fas fa-water"></i>
+                            <span>浮游生物</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-water"></i> 环境控制</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>水温: <span id="tempValue">24</span>°C</span>
+                            <span><i class="fas fa-thermometer-half"></i></span>
+                        </div>
+                        <input type="range" id="temperature" min="18" max="30" value="24">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>光照: <span id="lightValue">70</span>%</span>
+                            <span><i class="fas fa-sun"></i></span>
+                        </div>
+                        <input type="range" id="lighting" min="10" max="100" value="70">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>水流: <span id="currentValue">50</span>%</span>
+                            <span><i class="fas fa-wind"></i></span>
+                        </div>
+                        <input type="range" id="current" min="0" max="100" value="50">
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="fishCount">3</div>
+                        <div class="stat-label">鱼的数量</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="foodCount">0</div>
+                        <div class="stat-label">食物数量</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="happiness">85%</div>
+                        <div class="stat-label">幸福指数</div>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h4><i class="fas fa-info-circle"></i> 游戏说明</h4>
+                    <ul>
+                        <li>点击鱼类按钮添加鱼到水族馆</li>
+                        <li>点击食物按钮投喂食物，鱼会自动进食</li>
+                        <li>拖动滑块调整水族馆环境</li>
+                        <li>点击水族馆任意位置投放食物</li>
+                        <li>水族馆最多容纳30条鱼</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>梦幻互动水族馆 © 2023 | 使用HTML5 Canvas和JavaScript构建 | 设计：前端大师</p>
+        </footer>
+    </div>
+
+    <script>
+        // 获取Canvas和上下文
+        const canvas = document.getElementById('aquariumCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置Canvas尺寸
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        
+        // 调整窗口大小时更新Canvas尺寸
+        window.addEventListener('resize', () => {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        });
+        
+        // 游戏状态
+        const gameState = {
+            fishes: [],
+            foods: [],
+            bubbles: [],
+            seaweed: [],
+            temperature: 24,
+            lighting: 70,
+            current: 50,
+            fishCount: 3,
+            foodCount: 0,
+            happiness: 85,
+            lastFrameTime: 0,
+            isInitialized: false
+        };
+        
+        // 鱼类定义
+        const fishTypes = {
+            clownfish: {
+                name: "小丑鱼",
+                color: "#FF9900",
+                secondaryColor: "#FFFFFF",
+                size: 30,
+                speed: 1.5,
+                price: 10
+            },
+            angelfish: {
+                name: "神仙鱼",
+                color: "#FFCC00",
+                secondaryColor: "#0066CC",
+                size: 40,
+                speed: 1.2,
+                price: 15
+            },
+            goldfish: {
+                name: "金鱼",
+                color: "#FF6600",
+                secondaryColor: "#FFCC00",
+                size: 25,
+                speed: 1.0,
+                price: 5
+            },
+            pufferfish: {
+                name: "河豚",
+                color: "#CCCCCC",
+                secondaryColor: "#666666",
+                size: 35,
+                speed: 0.8,
+                price: 20
+            },
+            betta: {
+                name: "斗鱼",
+                color: "#CC00FF",
+                secondaryColor: "#00CCFF",
+                size: 28,
+                speed: 1.8,
+                price: 12
+            },
+            shark: {
+                name: "小鲨鱼",
+                color: "#666666",
+                secondaryColor: "#333333",
+                size: 60,
+                speed: 2.0,
+                price: 30
+            }
+        };
+        
+        // 食物定义
+        const foodTypes = {
+            flakes: { color: "#FFCC00", size: 5, nutrition: 10 },
+            pellets: { color: "#CC6600", size: 8, nutrition: 15 },
+            worms: { color: "#CC3300", size: 10, nutrition: 20 },
+            plankton: { color: "#00CCCC", size: 4, nutrition: 5 }
+        };
+        
+        // Fish类
+        class Fish {
+            constructor(type, x, y) {
+                this.type = type;
+                this.config = fishTypes[type];
+                this.x = x || Math.random() * canvas.width;
+                this.y = y || Math.random() * canvas.height;
+                this.size = this.config.size;
+                this.speed = this.config.speed;
+                this.direction = Math.random() * Math.PI * 2;
+                this.wobble = 0;
+                this.wobbleSpeed = 0.05;
+                this.wobbleAmount = 2;
+                this.hunger = 50 + Math.random() * 50;
+                this.targetFood = null;
+                this.eating = false;
+                this.color = this.config.color;
+                this.secondaryColor = this.config.secondaryColor;
+                this.name = this.config.name;
+                this.swimCounter = 0;
+                this.id = Date.now() + Math.random(); // 唯一标识符
+            }
+            
+            update() {
+                // 减少饥饿值
+                this.hunger -= 0.05;
+                if (this.hunger < 0) this.hunger = 0;
+                
+                // 寻找食物
+                if (this.hunger < 70 && !this.eating && gameState.foods.length > 0) {
+                    this.findFood();
+                }
+                
+                // 如果有目标食物，游向它
+                if (this.targetFood && !this.eating) {
+                    // 检查食物是否还存在（可能已被其他鱼吃掉）
+                    const foodIndex = gameState.foods.findIndex(f => f === this.targetFood);
+                    if (foodIndex === -1) {
+                        this.targetFood = null;
+                    } else {
+                        const dx = this.targetFood.x - this.x;
+                        const dy = this.targetFood.y - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 5) {
+                            // 吃到食物
+                            this.eatFood();
+                        } else {
+                            // 游向食物
+                            this.direction = Math.atan2(dy, dx);
+                            this.speed = this.config.speed * 1.5;
+                        }
+                    }
+                } else {
+                    // 正常游动
+                    this.speed = this.config.speed * (0.8 + Math.random() * 0.4);
+                    
+                    // 随机改变方向
+                    if (Math.random() < 0.02) {
+                        this.direction += (Math.random() - 0.5) * 0.5;
+                    }
+                    
+                    // 水族馆边界检测
+                    if (this.x < this.size) this.direction = 0;
+                    if (this.x > canvas.width - this.size) this.direction = Math.PI;
+                    if (this.y < this.size) this.direction = Math.PI / 2;
+                    if (this.y > canvas.height - this.size) this.direction = -Math.PI / 2;
+                }
+                
+                // 更新位置
+                this.x += Math.cos(this.direction) * this.speed;
+                this.y += Math.sin(this.direction) * this.speed;
+                
+                // 确保鱼在水族馆内
+                this.x = Math.max(this.size, Math.min(canvas.width - this.size, this.x));
+                this.y = Math.max(this.size, Math.min(canvas.height - this.size, this.y));
+                
+                // 更新摆动
+                this.wobble += this.wobbleSpeed;
+                this.swimCounter += 0.1;
+            }
+            
+            findFood() {
+                // 寻找最近的食物
+                let closestFood = null;
+                let closestDistance = Infinity;
+                
+                for (const food of gameState.foods) {
+                    const dx = food.x - this.x;
+                    const dy = food.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestFood = food;
+                    }
+                }
+                
+                if (closestDistance < 200) {
+                    this.targetFood = closestFood;
+                }
+            }
+            
+            eatFood() {
+                if (this.targetFood) {
+                    // 增加饥饿值
+                    this.hunger += this.targetFood.nutrition;
+                    if (this.hunger > 100) this.hunger = 100;
+                    
+                    // 移除食物 - 修复的关键：确保只移除一次
+                    const foodIndex = gameState.foods.findIndex(f => f === this.targetFood);
+                    if (foodIndex !== -1) {
+                        gameState.foods.splice(foodIndex, 1);
+                        updateFoodCount();
+                    }
+                    
+                    // 生成气泡
+                    for (let i = 0; i < 5; i++) {
+                        gameState.bubbles.push(new Bubble(this.x, this.y, 2));
+                    }
+                    
+                    this.targetFood = null;
+                    this.eating = true;
+                    
+                    // 吃食物动画
+                    setTimeout(() => {
+                        this.eating = false;
+                    }, 500);
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.direction);
+                
+                // 鱼身体摆动
+                const wobbleOffset = Math.sin(this.wobble) * this.wobbleAmount;
+                
+                // 绘制鱼身体
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.ellipse(0, wobbleOffset, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 绘制鱼尾
+                ctx.fillStyle = this.secondaryColor;
+                ctx.beginPath();
+                ctx.ellipse(-this.size * 0.8, wobbleOffset, this.size * 0.4, this.size * 0.8, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 绘制鱼鳍
+                ctx.fillStyle = this.secondaryColor;
+                ctx.beginPath();
+                ctx.ellipse(this.size * 0.3, wobbleOffset - this.size * 0.5, this.size * 0.3, this.size * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.ellipse(this.size * 0.3, wobbleOffset + this.size * 0.5, this.size * 0.3, this.size * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 绘制鱼眼
+                ctx.fillStyle = "#000";
+                ctx.beginPath();
+                ctx.arc(this.size * 0.6, wobbleOffset - this.size * 0.2, this.size * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 绘制鱼嘴
+                if (this.eating) {
+                    ctx.fillStyle = "#FF0000";
+                    ctx.beginPath();
+                    ctx.arc(this.size * 0.8, wobbleOffset, this.size * 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // 绘制饥饿条
+                if (this.hunger < 50) {
+                    const hungerWidth = this.size * 2;
+                    const hungerHeight = 4;
+                    const hungerX = -this.size;
+                    const hungerY = -this.size - 10;
+                    
+                    ctx.fillStyle = "#333";
+                    ctx.fillRect(hungerX, hungerY, hungerWidth, hungerHeight);
+                    
+                    ctx.fillStyle = this.hunger < 30 ? "#FF3333" : "#FFAA00";
+                    ctx.fillRect(hungerX, hungerY, (this.hunger / 100) * hungerWidth, hungerHeight);
+                }
+                
+                ctx.restore();
+            }
+        }
+        
+        // 食物类
+        class Food {
+            constructor(type, x, y) {
+                this.type = type;
+                this.config = foodTypes[type];
+                this.x = x;
+                this.y = y;
+                this.size = this.config.size;
+                this.color = this.config.color;
+                this.nutrition = this.config.nutrition;
+                this.sinkSpeed = 0.5 + Math.random() * 0.5;
+                this.float = Math.random() * Math.PI * 2;
+                this.floatSpeed = 0.05;
+                this.floatAmount = 1;
+                this.id = Date.now() + Math.random(); // 唯一标识符
+                this.isRemoved = false; // 标记是否已被移除
+            }
+            
+            update() {
+                // 如果已被标记移除，跳过更新
+                if (this.isRemoved) return;
+                
+                // 下沉
+                this.y += this.sinkSpeed;
+                
+                // 漂浮效果
+                this.float += this.floatSpeed;
+                this.x += Math.sin(this.float) * 0.2;
+                
+                // 如果沉到底部，移除食物
+                if (this.y > canvas.height - 20) {
+                    this.remove();
+                }
+            }
+            
+            remove() {
+                if (this.isRemoved) return;
+                
+                this.isRemoved = true;
+                const index = gameState.foods.findIndex(f => f === this);
+                if (index !== -1) {
+                    gameState.foods.splice(index, 1);
+                    updateFoodCount();
+                }
+            }
+            
+            draw() {
+                // 如果已被标记移除，跳过绘制
+                if (this.isRemoved) return;
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                
+                if (this.type === 'flakes') {
+                    // 鱼食片
+                    ctx.ellipse(0, 0, this.size, this.size/2, 0, 0, Math.PI * 2);
+                } else if (this.type === 'pellets') {
+                    // 颗粒饲料
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                } else if (this.type === 'worms') {
+                    // 红虫
+                    ctx.ellipse(0, 0, this.size * 1.5, this.size/2, 0, 0, Math.PI * 2);
+                } else {
+                    // 浮游生物
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                }
+                
+                ctx.fill();
+                
+                // 高光
+                ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+                ctx.beginPath();
+                ctx.arc(-this.size/3, -this.size/3, this.size/3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        // 气泡类
+        class Bubble {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.size = size || 3 + Math.random() * 5;
+                this.speed = 0.5 + Math.random() * 1;
+                this.float = Math.random() * Math.PI * 2;
+                this.floatSpeed = 0.05;
+                this.floatAmount = 0.5;
+            }
+            
+            update() {
+                // 上浮
+                this.y -= this.speed;
+                
+                // 漂浮效果
+                this.float += this.floatSpeed;
+                this.x += Math.sin(this.float) * this.floatAmount;
+                
+                // 如果浮到顶部，移除气泡
+                if (this.y < -10) {
+                    const index = gameState.bubbles.indexOf(this);
+                    if (index > -1) {
+                        gameState.bubbles.splice(index, 1);
+                    }
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // 气泡
+                ctx.fillStyle = "rgba(200, 240, 255, 0.6)";
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 高光
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                ctx.beginPath();
+                ctx.arc(-this.size/3, -this.size/3, this.size/3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        // 初始化游戏
+        function init() {
+            if (gameState.isInitialized) return;
+            
+            // 添加初始鱼
+            addFish('clownfish', canvas.width * 0.3, canvas.height * 0.4);
+            addFish('goldfish', canvas.width * 0.6, canvas.height * 0.5);
+            addFish('angelfish', canvas.width * 0.5, canvas.height * 0.7);
+            
+            // 生成初始气泡
+            for (let i = 0; i < 20; i++) {
+                gameState.bubbles.push(new Bubble(
+                    Math.random() * canvas.width,
+                    canvas.height - Math.random() * 100,
+                    2 + Math.random() * 4
+                ));
+            }
+            
+            // 设置事件监听器
+            setupEventListeners();
+            
+            // 开始动画循环
+            animate();
+            
+            gameState.isInitialized = true;
+        }
+        
+        // 添加鱼
+        function addFish(type, x, y) {
+            if (gameState.fishes.length >= 30) {
+                alert("水族馆已满！最多容纳30条鱼。");
+                return;
+            }
+            
+            try {
+                const fish = new Fish(type, x, y);
+                gameState.fishes.push(fish);
+                updateFishCount();
+                
+                // 更新幸福指数
+                gameState.happiness = Math.min(100, gameState.happiness + 1);
+                updateHappiness();
+            } catch (error) {
+                console.error("添加鱼时出错:", error);
+            }
+        }
+        
+        // 添加食物
+        function addFood(type, x, y) {
+            try {
+                const food = new Food(type, x, y);
+                gameState.foods.push(food);
+                updateFoodCount();
+            } catch (error) {
+                console.error("添加食物时出错:", error);
+            }
+        }
+        
+        // 更新鱼数量显示
+        function updateFishCount() {
+            gameState.fishCount = gameState.fishes.length;
+            document.getElementById('fishCount').textContent = gameState.fishCount;
+        }
+        
+        // 更新食物数量显示
+        function updateFoodCount() {
+            gameState.foodCount = gameState.foods.filter(f => !f.isRemoved).length;
+            document.getElementById('foodCount').textContent = gameState.foodCount;
+        }
+        
+        // 更新幸福指数显示
+        function updateHappiness() {
+            document.getElementById('happiness').textContent = `${Math.round(gameState.happiness)}%`;
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 添加鱼按钮 - 修复：防止按钮提交表单
+            document.querySelectorAll('.fish-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const fishType = btn.dataset.fish;
+                    if (fishType && fishTypes[fishType]) {
+                        addFish(fishType);
+                    } else {
+                        console.error("未知的鱼类型:", fishType);
+                    }
+                });
+            });
+            
+            // 添加食物按钮
+            document.querySelectorAll('.food-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const foodType = btn.dataset.food;
+                    if (foodType && foodTypes[foodType]) {
+                        // 在随机位置添加食物
+                        addFood(foodType, Math.random() * canvas.width * 0.8 + canvas.width * 0.1, 20);
+                    } else {
+                        console.error("未知的食物类型:", foodType);
+                    }
+                });
+            });
+            
+            // 点击水族馆添加食物
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // 随机选择一种食物
+                const foodTypes = ['flakes', 'pellets', 'worms', 'plankton'];
+                const randomType = foodTypes[Math.floor(Math.random() * foodTypes.length)];
+                
+                addFood(randomType, x, y);
+            });
+            
+            // 环境控制滑块
+            document.getElementById('temperature').addEventListener('input', (e) => {
+                gameState.temperature = parseInt(e.target.value);
+                document.getElementById('tempValue').textContent = gameState.temperature;
+            });
+            
+            document.getElementById('lighting').addEventListener('input', (e) => {
+                gameState.lighting = parseInt(e.target.value);
+                document.getElementById('lightValue').textContent = gameState.lighting;
+            });
+            
+            document.getElementById('current').addEventListener('input', (e) => {
+                gameState.current = parseInt(e.target.value);
+                document.getElementById('currentValue').textContent = gameState.current;
+            });
+        }
+        
+        // 绘制背景
+        function drawBackground() {
+            // 水族馆背景渐变
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, `rgba(10, 60, 120, ${gameState.lighting/100})`);
+            gradient.addColorStop(0.7, `rgba(5, 40, 80, ${0.5 + gameState.lighting/200})`);
+            gradient.addColorStop(1, `rgba(0, 20, 40, ${0.7 + gameState.lighting/300})`);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制底部沙地
+            ctx.fillStyle = "#D4A76A";
+            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+            
+            // 沙地纹理
+            ctx.fillStyle = "#B8935A";
+            for (let i = 0; i < canvas.width; i += 10) {
+                const height = 5 + Math.sin(i * 0.05) * 3;
+                ctx.fillRect(i, canvas.height - 20, 5, height);
+            }
+            
+            // 绘制光线效果
+            if (gameState.lighting > 50) {
+                const lightGradient = ctx.createRadialGradient(
+                    canvas.width * 0.8, 50, 10,
+                    canvas.width * 0.8, 50, 300
+                );
+                lightGradient.addColorStop(0, `rgba(255, 255, 200, ${(gameState.lighting - 50) / 200})`);
+                lightGradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
+                
+                ctx.fillStyle = lightGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        
+        // 动画循环
+        function animate(currentTime) {
+            // 请求下一帧
+            requestAnimationFrame(animate);
+            
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景
+            drawBackground();
+            
+            // 更新和绘制气泡
+            for (let i = gameState.bubbles.length - 1; i >= 0; i--) {
+                if (gameState.bubbles[i]) {
+                    gameState.bubbles[i].update();
+                    gameState.bubbles[i].draw();
+                }
+                
+                // 偶尔生成新气泡
+                if (Math.random() < 0.02 && gameState.bubbles.length < 50) {
+                    gameState.bubbles.push(new Bubble(
+                        Math.random() * canvas.width,
+                        canvas.height - 10,
+                        2 + Math.random() * 4
+                    ));
+                }
+            }
+            
+            // 更新和绘制食物 - 使用filter移除已标记为删除的食物
+            gameState.foods = gameState.foods.filter(food => !food.isRemoved);
+            for (let i = gameState.foods.length - 1; i >= 0; i--) {
+                if (gameState.foods[i]) {
+                    gameState.foods[i].update();
+                    gameState.foods[i].draw();
+                }
+            }
+            
+            // 更新和绘制鱼
+            for (let i = 0; i < gameState.fishes.length; i++) {
+                if (gameState.fishes[i]) {
+                    gameState.fishes[i].update();
+                    gameState.fishes[i].draw();
+                    
+                    // 鱼之间的互动
+                    for (let j = i + 1; j < gameState.fishes.length; j++) {
+                        if (gameState.fishes[j]) {
+                            const dx = gameState.fishes[i].x - gameState.fishes[j].x;
+                            const dy = gameState.fishes[i].y - gameState.fishes[j].y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            // 如果鱼太靠近，它们会稍微避开
+                            if (distance < 40) {
+                                const angle = Math.atan2(dy, dx);
+                                gameState.fishes[i].direction += 0.05;
+                                gameState.fishes[j].direction -= 0.05;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 降低幸福指数（随时间自然下降）
+            if (Math.random() < 0.01) {
+                gameState.happiness = Math.max(50, gameState.happiness - 0.5);
+                updateHappiness();
+            }
+            
+            // 更新帧时间
+            gameState.lastFrameTime = currentTime;
+        }
+        
+        // 初始化游戏
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

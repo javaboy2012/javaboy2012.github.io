@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星际控制中心 | NEBULA-DASH</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 星空背景 -->
+    <canvas id="starsCanvas"></canvas>
+    
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="logo">
+                <div class="pulse-dot"></div>
+                <h1><span class="neon-text">NEBULA</span><span class="blink">_</span>DASH</h1>
+                <div class="status-indicator">
+                    <span class="status-dot active"></span>
+                    <span class="status-text">系统在线</span>
+                </div>
+            </div>
+            
+            <nav class="nav">
+                <a href="#" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-globe"></i> 星图仪表
+                </a>
+                <a href="#" class="nav-link" data-section="projects">
+                    <i class="fas fa-rocket"></i> 空间项目
+                </a>
+                <a href="#" class="nav-link" data-section="skills">
+                    <i class="fas fa-atom"></i> 技能矩阵
+                </a>
+                <a href="#" class="nav-link" data-section="terminal">
+                    <i class="fas fa-terminal"></i> 终端控制
+                </a>
+            </nav>
+            
+            <div class="time-display">
+                <div class="date" id="currentDate"></div>
+                <div class="time" id="currentTime"></div>
+            </div>
+        </header>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 星球仪表盘 -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-satellite"></i> 星际控制中心</h2>
+                    <div class="signal-strength">
+                        <span>量子连接强度</span>
+                        <div class="signal-bars">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- 3D星球 -->
+                    <div class="planet-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-planet-ringed"></i> 核心星球</h3>
+                            <button class="scan-btn" id="scanPlanet">
+                                <i class="fas fa-radar"></i> 深度扫描
+                            </button>
+                        </div>
+                        <div class="planet-container">
+                            <canvas id="planetCanvas"></canvas>
+                            <div class="planet-info">
+                                <div class="info-item">
+                                    <span class="label">星球名称</span>
+                                    <span class="value">NEBULA-PRIME</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">轨道状态</span>
+                                    <span class="value">稳定</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">能量等级</span>
+                                    <span class="value">97%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据流 -->
+                    <div class="data-stream-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-stream"></i> 实时数据流</h3>
+                            <div class="stream-controls">
+                                <button class="stream-btn active" data-speed="slow">
+                                    <i class="fas fa-tachometer-alt"></i> 低速
+                                </button>
+                                <button class="stream-btn" data-speed="medium">
+                                    <i class="fas fa-tachometer-alt"></i> 中速
+                                </button>
+                                <button class="stream-btn" data-speed="fast">
+                                    <i class="fas fa-tachometer-alt"></i> 高速
+                                </button>
+                            </div>
+                        </div>
+                        <div class="stream-container">
+                            <div class="stream-line">> 初始化量子处理器...</div>
+                            <div class="stream-line">> 加载星图数据...</div>
+                            <div class="stream-line">> 建立超光速连接...</div>
+                            <div class="stream-line">> 系统状态: <span class="success">正常</span></div>
+                            <div class="stream-line">> 最后更新时间: <span id="streamTime">--:--:--</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 快速导航 -->
+                    <div class="quick-nav-card">
+                        <h3><i class="fas fa-compass"></i> 空间跃迁</h3>
+                        <div class="nav-buttons">
+                            <button class="nav-button" data-target="projects">
+                                <i class="fas fa-code-branch"></i>
+                                <span>项目空间站</span>
+                            </button>
+                            <button class="nav-button" data-target="skills">
+                                <i class="fas fa-cogs"></i>
+                                <span>技能矩阵</span>
+                            </button>
+                            <button class="nav-button" data-target="terminal">
+                                <i class="fas fa-keyboard"></i>
+                                <span>终端控制</span>
+                            </button>
+                            <button class="nav-button" id="warpDrive">
+                                <i class="fas fa-space-shuttle"></i>
+                                <span>曲速引擎</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 系统状态 -->
+                    <div class="system-status-card">
+                        <h3><i class="fas fa-heartbeat"></i> 系统状态</h3>
+                        <div class="status-grid">
+                            <div class="status-item">
+                                <div class="status-icon cpu">
+                                    <i class="fas fa-microchip"></i>
+                                </div>
+                                <div class="status-details">
+                                    <span class="status-name">CPU负载</span>
+                                    <div class="status-bar">
+                                        <div class="status-fill" data-value="68"></div>
+                                    </div>
+                                    <span class="status-value">68%</span>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon memory">
+                                    <i class="fas fa-memory"></i>
+                                </div>
+                                <div class="status-details">
+                                    <span class="status-name">内存使用</span>
+                                    <div class="status-bar">
+                                        <div class="status-fill" data-value="42"></div>
+                                    </div>
+                                    <span class="status-value">42%</span>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon network">
+                                    <i class="fas fa-satellite-dish"></i>
+                                </div>
+                                <div class="status-details">
+                                    <span class="status-name">网络延迟</span>
+                                    <div class="status-bar">
+                                        <div class="status-fill" data-value="12"></div>
+                                    </div>
+                                    <span class="status-value">12ms</span>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon power">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="status-details">
+                                    <span class="status-name">能源核心</span>
+                                    <div class="status-bar">
+                                        <div class="status-fill" data-value="97"></div>
+                                    </div>
+                                    <span class="status-value">97%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 项目空间站 -->
+            <section id="projects" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-rocket"></i> 空间项目站</h2>
+                    <div class="project-count">
+                        <span>活跃项目: <strong>7</strong></span>
+                    </div>
+                </div>
+                
+                <div class="projects-grid" id="projectsContainer">
+                    <!-- 项目卡片将通过JS动态生成 -->
+                </div>
+            </section>
+            
+            <!-- 技能矩阵 -->
+            <section id="skills" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-atom"></i> 技能矩阵</h2>
+                    <div class="matrix-controls">
+                        <button class="matrix-btn active" data-view="radar">
+                            <i class="fas fa-bullseye"></i> 雷达图
+                        </button>
+                        <button class="matrix-btn" data-view="bars">
+                            <i class="fas fa-chart-bar"></i> 柱状图
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="skills-container">
+                    <div class="skills-chart">
+                        <canvas id="skillsCanvas"></canvas>
+                    </div>
+                    
+                    <div class="skills-list">
+                        <h3><i class="fas fa-list-ul"></i> 技能详情</h3>
+                        <ul id="skillsList">
+                            <!-- 技能列表通过JS动态生成 -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 终端控制台 -->
+            <section id="terminal" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-terminal"></i> 终端控制台</h2>
+                    <div class="terminal-info">
+                        <span>访问级别: <span class="admin">管理员</span></span>
+                        <span class="connection-status">
+                            <i class="fas fa-wifi"></i> 已连接
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <div class="terminal-tabs">
+                            <button class="tab active" data-tab="main">主终端</button>
+                            <button class="tab" data-tab="system">系统日志</button>
+                            <button class="tab" data-tab="network">网络诊断</button>
+                        </div>
+                        <div class="terminal-actions">
+                            <button id="clearTerminal" title="清屏">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+                            <button id="fullscreenTerminal" title="全屏">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-output" id="terminalOutput">
+                        <div class="output-line">NEBULA-DASH 终端 v2.1.4</div>
+                        <div class="output-line">> 系统启动完成，所有服务运行正常</div>
+                        <div class="output-line">> 最后登录: 今天 14:32:17</div>
+                        <div class="output-line">> 输入 'help' 查看可用命令</div>
+                        <div class="output-line">> </div>
+                    </div>
+                    
+                    <div class="terminal-input">
+                        <span class="prompt">nebula@terminal:~$</span>
+                        <input type="text" id="terminalInput" autocomplete="off" placeholder="输入命令...">
+                        <button id="executeCommand">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 底部控制栏 -->
+        <footer class="footer">
+            <div class="footer-left">
+                <div class="connection-status">
+                    <div class="pulse-ring"></div>
+                    <span>量子连接: <strong>活跃</strong></span>
+                </div>
+                <div class="visitor-count">
+                    <i class="fas fa-user-astronaut"></i>
+                    <span>今日访问者: <strong id="visitorCount">142</strong></span>
+                </div>
+            </div>
+            
+            <div class="footer-center">
+                <button class="warp-btn" id="activateWarp">
+                    <i class="fas fa-forward"></i>
+                    <span>曲速引擎预热...</span>
+                </button>
+            </div>
+            
+            <div class="footer-right">
+                <div class="system-time">
+                    <i class="fas fa-clock"></i>
+                    <span id="systemUptime">系统运行: 14天 7小时 32分</span>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-palette"></i>
+                    <span>切换主题</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- 特效元素 -->
+    <div class="cursor-trail"></div>
+    <div class="particle-explosion" id="explosion"></div>
+    
+    <!-- 音频元素 -->
+    <audio id="hoverSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="clickSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-plastic-bubble-click-1124.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

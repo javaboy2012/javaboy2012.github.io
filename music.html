@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐作品展示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #6c63ff;
+            --secondary-color: #ff6584;
+            --bg-color: #f9f9f9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        .dark-theme {
+            --primary-color: #8a84ff;
+            --secondary-color: #ff7b94;
+            --bg-color: #121212;
+            --text-color: #f0f0f0;
+            --card-bg: #1e1e1e;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 30px 0;
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 12px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .logo i {
+            font-size: 28px;
+        }
+        
+        .theme-toggle {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: var(--transition);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 搜索和筛选区 */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border-radius: 50px;
+            border: 2px solid #ddd;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 12px 24px;
+            background-color: var(--card-bg);
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            color: var(--text-color);
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* 音乐网格 */
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .music-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .music-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px var(--shadow);
+        }
+        
+        .album-cover {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .music-info {
+            padding: 25px;
+        }
+        
+        .music-title {
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .music-artist {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .music-genre {
+            display: inline-block;
+            background-color: rgba(108, 99, 255, 0.1);
+            color: var(--primary-color);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .music-description {
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+        
+        .music-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .play-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .play-btn:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+        
+        .music-year {
+            font-weight: 600;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        /* 音频播放器 */
+        .audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            box-shadow: 0 -5px 20px var(--shadow);
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .player-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .player-album-cover {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .player-text h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .player-text p {
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .player-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .player-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .player-progress {
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #ddd;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        /* 页脚 */
+        footer {
+            background-color: var(--card-bg);
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 -5px 15px var(--shadow);
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .footer-text {
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(108, 99, 255, 0.1);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .social-icon:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .music-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .player-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .player-progress {
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .music-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1 / -1;
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-music"></i>
+                    <span>音乐殿堂</span>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 主内容区 -->
+    <main class="container">
+        <!-- 搜索和筛选 -->
+        <section class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="搜索音乐作品、艺术家或类型...">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="pop">流行</button>
+                <button class="filter-btn" data-filter="rock">摇滚</button>
+                <button class="filter-btn" data-filter="electronic">电子</button>
+                <button class="filter-btn" data-filter="jazz">爵士</button>
+                <button class="filter-btn" data-filter="classical">古典</button>
+            </div>
+        </section>
+        
+        <!-- 音乐作品展示区 -->
+        <section id="musicContainer" class="music-grid">
+            <!-- 音乐卡片将通过JS动态生成 -->
+        </section>
+    </main>
+    
+    <!-- 音频播放器 -->
+    <div class="audio-player" id="audioPlayer">
+        <div class="player-content">
+            <div class="player-info">
+                <img id="playerAlbumCover" class="player-album-cover" src="" alt="专辑封面">
+                <div class="player-text">
+                    <h3 id="playerTitle">歌曲标题</h3>
+                    <p id="playerArtist">艺术家</p>
+                </div>
+            </div>
+            <div class="player-controls">
+                <button class="player-btn" id="prevBtn">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button class="player-btn" id="playBtn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="player-btn" id="nextBtn">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+            <div class="player-progress">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-music"></i> 音乐殿堂
+                </div>
+                <p class="footer-text">
+                    发现与分享优秀音乐作品的地方<br>
+                    本网站所有音乐仅供试听，版权归原作者所有
+                </p>
+                <div class="social-icons">
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // 音乐数据存储在JS变量中
+        const musicData = [
+            {
+                id: 1,
+                title: "我的未来不是梦",
+                artist: "erkang",
+                genre: "classical",
+                year: 1801,
+                description: "我的未来不是梦。",
+                cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "我的未来不是梦.mp3"
+            },
+            {
+                id: 2,
+                title: "忘了你忘了我",
+                artist: "erkang",
+                genre: "pop",
+                year: 1982,
+                description: "忘了你忘了我。",
+                cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "忘了你_忘了我.mp3"
+            },
+            {
+                id: 3,
+                title: "风中的梦",
+                artist: "erkang",
+                genre: "rock",
+                year: 1975,
+                description: "皇后乐队的史诗级作品，融合了摇滚、歌剧和流行元素。",
+                cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "风中的梦.mp3"
+            },
+            {
+                id: 4,
+                title: "Take Five",
+                artist: "戴夫·布鲁贝克",
+                genre: "jazz",
+                year: 1959,
+                description: "爵士乐史上最著名的作品之一，以其独特的5/4拍节奏而闻名。",
+                cover: "https://images.unsplash.com/photo-1519281682524-1c4929066a59?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "https://assets.codepen.io/4358584/Dave_Brubeck_Take_Five.mp3"
+            },
+            {
+                id: 5,
+                title: "Strobe",
+                artist: "死老鼠",
+                genre: "electronic",
+                year: 2010,
+                description: "电子音乐的代表作，以其复杂的编曲和渐进的结构而受到赞誉。",
+                cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "https://assets.codepen.io/4358584/deadmau5_Strobe.mp3"
+            },
+            {
+                id: 6,
+                title: "Shape of You",
+                artist: "艾德·希兰",
+                genre: "pop",
+                year: 2017,
+                description: "艾德·希兰的全球热门单曲，融合了流行、R&B和热带浩室元素。",
+                cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "https://assets.codepen.io/4358584/Ed_Sheeran_Shape_of_You.mp3"
+            },
+            {
+                id: 7,
+                title: "Smells Like Teen Spirit",
+                artist: "涅槃乐队",
+                genre: "rock",
+                year: 1991,
+                description: "涅槃乐队的突破性单曲，被认为是另类摇滚和垃圾摇滚的代表作。",
+                cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "https://assets.codepen.io/4358584/Nirvana_Smells_Like_Teen_Spirit.mp3"
+            },
+            {
+                id: 8,
+                title: "四季",
+                artist: "安东尼奥·维瓦尔第",
+                genre: "classical",
+                year: 1723,
+                description: "维瓦尔第最著名的作品，以小提琴协奏曲形式描绘了四季的变化。",
+                cover: "https://images.unsplash.com/photo-1519281682524-1c4929066a59?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                audio: "https://assets.codepen.io/4358584/Vivaldi_The_Four_Seasons.mp3"
+            }
+        ];
+
+        // 全局变量
+        let currentMusicIndex = 0;
+        let isPlaying = false;
+        let filteredMusic = [...musicData];
+        let audio = null;
+        
+        // DOM元素
+        const musicContainer = document.getElementById('musicContainer');
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const themeToggle = document.getElementById('themeToggle');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playerAlbumCover = document.getElementById('playerAlbumCover');
+        const playerTitle = document.getElementById('playerTitle');
+        const playerArtist = document.getElementById('playerArtist');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progress = document.getElementById('progress');
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMusicCards(filteredMusic);
+            setupEventListeners();
+        });
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 搜索功能
+            searchInput.addEventListener('input', filterMusic);
+            
+            // 筛选功能
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除所有按钮的active类
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // 为当前按钮添加active类
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    filterMusicByGenre(filter);
+                });
+            });
+            
+            // 主题切换
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // 播放器控制
+            playBtn.addEventListener('click', togglePlay);
+            prevBtn.addEventListener('click', playPrev);
+            nextBtn.addEventListener('click', playNext);
+        }
+        
+        // 渲染音乐卡片
+        function renderMusicCards(musicArray) {
+            if (musicArray.length === 0) {
+                musicContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-music"></i>
+                        <h3>未找到音乐作品</h3>
+                        <p>尝试其他搜索词或筛选条件</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            musicContainer.innerHTML = '';
+            
+            musicArray.forEach(music => {
+                const musicCard = document.createElement('div');
+                musicCard.className = 'music-card';
+                musicCard.innerHTML = `
+                    <img src="${music.cover}" alt="${music.title}" class="album-cover">
+                    <div class="music-info">
+                        <h3 class="music-title">${music.title}</h3>
+                        <p class="music-artist">${music.artist}</p>
+                        <span class="music-genre">${getGenreName(music.genre)}</span>
+                        <p class="music-description">${music.description}</p>
+                        <div class="music-actions">
+                            <button class="play-btn" data-id="${music.id}">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <span class="music-year">${music.year}</span>
+                        </div>
+                    </div>
+                `;
+                
+                musicContainer.appendChild(musicCard);
+                
+                // 为播放按钮添加事件监听器
+                const playButton = musicCard.querySelector('.play-btn');
+                playButton.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    playMusicById(id);
+                });
+            });
+        }
+        
+        // 根据ID播放音乐
+        function playMusicById(id) {
+            const index = filteredMusic.findIndex(music => music.id === id);
+            if (index !== -1) {
+                currentMusicIndex = index;
+                playMusic(filteredMusic[currentMusicIndex]);
+            }
+        }
+        
+        // 播放音乐
+        function playMusic(music) {
+            // 如果音频对象不存在，创建它
+            if (!audio) {
+                audio = new Audio();
+                
+                // 音频时间更新事件
+                audio.addEventListener('timeupdate', updateProgress);
+                
+                // 音频结束事件
+                audio.addEventListener('ended', playNext);
+            }
+            
+            // 设置音频源
+            audio.src = music.audio;
+            
+            // 更新播放器显示
+            playerAlbumCover.src = music.cover;
+            playerTitle.textContent = music.title;
+            playerArtist.textContent = music.artist;
+            
+            // 显示播放器
+            audioPlayer.style.display = 'block';
+            
+            // 播放音频
+            audio.play();
+            isPlaying = true;
+            updatePlayButton();
+        }
+        
+        // 切换播放/暂停
+        function togglePlay() {
+            if (!audio) return;
+            
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+            
+            isPlaying = !isPlaying;
+            updatePlayButton();
+        }
+        
+        // 更新播放按钮图标
+        function updatePlayButton() {
+            const playIcon = playBtn.querySelector('i');
+            if (isPlaying) {
+                playIcon.className = 'fas fa-pause';
+            } else {
+                playIcon.className = 'fas fa-play';
+            }
+        }
+        
+        // 播放上一首
+        function playPrev() {
+            currentMusicIndex = (currentMusicIndex - 1 + filteredMusic.length) % filteredMusic.length;
+            playMusic(filteredMusic[currentMusicIndex]);
+        }
+        
+        // 播放下一首
+        function playNext() {
+            currentMusicIndex = (currentMusicIndex + 1) % filteredMusic.length;
+            playMusic(filteredMusic[currentMusicIndex]);
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            if (!audio) return;
+            
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = `${percent}%`;
+        }
+        
+        // 筛选音乐
+        function filterMusic() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                filteredMusic = [...musicData];
+            } else {
+                filteredMusic = musicData.filter(music => 
+                    music.title.toLowerCase().includes(searchTerm) ||
+                    music.artist.toLowerCase().includes(searchTerm) ||
+                    music.description.toLowerCase().includes(searchTerm) ||
+                    getGenreName(music.genre).toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderMusicCards(filteredMusic);
+        }
+        
+        // 根据类型筛选音乐
+        function filterMusicByGenre(genre) {
+            if (genre === 'all') {
+                filteredMusic = [...musicData];
+            } else {
+                filteredMusic = musicData.filter(music => music.genre === genre);
+            }
+            
+            renderMusicCards(filteredMusic);
+        }
+        
+        // 切换主题
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            
+            const themeIcon = themeToggle.querySelector('i');
+            if (document.body.classList.contains('dark-theme')) {
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // 获取类型名称
+        function getGenreName(genre) {
+            const genreMap = {
+                'pop': '流行',
+                'rock': '摇滚',
+                'electronic': '电子',
+                'jazz': '爵士',
+                'classical': '古典'
+            };
+            
+            return genreMap[genre] || genre;
+        }
+        
+        // 检查本地存储的主题设置
+        function checkTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                const themeIcon = themeToggle.querySelector('i');
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+        
+        // 初始化主题
+        checkTheme();
+    </script>
+</body>
+</html>

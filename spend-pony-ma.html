@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>花马化腾的钱 | Spend Ma Huateng's Money</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas 用于导出图片 -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- jsPDF 用于导出PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.5s ease;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 主题选择器 */
+        .theme-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .theme-btn.active {
+            transform: scale(1.1);
+            border-color: #00bfff;
+            box-shadow: 0 0 0 3px #00bfff, 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 主题1: 腾讯蓝主题 */
+        .theme-1 {
+            background: linear-gradient(135deg, #1c6ea4 0%, #00bfff 100%);
+        }
+        
+        .theme-1 .header {
+            background: linear-gradient(90deg, #0078d7 0%, #00b4ff 100%);
+        }
+        
+        .theme-1 .product-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 120, 215, 0.3);
+        }
+        
+        .theme-1 .btn-buy {
+            background: linear-gradient(90deg, #0078d7, #00b4ff);
+        }
+        
+        .theme-1 .fortune-amount {
+            color: #00ffea;
+        }
+        
+        /* 主题2: 游戏炫彩主题 */
+        .theme-2 {
+            background: linear-gradient(45deg, #9d4edd, #ff6d00, #ffea00);
+            background-size: 300% 300%;
+            animation: gameGradient 10s ease infinite;
+        }
+        
+        @keyframes gameGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .theme-2 .header {
+            background: linear-gradient(90deg, #9d4edd, #ff6d00);
+        }
+        
+        .theme-2 .product-card {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(45deg, #9d4edd, #ff6d00) border-box;
+        }
+        
+        .theme-2 .btn-buy {
+            background: linear-gradient(45deg, #9d4edd, #ff6d00);
+        }
+        
+        .theme-2 .fortune-amount {
+            color: #ffea00;
+            text-shadow: 0 0 10px rgba(255, 234, 0, 0.5);
+        }
+        
+        /* 主题3: 科技极简主题 */
+        .theme-3 {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .theme-3 .container {
+            background-color: #0f3460;
+            color: #e6e6e6;
+        }
+        
+        .theme-3 .header {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+        }
+        
+        .theme-3 .product-card {
+            background-color: #1a1a2e;
+            border-color: #00bfff;
+        }
+        
+        .theme-3 .product-name {
+            color: #00bfff;
+        }
+        
+        .theme-3 .product-price {
+            color: #00ff9d;
+        }
+        
+        .theme-3 .btn-buy {
+            background: linear-gradient(90deg, #00bfff, #00ff9d);
+            color: #1a1a2e;
+        }
+        
+        .theme-3 .fortune-amount {
+            color: #00ff9d;
+        }
+        
+        /* 主题4: 社交活力主题 */
+        .theme-4 {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+        
+        .theme-4 .header {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-4 .header::before {
+            content: "💬 🎮 📱";
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.1;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .theme-4 .product-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+        }
+        
+        .theme-4 .btn-buy {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+        }
+        
+        .theme-4 .fortune-amount {
+            color: #ffeb3b;
+        }
+        
+        /* 主题5: 投资金融主题 */
+        .theme-5 {
+            background: linear-gradient(135deg, #283c86 0%, #45a247 100%);
+        }
+        
+        .theme-5 .header {
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+        }
+        
+        .theme-5 .product-card {
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+        }
+        
+        .theme-5 .product-price {
+            background: linear-gradient(90deg, #45a247, #8bc34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+        
+        .theme-5 .btn-buy {
+            background: linear-gradient(90deg, #45a247, #8bc34a);
+        }
+        
+        .theme-5 .fortune-amount {
+            color: #8bc34a;
+        }
+        
+        /* 金钱特效 */
+        .money-effect {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 24px;
+            animation: floatUp 1s ease-out forwards;
+            color: #00bfff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+        
+        .money-effect.coin {
+            color: #ffd700;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        /* 头部样式 */
+        .header {
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .fortune-display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 30px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .fortune-info, .remaining-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .fortune-label, .remaining-label {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .fortune-amount {
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 5px;
+        }
+        
+        .remaining-amount {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #4cff4c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .remaining-amount.low {
+            color: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .fortune-note {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4cff4c, #00bfff);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .spent-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        /* 控制面板 */
+        .controls {
+            padding: 20px 30px;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .total-spent {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0078d7;
+            transition: all 0.3s ease;
+        }
+        
+        .total-spent.high {
+            color: #ff6d00;
+            transform: scale(1.1);
+        }
+        
+        .total-spent span {
+            color: #ff6d00;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-share {
+            background-color: #0078d7;
+            color: white;
+        }
+        
+        .btn-share:hover {
+            background-color: #005a9e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 120, 215, 0.4);
+        }
+        
+        /* 科技感提示 */
+        .tech-indicator {
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #0078d7, #00b4ff);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 0 0 10px 10px;
+            margin: -2px auto 0;
+            max-width: 350px;
+            box-shadow: 0 3px 10px rgba(0, 120, 215, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: glow 2s infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 3px 10px rgba(0, 120, 215, 0.3); }
+            50% { box-shadow: 0 3px 20px rgba(0, 120, 215, 0.6); }
+        }
+        
+        /* 商品网格 */
+        .categories {
+            padding: 20px 30px;
+            background-color: #f8f9fa;
+        }
+        
+        .category-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+        
+        .category-btn {
+            padding: 10px 20px;
+            background-color: white;
+            border: 2px solid #dee2e6;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn.active {
+            background-color: #0078d7;
+            color: white;
+            border-color: #0078d7;
+        }
+        
+        .category-btn:hover:not(.active) {
+            border-color: #0078d7;
+            color: #0078d7;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            min-height: 500px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #0078d7, #00b4ff);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        .product-image {
+            height: 180px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-image::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            z-index: 1;
+        }
+        
+        .product-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0078d7;
+        }
+        
+        .product-description {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        
+        .product-price {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ff6d00;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .product-price i {
+            font-size: 1.2rem;
+        }
+        
+        .product-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background-color: #f1f3f4;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-btn:hover {
+            background-color: #0078d7;
+            color: white;
+        }
+        
+        .quantity {
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .btn-buy {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-buy::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+        
+        .btn-buy:hover::after {
+            left: 100%;
+        }
+        
+        .btn-buy:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 购物车 */
+        .cart-section {
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .cart-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #0078d7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cart-empty {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        
+        .cart-items {
+            margin-bottom: 30px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .cart-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cart-item-info h4 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #0078d7;
+        }
+        
+        .cart-item-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ff6d00;
+        }
+        
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .cart-summary {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cart-summary::before {
+            content: "💎";
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.1;
+            right: 20px;
+            top: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .summary-total {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #ff6d00;
+            border-top: 2px solid #e9ecef;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        /* 分享结果弹窗 */
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .share-modal.active {
+            display: flex;
+        }
+        
+        .share-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .share-header {
+            background: linear-gradient(90deg, #0078d7 0%, #00b4ff 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .share-header h2 {
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .close-modal:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .share-body {
+            padding: 30px;
+        }
+        
+        .result-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #0078d7;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0078d7;
+        }
+        
+        .summary-value.total-spent {
+            color: #ff6d00;
+        }
+        
+        .summary-value.remaining {
+            color: #4CAF50;
+        }
+        
+        .purchased-items {
+            margin-bottom: 30px;
+        }
+        
+        .items-title {
+            font-size: 1.5rem;
+            color: #0078d7;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .items-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .item-row:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            flex: 2;
+            font-weight: 600;
+        }
+        
+        .item-quantity {
+            flex: 1;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .item-price {
+            flex: 1;
+            text-align: right;
+            font-weight: 700;
+            color: #ff6d00;
+        }
+        
+        .share-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-image {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-pdf {
+            background-color: #FF5722;
+            color: white;
+        }
+        
+        .btn-copy {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-image:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-pdf:hover {
+            background-color: #ff3d00;
+        }
+        
+        .btn-copy:hover {
+            background-color: #0b7dda;
+        }
+        
+        /* 页脚 */
+        .footer {
+            padding: 30px;
+            text-align: center;
+            background-color: #0078d7;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: "👑 🏆 💼";
+            position: absolute;
+            font-size: 50px;
+            opacity: 0.1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .disclaimer {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 15px;
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .fortune-amount, .remaining-amount {
+                font-size: 2rem;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .cart-item-quantity {
+                align-self: flex-end;
+            }
+            
+            .share-content {
+                width: 95%;
+                max-height: 95vh;
+            }
+            
+            .share-actions {
+                flex-direction: column;
+            }
+            
+            .share-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .theme-selector {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .item-quantity, .item-price {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body class="theme-1">
+    <div class="container">
+        <!-- 主题选择器 -->
+        <div class="theme-selector">
+            <div class="theme-btn theme-1 active" data-theme="1"></div>
+            <div class="theme-btn theme-2" data-theme="2"></div>
+            <div class="theme-btn theme-3" data-theme="3"></div>
+            <div class="theme-btn theme-4" data-theme="4"></div>
+            <div class="theme-btn theme-5" data-theme="5"></div>
+        </div>
+        
+        <!-- 科技感提示 -->
+        <div class="tech-indicator">
+            <i class="fas fa-rocket"></i> 体验腾讯帝国的财富力量！ <i class="fas fa-gamepad"></i>
+        </div>
+
+        <!-- 头部财富展示 -->
+        <header class="header">
+            <h1><i class="fas fa-coins"></i> 花马化腾的钱</h1>
+            <p class="subtitle">体验腾讯帝国掌舵人的数字财富是什么概念</p>
+            
+            <div class="fortune-display">
+                <div class="fortune-info">
+                    <p class="fortune-label">马化腾净资产 (参考福布斯数据):</p>
+                    <p class="fortune-amount" id="fortuneAmount">$42,000,000,000</p>
+                    <p class="fortune-note">数据来源: 福布斯2024全球富豪榜 (模拟数据，仅用于娱乐)</p>
+                </div>
+                
+                <div class="remaining-info">
+                    <p class="remaining-label">你的剩余财富:</p>
+                    <p class="remaining-amount" id="remainingAmount">$42,000,000,000</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="spent-label">已花费: <span id="spentAmount">$0</span></p>
+                </div>
+            </div>
+        </header>
+
+        <!-- 控制面板 -->
+        <div class="controls">
+            <div class="total-spent" id="totalSpentContainer">
+                购物车总计: <span id="totalSpent">$0</span>
+            </div>
+            <div class="buttons">
+                <button class="btn btn-reset" id="resetBtn">
+                    <i class="fas fa-redo"></i> 一键重置
+                </button>
+                <button class="btn btn-share" id="shareBtn">
+                    <i class="fas fa-share-alt"></i> 分享结果
+                </button>
+            </div>
+        </div>
+
+        <!-- 商品分类 -->
+        <div class="categories">
+            <div class="category-tabs">
+                <button class="category-btn active" data-category="all">全部商品</button>
+                <button class="category-btn" data-category="tech">科技帝国</button>
+                <button class="category-btn" data-category="game">游戏王国</button>
+                <button class="category-btn" data-category="social">社交生态</button>
+                <button class="category-btn" data-category="investment">投资布局</button>
+                <button class="category-btn" data-category="future">未来科技</button>
+            </div>
+        </div>
+
+        <!-- 商品网格 -->
+        <div class="products-grid" id="productsGrid">
+            <!-- 商品卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 购物车 -->
+        <div class="cart-section">
+            <h2 class="cart-title"><i class="fas fa-shopping-cart"></i> 你的购物车</h2>
+            
+            <div class="cart-items" id="cartItems">
+                <div class="cart-empty" id="emptyCart">
+                    <i class="fas fa-cart-plus" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <p>购物车空空如也<br>快去挑选你心仪的商品吧！</p>
+                </div>
+                <!-- 购物车项目将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>商品总价:</span>
+                    <span id="cartSubtotal">$0</span>
+                </div>
+                <div class="summary-row">
+                    <span>已花费比例:</span>
+                    <span id="spentPercentage">0%</span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span>总计花费:</span>
+                    <span id="cartTotal">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分享结果弹窗 -->
+        <div class="share-modal" id="shareModal">
+            <div class="share-content" id="shareContent">
+                <div class="share-header">
+                    <h2><i class="fas fa-chart-network"></i> 消费结果报告</h2>
+                    <button class="close-modal" id="closeModal">&times;</button>
+                </div>
+                <div class="share-body">
+                    <div class="result-summary">
+                        <h3 style="margin-bottom: 20px; color: #0078d7;">你的数字消费成果</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-label">初始财富</div>
+                                <div class="summary-value" id="modalInitialFortune">$42B</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">总计花费</div>
+                                <div class="summary-value total-spent" id="modalTotalSpent">$0</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">剩余财富</div>
+                                <div class="summary-value remaining" id="modalRemainingFortune">$42B</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">花费比例</div>
+                                <div class="summary-value" id="modalSpentPercentage">0%</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; color: #6c757d; font-style: italic;">
+                            <i class="fas fa-info-circle"></i> 数据基于马化腾420亿美元净资产模拟计算
+                        </div>
+                    </div>
+                    
+                    <div class="purchased-items">
+                        <h3 class="items-title"><i class="fas fa-shopping-bag"></i> 已购商品清单</h3>
+                        <div class="items-list" id="modalItemsList">
+                            <!-- 商品列表将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="share-actions">
+                        <button class="share-btn btn-image" id="exportImage">
+                            <i class="fas fa-camera"></i> 导出为图片
+                        </button>
+                        <button class="share-btn btn-pdf" id="exportPDF">
+                            <i class="fas fa-file-pdf"></i> 导出为PDF
+                        </button>
+                        <button class="share-btn btn-copy" id="copyText">
+                            <i class="fas fa-copy"></i> 复制分享文案
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>本网站为模拟游戏，仅供娱乐</p>
+            <p class="disclaimer">
+                注: 所有财富数据均为模拟估算，与实际人物财富状况无关。商品价格基于市场公开信息估算，可能与实际价格存在差异。本网站与马化腾先生及腾讯公司无任何关系。
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 全局变量
+        let totalFortune = 42000000000; // 420亿美元
+        let remainingFortune = totalFortune;
+        let cart = {}; // 购物车对象 {productId: quantity}
+        let products = []; // 商品数组
+        let currentTheme = '1'; // 当前主题
+        
+        // 商品数据 - 腾讯生态相关
+        const productData = [
+            // 科技帝国
+            { 
+                id: 1, 
+                name: "深圳腾讯滨海大厦", 
+                description: "腾讯全球总部，拥有最先进的智能办公系统", 
+                price: 1500000000, 
+                category: "tech",
+                icon: "fas fa-building",
+                badge: "🏢 总部"
+            },
+            { 
+                id: 2, 
+                name: "腾讯云数据中心", 
+                description: "建设覆盖全国的超大型数据中心网络", 
+                price: 3000000000, 
+                category: "tech",
+                icon: "fas fa-server",
+                badge: "☁️ 云服务"
+            },
+            { 
+                id: 3, 
+                name: "微信生态系统", 
+                description: "买下整个微信生态，掌握12亿用户", 
+                price: 200000000000, 
+                category: "tech",
+                icon: "fab fa-weixin",
+                badge: "💬 社交"
+            },
+            { 
+                id: 4, 
+                name: "QQ全系列产品", 
+                description: "从QQ到QQ空间，怀旧社交帝国", 
+                price: 50000000000, 
+                category: "tech",
+                icon: "fab fa-qq",
+                badge: "👥 通讯"
+            },
+            { 
+                id: 5, 
+                name: "腾讯会议企业版", 
+                description: "为1000万企业提供视频会议服务", 
+                price: 800000000, 
+                category: "tech",
+                icon: "fas fa-video",
+                badge: "📹 办公"
+            },
+            
+            // 游戏王国
+            { 
+                id: 6, 
+                name: "收购《王者荣耀》开发团队", 
+                description: "拥有中国最赚钱的手游IP", 
+                price: 15000000000, 
+                category: "game",
+                icon: "fas fa-crown",
+                badge: "🎮 手游"
+            },
+            { 
+                id: 7, 
+                name: "英雄联盟全球赛事", 
+                description: "买下LOL全球赛事版权，打造电竞帝国", 
+                price: 5000000000, 
+                category: "game",
+                icon: "fas fa-trophy",
+                badge: "🏆 电竞"
+            },
+            { 
+                id: 8, 
+                name: "和平精英全球服务器", 
+                description: "覆盖全球的吃鸡游戏服务器网络", 
+                price: 3000000000, 
+                category: "game",
+                icon: "fas fa-crosshairs",
+                badge: "🔫 竞技"
+            },
+            { 
+                id: 9, 
+                name: "Epic Games全部股份", 
+                description: "收购《堡垒之夜》开发商，掌握虚幻引擎", 
+                price: 32000000000, 
+                category: "game",
+                icon: "fas fa-gamepad",
+                badge: "🎯 3A"
+            },
+            { 
+                id: 10, 
+                name: "腾讯游戏电竞馆连锁", 
+                description: "在全国开设500家电竞主题馆", 
+                price: 2000000000, 
+                category: "game",
+                icon: "fas fa-chess",
+                badge: "⚡ 线下"
+            },
+            
+            // 社交生态
+            { 
+                id: 11, 
+                name: "微信支付市场份额", 
+                description: "买下微信支付50%市场份额，日交易千亿", 
+                price: 40000000000, 
+                category: "social",
+                icon: "fas fa-money-bill-wave",
+                badge: "💰 支付"
+            },
+            { 
+                id: 12, 
+                name: "视频号MCN机构", 
+                description: "签约1万名顶级视频号创作者", 
+                price: 5000000000, 
+                category: "social",
+                icon: "fas fa-video",
+                badge: "🎬 短视频"
+            },
+            { 
+                id: 13, 
+                name: "腾讯音乐娱乐集团", 
+                description: "QQ音乐、酷狗、酷我音乐全平台", 
+                price: 30000000000, 
+                category: "social",
+                icon: "fas fa-music",
+                badge: "🎵 音乐"
+            },
+            { 
+                id: 14, 
+                name: "腾讯视频VIP会员", 
+                description: "为1亿用户提供终身VIP会员服务", 
+                price: 10000000000, 
+                category: "social",
+                icon: "fas fa-film",
+                badge: "🎞️ 影视"
+            },
+            { 
+                id: 15, 
+                name: "企业微信定制版", 
+                description: "为500万家企业定制专属办公系统", 
+                price: 8000000000, 
+                category: "social",
+                icon: "fas fa-briefcase",
+                badge: "💼 企业"
+            },
+            
+            // 投资布局
+            { 
+                id: 16, 
+                name: "京东集团控股", 
+                description: "成为京东最大股东，布局电商版图", 
+                price: 80000000000, 
+                category: "investment",
+                icon: "fas fa-shopping-cart",
+                badge: "🛒 电商"
+            },
+            { 
+                id: 17, 
+                name: "拼多多战略投资", 
+                description: "投资社交电商巨头，掌握下沉市场", 
+                price: 50000000000, 
+                category: "investment",
+                icon: "fas fa-tags",
+                badge: "🏷️ 特价"
+            },
+            { 
+                id: 18, 
+                name: "美团点评控股权", 
+                description: "控制本地生活服务平台", 
+                price: 60000000000, 
+                category: "investment",
+                icon: "fas fa-utensils",
+                badge: "🍔 生活"
+            },
+            { 
+                id: 19, 
+                name: "特斯拉10%股份", 
+                description: "投资未来汽车科技", 
+                price: 70000000000, 
+                category: "investment",
+                icon: "fas fa-car",
+                badge: "🚗 汽车"
+            },
+            { 
+                id: 20, 
+                name: "人工智能实验室", 
+                description: "建立世界级AI研究机构", 
+                price: 5000000000, 
+                category: "investment",
+                icon: "fas fa-robot",
+                badge: "🤖 AI"
+            },
+            
+            // 未来科技
+            { 
+                id: 21, 
+                name: "量子计算研究中心", 
+                description: "建设国家级量子计算实验室", 
+                price: 3000000000, 
+                category: "future",
+                icon: "fas fa-atom",
+                badge: "⚛️ 量子"
+            },
+            { 
+                id: 22, 
+                name: "元宇宙社交平台", 
+                description: "开发下一代沉浸式社交体验", 
+                price: 10000000000, 
+                category: "future",
+                icon: "fas fa-vr-cardboard",
+                badge: "🌌 元宇宙"
+            },
+            { 
+                id: 23, 
+                name: "区块链数字人民币", 
+                description: "参与央行数字人民币研发", 
+                price: 5000000000, 
+                category: "future",
+                icon: "fas fa-link",
+                badge: "🔗 区块链"
+            },
+            { 
+                id: 24, 
+                name: "智慧城市解决方案", 
+                description: "为10个超大城市提供智慧城市服务", 
+                price: 8000000000, 
+                category: "future",
+                icon: "fas fa-city",
+                badge: "🏙️ 智慧"
+            },
+            { 
+                id: 25, 
+                name: "卫星互联网计划", 
+                description: "发射100颗低轨通信卫星", 
+                price: 12000000000, 
+                category: "future",
+                icon: "fas fa-satellite",
+                badge: "🛰️ 卫星"
+            },
+            
+            // 额外商品
+            { 
+                id: 26, 
+                name: "腾讯公益慈善基金", 
+                description: "设立1000亿慈善基金，助力乡村振兴", 
+                price: 100000000000, 
+                category: "investment",
+                icon: "fas fa-hands-helping",
+                badge: "❤️ 公益"
+            },
+            { 
+                id: 27, 
+                name: "电竞明星战队", 
+                description: "组建世界冠军级电竞战队", 
+                price: 500000000, 
+                category: "game",
+                icon: "fas fa-users",
+                badge: "👑 冠军"
+            },
+            { 
+                id: 28, 
+                name: "腾讯文旅IP开发", 
+                description: "打造10个中国文化主题数字IP", 
+                price: 3000000000, 
+                category: "future",
+                icon: "fas fa-landmark",
+                badge: "🎭 文化"
+            },
+            { 
+                id: 29, 
+                name: "智能汽车操作系统", 
+                description: "研发下一代车载智能系统", 
+                price: 5000000000, 
+                category: "tech",
+                icon: "fas fa-car-battery",
+                badge: "🚙 智能"
+            },
+            { 
+                id: 30, 
+                name: "数字艺术收藏平台", 
+                description: "建立中国最大的数字艺术品交易平台", 
+                price: 2000000000, 
+                category: "social",
+                icon: "fas fa-palette",
+                badge: "🎨 艺术"
+            }
+        ];
+        
+        // 创建金钱特效
+        function createMoneyEffect(x, y, amount, type = 'normal') {
+            const money = document.createElement('div');
+            money.className = `money-effect ${type}`;
+            money.textContent = type === 'coin' ? '🪙' : `+${formatMoney(amount)}`;
+            money.style.left = `${x}px`;
+            money.style.top = `${y}px`;
+            document.body.appendChild(money);
+            
+            // 1秒后移除
+            setTimeout(() => {
+                money.remove();
+            }, 1000);
+        }
+        
+        // 格式化金额显示
+        function formatMoney(amount) {
+            if (amount >= 1000000000) {
+                return '$' + (amount / 1000000000).toFixed(2) + 'B';
+            } else if (amount >= 1000000) {
+                return '$' + (amount / 1000000).toFixed(2) + 'M';
+            } else if (amount >= 1000) {
+                return '$' + (amount / 1000).toFixed(1) + 'K';
+            }
+            return '$' + amount.toLocaleString();
+        }
+        
+        // 初始化商品显示
+        function initProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+            
+            products = [...productData];
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.setAttribute('data-category', product.category);
+                
+                productCard.innerHTML = `
+                    ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                    <div class="product-image">
+                        <i class="${product.icon}"></i>
+                    </div>
+                    <div class="product-content">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price"><i class="fas fa-coins"></i> ${formatMoney(product.price)}</div>
+                        <div class="product-controls">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus-btn" data-id="${product.id}">-</button>
+                                <span class="quantity" id="quantity-${product.id}">0</span>
+                                <button class="quantity-btn plus-btn" data-id="${product.id}">+</button>
+                            </div>
+                            <button class="btn-buy" data-id="${product.id}">
+                                <i class="fas fa-cart-plus"></i> 加入购物车
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                productsGrid.appendChild(productCard);
+            });
+            
+            // 添加事件监听
+            document.querySelectorAll('.btn-buy').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    addToCart(productId, 1, e.clientX, e.clientY);
+                });
+            });
+            
+            document.querySelectorAll('.plus-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    addToCart(productId, 1, e.clientX, e.clientY);
+                });
+            });
+            
+            document.querySelectorAll('.minus-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    removeFromCart(productId, 1);
+                });
+            });
+        }
+        
+        // 添加到购物车
+        function addToCart(productId, quantity, x, y) {
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) return;
+            
+            // 检查是否有足够财富
+            const currentQuantity = cart[productId] || 0;
+            const totalCost = product.price * (currentQuantity + quantity);
+            const currentSpent = calculateTotalSpent();
+            
+            if (currentSpent + product.price * quantity > totalFortune) {
+                alert('余额不足！无法购买更多商品。');
+                return;
+            }
+            
+            // 更新购物车
+            cart[productId] = currentQuantity + quantity;
+            
+            // 创建金钱特效（游戏相关商品用金币效果）
+            if (x && y) {
+                const effectType = product.category === 'game' ? 'coin' : 'normal';
+                createMoneyEffect(x, y, product.price, effectType);
+            }
+            
+            // 播放音效（模拟）
+            if (typeof Audio !== 'undefined') {
+                try {
+                    const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+                    audio.volume = 0.3;
+                    audio.play().catch(e => console.log('音频播放失败:', e));
+                } catch (e) {
+                    console.log('音频创建失败:', e);
+                }
+            }
+            
+            // 更新UI
+            updateCartDisplay();
+            updateProductQuantityDisplay(productId);
+            
+            // 更新总花费的动画效果
+            const totalSpentElement = document.getElementById('totalSpentContainer');
+            totalSpentElement.classList.add('high');
+            setTimeout(() => {
+                totalSpentElement.classList.remove('high');
+            }, 500);
+        }
+        
+        // 从购物车移除
+        function removeFromCart(productId, quantity) {
+            if (!cart[productId]) return;
+            
+            cart[productId] -= quantity;
+            
+            if (cart[productId] <= 0) {
+                delete cart[productId];
+            }
+            
+            // 更新UI
+            updateCartDisplay();
+            updateProductQuantityDisplay(productId);
+        }
+        
+        // 更新商品数量显示
+        function updateProductQuantityDisplay(productId) {
+            const quantityElement = document.getElementById(`quantity-${productId}`);
+            if (quantityElement) {
+                quantityElement.textContent = cart[productId] || 0;
+            }
+        }
+        
+        // 计算总花费
+        function calculateTotalSpent() {
+            let total = 0;
+            
+            for (const [productId, quantity] of Object.entries(cart)) {
+                const product = products.find(p => p.id === parseInt(productId));
+                if (product) {
+                    total += product.price * quantity;
+                }
+            }
+            
+            return total;
+        }
+        
+        // 更新购物车显示
+        function updateCartDisplay() {
+            const cartItemsElement = document.getElementById('cartItems');
+            const emptyCartElement = document.getElementById('emptyCart');
+            const totalSpent = calculateTotalSpent();
+            
+            remainingFortune = totalFortune - totalSpent;
+            
+            // 更新财富显示
+            document.getElementById('remainingAmount').textContent = formatMoney(remainingFortune);
+            document.getElementById('spentAmount').textContent = formatMoney(totalSpent);
+            document.getElementById('totalSpent').textContent = formatMoney(totalSpent);
+            
+            // 更新剩余财富颜色（低于10%变红色）
+            const remainingAmountElement = document.getElementById('remainingAmount');
+            if (remainingFortune < totalFortune * 0.1) {
+                remainingAmountElement.classList.add('low');
+            } else {
+                remainingAmountElement.classList.remove('low');
+            }
+            
+            // 更新进度条
+            const spentPercentage = (totalSpent / totalFortune) * 100;
+            document.getElementById('progressFill').style.width = `${Math.min(spentPercentage, 100)}%`;
+            
+            // 更新购物车总计
+            document.getElementById('cartSubtotal').textContent = formatMoney(totalSpent);
+            document.getElementById('cartTotal').textContent = formatMoney(totalSpent);
+            document.getElementById('spentPercentage').textContent = `${spentPercentage.toFixed(2)}%`;
+            
+            // 清空购物车显示
+            const existingItems = cartItemsElement.querySelectorAll('.cart-item');
+            existingItems.forEach(item => item.remove());
+            
+            // 如果购物车为空，显示空购物车消息
+            if (Object.keys(cart).length === 0) {
+                emptyCartElement.style.display = 'block';
+                return;
+            }
+            
+            // 隐藏空购物车消息
+            emptyCartElement.style.display = 'none';
+            
+            // 添加购物车项目
+            for (const [productId, quantity] of Object.entries(cart)) {
+                const product = products.find(p => p.id === parseInt(productId));
+                if (!product) continue;
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div class="cart-item-info">
+                        <h4>${product.name}</h4>
+                        <p>单价: ${formatMoney(product.price)}</p>
+                    </div>
+                    <div class="cart-item-price">${formatMoney(product.price * quantity)}</div>
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn minus-btn" data-id="${productId}">-</button>
+                        <span class="quantity">${quantity}</span>
+                        <button class="quantity-btn plus-btn" data-id="${productId}">+</button>
+                        <button class="btn-buy remove-btn" data-id="${productId}" style="background-color: #ff6b6b; margin-left: 10px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                cartItemsElement.appendChild(cartItem);
+            }
+            
+            // 为购物车中的按钮添加事件监听
+            cartItemsElement.querySelectorAll('.plus-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    addToCart(productId, 1, e.clientX, e.clientY);
+                });
+            });
+            
+            cartItemsElement.querySelectorAll('.minus-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    removeFromCart(productId, 1);
+                });
+            });
+            
+            cartItemsElement.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    const quantity = cart[productId] || 0;
+                    removeFromCart(productId, quantity);
+                });
+            });
+        }
+        
+        // 重置购物车
+        function resetCart() {
+            if (Object.keys(cart).length === 0) {
+                alert('购物车已经是空的啦！');
+                return;
+            }
+            
+            if (confirm('确定要清空购物车吗？这将会重置所有已选商品。')) {
+                cart = {};
+                remainingFortune = totalFortune;
+                updateCartDisplay();
+                
+                // 重置所有商品数量显示
+                products.forEach(product => {
+                    updateProductQuantityDisplay(product.id);
+                });
+            }
+        }
+        
+        // 显示分享弹窗
+        function showShareModal() {
+            const totalSpent = calculateTotalSpent();
+            const spentPercentage = ((totalSpent / totalFortune) * 100).toFixed(2);
+            
+            // 更新弹窗中的统计数据
+            document.getElementById('modalInitialFortune').textContent = formatMoney(totalFortune);
+            document.getElementById('modalTotalSpent').textContent = formatMoney(totalSpent);
+            document.getElementById('modalRemainingFortune').textContent = formatMoney(remainingFortune);
+            document.getElementById('modalSpentPercentage').textContent = `${spentPercentage}%`;
+            
+            // 更新商品列表
+            const itemsList = document.getElementById('modalItemsList');
+            itemsList.innerHTML = '';
+            
+            if (Object.keys(cart).length === 0) {
+                itemsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6c757d;">
+                        <i class="fas fa-shopping-cart" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>还没有购买任何商品</p>
+                    </div>
+                `;
+            } else {
+                // 按分类分组显示商品
+                const categories = {
+                    'tech': '科技帝国',
+                    'game': '游戏王国', 
+                    'social': '社交生态',
+                    'investment': '投资布局',
+                    'future': '未来科技'
+                };
+                
+                let itemsHTML = '';
+                let hasItems = false;
+                
+                // 遍历每个分类
+                for (const [catId, catName] of Object.entries(categories)) {
+                    const categoryItems = [];
+                    let categoryTotal = 0;
+                    
+                    // 收集该分类的商品
+                    for (const [productId, quantity] of Object.entries(cart)) {
+                        const product = products.find(p => p.id === parseInt(productId));
+                        if (product && product.category === catId) {
+                            categoryItems.push({product, quantity});
+                            categoryTotal += product.price * quantity;
+                        }
+                    }
+                    
+                    // 如果有该分类的商品，显示分类标题
+                    if (categoryItems.length > 0) {
+                        hasItems = true;
+                        itemsHTML += `
+                            <div style="background-color: #f8f9fa; padding: 10px 20px; font-weight: bold; color: #0078d7; border-bottom: 1px solid #e9ecef;">
+                                ${catName} (${formatMoney(categoryTotal)})
+                            </div>
+                        `;
+                        
+                        // 显示该分类的商品
+                        categoryItems.forEach(item => {
+                            itemsHTML += `
+                                <div class="item-row">
+                                    <div class="item-name">${item.product.name}</div>
+                                    <div class="item-quantity">×${item.quantity}</div>
+                                    <div class="item-price">${formatMoney(item.product.price * item.quantity)}</div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+                
+                // 添加总计行
+                itemsHTML += `
+                    <div class="item-row" style="background-color: #f8f9fa; font-weight: 800;">
+                        <div class="item-name">总计</div>
+                        <div class="item-quantity"></div>
+                        <div class="item-price" style="color: #ff6d00;">${formatMoney(totalSpent)}</div>
+                    </div>
+                `;
+                
+                itemsList.innerHTML = itemsHTML;
+            }
+            
+            // 显示弹窗
+            document.getElementById('shareModal').classList.add('active');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+        
+        // 关闭分享弹窗
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+            document.body.style.overflow = 'auto'; // 恢复背景滚动
+        }
+        
+        // 导出为图片
+        function exportAsImage() {
+            const shareContent = document.getElementById('shareContent');
+            
+            // 临时隐藏导出按钮，避免出现在截图中
+            const exportButtons = document.querySelectorAll('.share-actions');
+            exportButtons.forEach(btn => btn.style.display = 'none');
+            
+            html2canvas(shareContent, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(canvas => {
+                // 恢复按钮显示
+                exportButtons.forEach(btn => btn.style.display = 'flex');
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.download = `马化腾财富消费报告_${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                alert('图片已生成并开始下载！');
+            }).catch(error => {
+                // 恢复按钮显示
+                exportButtons.forEach(btn => btn.style.display = 'flex');
+                console.error('导出图片失败:', error);
+                alert('导出图片失败，请重试或使用其他导出方式。');
+            });
+        }
+        
+        // 导出为PDF
+        function exportAsPDF() {
+            const shareContent = document.getElementById('shareContent');
+            const totalSpent = calculateTotalSpent();
+            const spentPercentage = ((totalSpent / totalFortune) * 100).toFixed(2);
+            
+            // 临时隐藏导出按钮，避免出现在截图中
+            const exportButtons = document.querySelectorAll('.share-actions');
+            exportButtons.forEach(btn => btn.style.display = 'none');
+            
+            html2canvas(shareContent, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(canvas => {
+                // 恢复按钮显示
+                exportButtons.forEach(btn => btn.style.display = 'flex');
+                
+                // 创建PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210; // A4宽度
+                const pageHeight = 297; // A4高度
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                
+                // 如果内容太长，分页
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                while (heightLeft > 0) {
+                    position = heightLeft - pageHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                // 保存PDF
+                pdf.save(`马化腾财富消费报告_${new Date().toISOString().slice(0,10)}.pdf`);
+                
+                alert('PDF文件已生成并开始下载！');
+            }).catch(error => {
+                // 恢复按钮显示
+                exportButtons.forEach(btn => btn.style.display = 'flex');
+                console.error('导出PDF失败:', error);
+                alert('导出PDF失败，请重试或使用其他导出方式。');
+            });
+        }
+        
+        // 复制分享文案
+        function copyShareText() {
+            const totalSpent = calculateTotalSpent();
+            const spentPercentage = ((totalSpent / totalFortune) * 100).toFixed(2);
+            
+            let message = `🎮 我在"花马化腾的钱"游戏中的消费报告 🎮\n\n`;
+            message += `💰 初始财富: ${formatMoney(totalFortune)}\n`;
+            message += `💸 总计花费: ${formatMoney(totalSpent)} (${spentPercentage}%)\n`;
+            message += `🤑 剩余财富: ${formatMoney(remainingFortune)}\n\n`;
+            
+            if (Object.keys(cart).length > 0) {
+                message += `🛍️ 已购商品清单:\n`;
+                
+                // 按分类显示
+                const categories = {
+                    'tech': '科技帝国',
+                    'game': '游戏王国', 
+                    'social': '社交生态',
+                    'investment': '投资布局',
+                    'future': '未来科技'
+                };
+                
+                for (const [catId, catName] of Object.entries(categories)) {
+                    const categoryItems = [];
+                    
+                    for (const [productId, quantity] of Object.entries(cart)) {
+                        const product = products.find(p => p.id === parseInt(productId));
+                        if (product && product.category === catId) {
+                            categoryItems.push({product, quantity});
+                        }
+                    }
+                    
+                    if (categoryItems.length > 0) {
+                        message += `\n${catName}:\n`;
+                        categoryItems.forEach(item => {
+                            message += `  • ${item.product.name} ×${item.quantity} = ${formatMoney(item.product.price * item.quantity)}\n`;
+                        });
+                    }
+                }
+                
+                message += `\n`;
+            }
+            
+            message += `📅 报告生成时间: ${new Date().toLocaleString('zh-CN')}\n`;
+            message += `🔗 你也来试试: 花马化腾的钱模拟游戏\n`;
+            
+            // 复制到剪贴板
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(message).then(() => {
+                    alert('分享文案已复制到剪贴板！');
+                }).catch(err => {
+                    prompt('请复制以下分享文案:', message);
+                });
+            } else {
+                prompt('请复制以下分享文案:', message);
+            }
+        }
+        
+        // 切换主题
+        function switchTheme(theme) {
+            // 移除所有主题类
+            document.body.classList.remove('theme-1', 'theme-2', 'theme-3', 'theme-4', 'theme-5');
+            
+            // 添加新主题类
+            document.body.classList.add(`theme-${theme}`);
+            currentTheme = theme;
+            
+            // 更新主题按钮状态
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.theme-btn.theme-${theme}`).classList.add('active');
+        }
+        
+        // 初始化主题选择器
+        function initThemeSelector() {
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    switchTheme(theme);
+                });
+            });
+        }
+        
+        // 商品分类过滤
+        function initCategoryFilter() {
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 更新活跃按钮
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const category = this.getAttribute('data-category');
+                    filterProducts(category);
+                });
+            });
+        }
+        
+        // 过滤商品显示
+        function filterProducts(category) {
+            const productCards = document.querySelectorAll('.product-card');
+            
+            productCards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // 初始化应用
+        function initApp() {
+            // 初始化商品
+            initProducts();
+            
+            // 初始化主题选择器
+            initThemeSelector();
+            
+            // 初始化分类过滤
+            initCategoryFilter();
+            
+            // 初始化按钮事件
+            document.getElementById('resetBtn').addEventListener('click', resetCart);
+            document.getElementById('shareBtn').addEventListener('click', showShareModal);
+            document.getElementById('closeModal').addEventListener('click', closeShareModal);
+            document.getElementById('exportImage').addEventListener('click', exportAsImage);
+            document.getElementById('exportPDF').addEventListener('click', exportAsPDF);
+            document.getElementById('copyText').addEventListener('click', copyShareText);
+            
+            // 点击弹窗背景关闭弹窗
+            document.getElementById('shareModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeShareModal();
+                }
+            });
+            
+            // 初始更新显示
+            updateCartDisplay();
+            
+            // 初始格式化财富显示
+            document.getElementById('fortuneAmount').textContent = formatMoney(totalFortune);
+            document.getElementById('remainingAmount').textContent = formatMoney(remainingFortune);
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

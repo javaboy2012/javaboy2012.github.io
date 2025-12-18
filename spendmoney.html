@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奢华消费体验 - 花富人的钱，享极致快乐</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --gold-light: #FFD700;
+            --gold-dark: #D4AF37;
+            --gold-gradient: linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #B8860B 100%);
+            --diamond-blue: #7EC8E3;
+            --rich-purple: #6A0DAD;
+            --luxury-black: #0C0C0C;
+            --velvet-red: #8B0000;
+            --money-green: #2E8B57;
+            --light-bg: #FFF8E7;
+            --shadow-luxury: 0 15px 35px rgba(212, 175, 55, 0.3);
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #1a0f0f 0%, #0c0c0c 50%, #1a0f0f 100%);
+            color: #f0e6d2;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(142, 68, 173, 0.03) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .diamond-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            z-index: -2;
+            opacity: 0.5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+        
+        /* 头部样式 - 奢华设计 */
+        header {
+            background: linear-gradient(90deg, rgba(20, 15, 10, 0.95) 0%, rgba(12, 12, 12, 0.98) 100%);
+            padding: 25px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            position: relative;
+            border-bottom: 3px solid var(--gold-dark);
+            overflow: hidden;
+        }
+        
+        .gold-border {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gold-gradient);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        .logo::before {
+            content: "💎";
+            margin-right: 15px;
+            font-size: 2.5rem;
+        }
+        
+        .tagline {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--gold-light);
+            text-align: right;
+            font-style: italic;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        /* 主页内容 */
+        .hero {
+            text-align: center;
+            padding: 80px 0 60px;
+            position: relative;
+        }
+        
+        .hero::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: var(--gold-gradient);
+        }
+        
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            margin-bottom: 25px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            letter-spacing: 1.5px;
+        }
+        
+        .hero-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--gold-light);
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .hero p {
+            font-size: 1.4rem;
+            max-width: 900px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            color: #f0e6d2;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 富人卡片容器 */
+        .billionaires-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin: 60px 0 100px;
+            min-height: 600px;
+        }
+        
+        .billionaire-card {
+            background: linear-gradient(145deg, rgba(30, 25, 20, 0.9) 0%, rgba(20, 15, 10, 0.95) 100%);
+            border-radius: 25px;
+            width: 320px;
+            overflow: hidden;
+            box-shadow: var(--shadow-luxury);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .billionaire-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gold-gradient);
+            z-index: 2;
+        }
+        
+        .billionaire-card:hover {
+            transform: translateY(-20px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(212, 175, 55, 0.4);
+            border-color: rgba(212, 175, 55, 0.6);
+        }
+        
+        .card-header {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-header::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, rgba(12, 12, 12, 0.9), transparent);
+            z-index: 1;
+        }
+        
+        .card-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+        
+        .billionaire-card:hover .card-header img {
+            transform: scale(1.15);
+        }
+        
+        .wealth-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--gold-light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 2;
+            border: 1px solid var(--gold-dark);
+        }
+        
+        .wealth-indicator i {
+            margin-right: 5px;
+        }
+        
+        .card-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 25px 20px 15px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.9rem;
+            color: white;
+            z-index: 2;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+        
+        .card-title small {
+            display: block;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            color: var(--gold-light);
+            margin-top: 5px;
+            font-weight: 300;
+        }
+        
+        .card-content {
+            padding: 25px;
+        }
+        
+        .card-content p {
+            color: #d4c9b8;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            min-height: 90px;
+        }
+        
+        .spending-ideas {
+            background: rgba(212, 175, 55, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--gold-dark);
+        }
+        
+        .spending-ideas h4 {
+            color: var(--gold-light);
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .idea-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .idea-tag {
+            background: rgba(46, 139, 87, 0.2);
+            color: #7cfc00;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(46, 139, 87, 0.3);
+        }
+        
+        .spend-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: var(--gold-gradient);
+            color: var(--luxury-black);
+            border: none;
+            border-radius: 50px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-align: center;
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .spend-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px);
+            background-size: 10px 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .spend-btn:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.6);
+        }
+        
+        .spend-btn:hover::after {
+            opacity: 1;
+        }
+        
+        .money-icon {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.3rem;
+            animation: moneySpin 3s infinite linear;
+        }
+        
+        @keyframes moneySpin {
+            0% { transform: rotateY(0); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        /* 奢华装饰元素 */
+        .luxury-decoration {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.7;
+            z-index: 1;
+        }
+        
+        /* 页脚 */
+        footer {
+            background: linear-gradient(90deg, rgba(20, 15, 10, 0.95) 0%, rgba(12, 12, 12, 0.98) 100%);
+            color: #d4c9b8;
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 3px solid var(--gold-dark);
+            position: relative;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .disclaimer {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            max-width: 800px;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+        
+        .gold-text {
+            color: var(--gold-light);
+        }
+        
+        /* 金钱飘落动画 */
+        .money-fall {
+            position: fixed;
+            top: -50px;
+            font-size: 1.5rem;
+            opacity: 0;
+            z-index: 0;
+            animation: fall linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.7;
+            }
+        }
+        
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.3rem;
+            color: var(--gold-light);
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .billionaire-card {
+                width: 290px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3.2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.5rem;
+            }
+            
+            .billionaires-container {
+                gap: 30px;
+            }
+            
+            .billionaire-card {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                font-size: 2.2rem;
+                margin-bottom: 15px;
+            }
+            
+            .tagline {
+                text-align: center;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+                padding: 0 15px;
+            }
+            
+            .billionaire-card {
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景元素 -->
+    <div class="diamond-bg"></div>
+    
+    <!-- 头部区域 -->
+    <header>
+        <div class="gold-border"></div>
+        <div class="container header-content">
+            <div class="logo">奢华消费体验</div>
+            <div class="tagline">花顶级富豪的钱 · 享极致消费的快乐</div>
+        </div>
+    </header>
+    
+    <!-- 主页内容 -->
+    <main class="container">
+        <section class="hero">
+            <h1>选择你的财富来源</h1>
+            <div class="hero-subtitle">五位中国顶级富豪的财富任你支配</div>
+            <p>想象一下，拥有无限预算是什么感觉？这里你可以体验挥金如土的极致快乐！从购买私人飞机、游艇、岛屿，到投资未来科技、赞助太空旅行，一切消费梦想都能在这里实现。</p>
+            
+            <!-- 奢华装饰元素 -->
+            <div class="luxury-decoration" style="top: 10%; left: 5%;">💎</div>
+            <div class="luxury-decoration" style="top: 15%; right: 8%;">💰</div>
+            <div class="luxury-decoration" style="bottom: 20%; left: 10%;">🏎️</div>
+            <div class="luxury-decoration" style="bottom: 30%; right: 5%;">✈️</div>
+        </section>
+        
+        <!-- 富人卡片容器 -->
+        <div class="billionaires-container" id="billionairesContainer">
+            <!-- 加载状态 -->
+            <div class="loading" id="loadingState">
+                <i class="fas fa-gem fa-spin" style="font-size: 3rem; margin-bottom: 20px; color: var(--gold-light);"></i>
+                <p>正在加载富豪财富信息...</p>
+                <p style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">准备体验极致消费的快乐</p>
+            </div>
+            <!-- 卡片将通过JavaScript动态生成 -->
+        </div>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="container footer-content">
+            <p class="gold-text">本网站为奢华消费模拟体验平台，所有内容均为虚构娱乐</p>
+            <p class="disclaimer">免责声明：本网站是一个娱乐性质的奢华消费模拟体验平台，所有富豪形象和消费场景均为虚构创作，不代表实际情况。网站内容仅供娱乐，不构成任何投资或消费建议。体验奢华，理性消费。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 富豪数据 - 更新了马云和任正非的页面地址
+        const billionaires = [
+            {
+                id: "jack-ma",
+                name: "马云",
+                title: "阿里巴巴创始人 · 电商帝国之王",
+                color: "#FFD700",
+                wealth: "4000亿+",
+                description: "拥有阿里巴巴商业帝国，电商领域的绝对王者。用他的财富，你可以重塑全球零售业，买下整条供应链，甚至投资太空电商！",
+                spendingIdeas: ["收购国际奢侈品牌集团", "投资太空旅行公司", "购买私人岛屿建度假村", "赞助全球青年创业计划", "打造未来智慧城市"],
+                pageUrl: "mayun.html", // 更新为 mayun.html
+                image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: "pony-ma",
+                name: "马化腾",
+                title: "腾讯创始人 · 社交游戏巨鳄",
+                color: "#06D6A0",
+                wealth: "3800亿+",
+                description: "掌握腾讯社交与游戏帝国，数字世界的真正统治者。用他的财富，你可以买下任何你想玩的游戏公司，甚至创造全新的元宇宙！",
+                spendingIdeas: ["收购全球顶级游戏工作室", "投资元宇宙地产项目", "打造电竞主题度假村", "赞助国际电子竞技大赛", "创建数字艺术收藏馆"],
+                pageUrl: "spend-pony-ma.html",
+                image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: "leijun",
+                name: "雷军",
+                title: "小米创始人 · 科技产品教父",
+                color: "#118AB2",
+                wealth: "1500亿+",
+                description: "小米科技帝国的缔造者，智能硬件的革命者。用他的财富，你可以投资最前沿的科技，打造全屋智能生态系统，甚至买下芯片工厂！",
+                spendingIdeas: ["投资电动汽车制造商", "打造全屋智能生态系统", "收购半导体制造企业", "赞助全球科技创新大赛", "创建未来科技体验馆"],
+                pageUrl: "spend-leijun.html",
+                image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: "robin-li",
+                name: "李彦宏",
+                title: "百度创始人 · AI技术先锋",
+                color: "#EF476F",
+                wealth: "1200亿+",
+                description: "百度搜索引擎的创造者，人工智能领域的领军人物。用他的财富，你可以投资最前沿的AI项目，打造智慧城市，甚至创造机器人管家军团！",
+                spendingIdeas: ["投资AI机器人公司", "建造未来城市数据中心", "收购自动驾驶技术企业", "赞助全球AI研究计划", "创建人工智能体验中心"],
+                pageUrl: "spend-robin-li.html",
+                image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: "ren-zhengfei",
+                name: "任正非",
+                title: "华为创始人 · 通信技术之王",
+                color: "#7EC8E3",
+                wealth: "2000亿+",
+                description: "华为通信帝国的缔造者，5G技术的全球领导者。用他的财富，你可以推动通信技术革命，投资6G研发，甚至建造全球卫星网络！",
+                spendingIdeas: ["投资6G通信技术研发", "建造全球卫星通信网络", "收购半导体芯片企业", "赞助全球科技创新中心", "创建通信科技博物馆"],
+                pageUrl: "rzf.html", // 更新为 rzf.html
+                image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+            }
+        ];
+
+        // 生成富豪卡片
+        function generateBillionaireCards() {
+            const container = document.getElementById('billionairesContainer');
+            const loadingState = document.getElementById('loadingState');
+            
+            // 清除加载状态
+            if (loadingState) {
+                loadingState.style.display = 'none';
+            }
+            
+            // 清空容器（除了加载状态）
+            const existingCards = container.querySelectorAll('.billionaire-card');
+            existingCards.forEach(card => card.remove());
+            
+            billionaires.forEach(billionaire => {
+                const card = document.createElement('div');
+                card.className = 'billionaire-card';
+                card.dataset.id = billionaire.id;
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <img src="${billionaire.image}" alt="${billionaire.name}">
+                        <div class="wealth-indicator"><i class="fas fa-crown"></i> 财富值: ${billionaire.wealth}</div>
+                        <div class="card-title">${billionaire.name}<small>${billionaire.title}</small></div>
+                    </div>
+                    <div class="card-content">
+                        <p>${billionaire.description}</p>
+                        <div class="spending-ideas">
+                            <h4><i class="fas fa-lightbulb"></i> 消费灵感</h4>
+                            <div class="idea-tags">
+                                ${billionaire.spendingIdeas.slice(0, 3).map(idea => `<span class="idea-tag">${idea}</span>`).join('')}
+                            </div>
+                        </div>
+                        <a href="${billionaire.pageUrl}" class="spend-btn" data-id="${billionaire.id}" target="_blank">
+                            <span class="money-icon">💰</span>体验花${billionaire.name}的钱
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // 添加卡片点击事件 - 现在使用实际的链接，不再需要模拟跳转
+            document.querySelectorAll('.spend-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 在实际链接存在的情况下，直接跳转，不再显示模拟页面
+                    const billionaireId = this.dataset.id;
+                    const billionaire = billionaires.find(b => b.id === billionaireId);
+                    
+                    if (billionaire && billionaire.pageUrl) {
+                        // 如果页面存在，直接跳转
+                        // 如果页面不存在，显示提示
+                        console.log(`正在跳转到: ${billionaire.pageUrl}`);
+                        // 在实际环境中，这里会直接跳转
+                        // 为了演示，我们显示一个提示
+                        if (billionaireId === "jack-ma" || billionaireId === "ren-zhengfei") {
+                            // 对于马云和任正非，显示特殊提示
+                            setTimeout(() => {
+                                alert(`即将跳转到 ${billionaire.name} 的专属消费页面: ${billionaire.pageUrl}\n\n(在实际部署中，这里会直接跳转到该页面)`);
+                            }, 300);
+                        }
+                    }
+                });
+            });
+        }
+
+        // 创建金钱飘落效果
+        function createMoneyRain() {
+            const moneySymbols = ['💰', '💵', '💴', '💶', '💷', '💎', '🏦', '💳', '🤑'];
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const money = document.createElement('div');
+                    money.className = 'money-fall';
+                    money.innerHTML = moneySymbols[Math.floor(Math.random() * moneySymbols.length)];
+                    money.style.left = Math.random() * 100 + 'vw';
+                    money.style.animationDuration = Math.random() * 10 + 10 + 's';
+                    money.style.fontSize = Math.random() * 20 + 15 + 'px';
+                    
+                    document.body.appendChild(money);
+                    
+                    // 移除元素
+                    setTimeout(() => {
+                        if (money.parentNode) {
+                            money.parentNode.removeChild(money);
+                        }
+                    }, 15000);
+                }, i * 300);
+            }
+        }
+
+        // 定期创建金钱雨
+        function startMoneyRain() {
+            createMoneyRain();
+            setInterval(createMoneyRain, 20000);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟一点生成卡片，确保DOM完全加载
+            setTimeout(() => {
+                generateBillionaireCards();
+                startMoneyRain();
+                
+                // 添加悬停效果到卡片
+                const cards = document.querySelectorAll('.billionaire-card');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        const id = this.dataset.id;
+                        const billionaire = billionaires.find(b => b.id === id);
+                        if (billionaire) {
+                            this.style.boxShadow = `0 25px 50px ${billionaire.color}30`;
+                        }
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.boxShadow = 'var(--shadow-luxury)';
+                    });
+                });
+            }, 500);
+            
+            // 显示页面地址更新提示
+            console.log("页面地址已更新:");
+            console.log("马云页面: mayun.html");
+            console.log("任正非页面: rzf.html");
+        });
+    </script>
+</body>
+</html>

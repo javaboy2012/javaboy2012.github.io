@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>中华节日音画 - 中国风互动音乐体验</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=ZCOOL+XiaoWei&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+        }
+        
+        body {
+            background-color: #8B0000;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(139, 0, 0, 0.4) 0%, transparent 50%);
+            font-family: 'ZCOOL QingKe HuangYou', cursive, sans-serif;
+            color: #FFD700;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            touch-action: none;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: block;
+        }
+        
+        /* 祝福计数器 */
+        .blessing-counter {
+            position: fixed;
+            top: clamp(15px, 4vw, 25px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.95), rgba(139, 0, 0, 0.95));
+            padding: clamp(10px, 3vw, 15px) clamp(20px, 5vw, 30px);
+            border-radius: clamp(15px, 4vw, 25px);
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            box-shadow: 
+                0 0 clamp(15px, 4vw, 25px) rgba(255, 215, 0, 0.5),
+                0 clamp(5px, 2vw, 8px) clamp(10px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 15px);
+            animation: counterPulse 3s infinite alternate;
+            min-width: clamp(200px, 50vw, 300px);
+            justify-content: center;
+        }
+        
+        @keyframes counterPulse {
+            0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+            100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        }
+        
+        .counter-icon {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            color: #FFEC19;
+            animation: iconFloat 2s infinite ease-in-out;
+        }
+        
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .counter-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .counter-label {
+            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+            color: #FFD700;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        .counter-value {
+            font-size: clamp(1.8rem, 7vw, 3rem);
+            font-weight: bold;
+            color: #FFEC19;
+            text-shadow: 
+                0 0 10px rgba(255, 87, 34, 0.9),
+                0 0 20px rgba(255, 87, 34, 0.6),
+                2px 2px 0 #8B0000;
+            font-family: 'Ma Shan Zheng', cursive;
+            line-height: 1;
+        }
+        
+        .counter-unit {
+            font-size: clamp(0.7rem, 2vw, 1rem);
+            color: #FFD700;
+            margin-top: 2px;
+        }
+        
+        /* 里程碑提示 */
+        .milestone-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 20;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.98), rgba(139, 0, 0, 0.98));
+            padding: clamp(20px, 6vw, 40px);
+            border-radius: clamp(20px, 6vw, 40px);
+            border: clamp(3px, 1.5vw, 5px) solid #FFD700;
+            box-shadow: 
+                0 0 clamp(30px, 8vw, 60px) rgba(255, 87, 34, 0.9),
+                0 clamp(10px, 4vw, 20px) clamp(30px, 8vw, 50px) rgba(0, 0, 0, 0.6);
+            text-align: center;
+            max-width: min(90vw, 500px);
+            opacity: 0;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            pointer-events: none;
+        }
+        
+        .milestone-notification.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .milestone-notification h3 {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            color: #FFEC19;
+            margin-bottom: clamp(10px, 4vw, 20px);
+            font-family: 'Ma Shan Zheng', cursive;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        
+        .milestone-notification p {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            line-height: 1.5;
+            margin-bottom: clamp(15px, 5vw, 25px);
+            color: #FFD700;
+        }
+        
+        .milestone-emoji {
+            font-size: clamp(3rem, 10vw, 5rem);
+            margin-bottom: clamp(15px, 5vw, 25px);
+            animation: emojiSpin 2s infinite;
+        }
+        
+        @keyframes emojiSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        /* 统计面板 */
+        .stats-panel {
+            position: fixed;
+            top: clamp(15px, 4vw, 25px);
+            right: clamp(15px, 4vw, 25px);
+            z-index: 5;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.9), rgba(139, 0, 0, 0.9));
+            padding: clamp(10px, 3vw, 15px);
+            border-radius: clamp(15px, 4vw, 25px);
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            display: none;
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 12px);
+            min-width: clamp(120px, 30vw, 180px);
+        }
+        
+        .stats-panel.show {
+            display: flex;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            padding: clamp(5px, 1.5vw, 8px) 0;
+            border-bottom: 1px dashed rgba(255, 215, 0, 0.3);
+        }
+        
+        .stats-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stats-label {
+            color: #FFD700;
+        }
+        
+        .stats-value {
+            color: #FFEC19;
+            font-weight: bold;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+        
+        /* 中央固定使用说明 - 默认隐藏 */
+        .instructions-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.98), rgba(139, 0, 0, 0.98));
+            padding: clamp(15px, 4vw, 30px) clamp(20px, 5vw, 40px);
+            border-radius: clamp(15px, 4vw, 25px);
+            border: clamp(2px, 1vw, 4px) solid #FFD700;
+            max-width: min(95vw, 800px);
+            width: 90vw;
+            box-shadow: 
+                0 0 clamp(20px, 5vw, 40px) rgba(255, 87, 34, 0.8),
+                0 clamp(5px, 2vw, 10px) clamp(15px, 4vw, 30px) rgba(0, 0, 0, 0.5),
+                inset 0 0 clamp(10px, 3vw, 20px) rgba(255, 215, 0, 0.3);
+            text-align: center;
+            pointer-events: auto;
+            animation: glow 3s infinite alternate;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .instructions-center.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 clamp(15px, 4vw, 30px) rgba(255, 87, 34, 0.7), 0 clamp(5px, 2vw, 10px) clamp(15px, 4vw, 30px) rgba(0, 0, 0, 0.5), inset 0 0 clamp(10px, 3vw, 20px) rgba(255, 215, 0, 0.3); }
+            100% { box-shadow: 0 0 clamp(25px, 6vw, 50px) rgba(255, 87, 34, 1), 0 clamp(8px, 3vw, 15px) clamp(20px, 5vw, 40px) rgba(0, 0, 0, 0.6), inset 0 0 clamp(15px, 4vw, 30px) rgba(255, 215, 0, 0.5); }
+        }
+        
+        /* 关闭按钮 */
+        .close-btn {
+            position: absolute;
+            top: clamp(8px, 2vw, 15px);
+            right: clamp(10px, 3vw, 20px);
+            background: #FFD700;
+            color: #8B0000;
+            border: none;
+            width: clamp(30px, 8vw, 40px);
+            height: clamp(30px, 8vw, 40px);
+            border-radius: 50%;
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 clamp(2px, 1vw, 4px) clamp(4px, 2vw, 8px) rgba(0, 0, 0, 0.3);
+            z-index: 11;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .close-btn:hover, .close-btn:active {
+            background: #FFEC19;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 clamp(3px, 1.5vw, 6px) clamp(6px, 3vw, 12px) rgba(0, 0, 0, 0.4);
+        }
+        
+        .instructions-center h1 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: clamp(1.8rem, 6vw, 3.5rem);
+            color: #FFD700;
+            text-shadow: 
+                0 0 clamp(8px, 2vw, 15px) rgba(255, 87, 34, 0.9),
+                0 0 clamp(15px, 4vw, 30px) rgba(255, 87, 34, 0.6),
+                clamp(2px, 1vw, 3px) clamp(2px, 1vw, 3px) 0 #8B0000;
+            margin-bottom: clamp(8px, 2vw, 15px);
+            letter-spacing: clamp(3px, 2vw, 8px);
+            line-height: 1.2;
+        }
+        
+        .instructions-center h2 {
+            color: #FFD700;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            margin-bottom: clamp(15px, 4vw, 25px);
+            text-shadow: clamp(1px, 0.5vw, 2px) clamp(1px, 0.5vw, 2px) 0 #8B0000;
+            border-bottom: clamp(2px, 1vw, 3px) solid #FFD700;
+            padding-bottom: clamp(5px, 2vw, 10px);
+            display: inline-block;
+            line-height: 1.3;
+        }
+        
+        .instruction-item {
+            font-size: clamp(1rem, 3.5vw, 1.8rem);
+            line-height: 1.6;
+            margin-bottom: clamp(10px, 3vw, 15px);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: left;
+            padding: 0 clamp(5px, 2vw, 10px);
+        }
+        
+        .highlight {
+            color: #FFEC19;
+            font-weight: bold;
+            background-color: rgba(139, 0, 0, 0.7);
+            padding: clamp(3px, 1vw, 4px) clamp(8px, 2vw, 12px);
+            border-radius: clamp(5px, 2vw, 10px);
+            border: clamp(1px, 0.5vw, 2px) solid #FFD700;
+            margin: 0 clamp(4px, 1vw, 8px);
+            display: inline-block;
+            text-shadow: 1px 1px 2px #000;
+            font-size: clamp(0.9rem, 3vw, 1.6rem);
+            white-space: nowrap;
+        }
+        
+        .icon {
+            font-size: clamp(1.2rem, 4vw, 2.2rem);
+            margin-right: clamp(8px, 3vw, 15px);
+            min-width: clamp(30px, 8vw, 50px);
+            flex-shrink: 0;
+        }
+        
+        .festival-elements {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: clamp(10px, 3vw, 20px);
+            margin-top: clamp(15px, 4vw, 25px);
+            padding-top: clamp(10px, 3vw, 20px);
+            border-top: clamp(2px, 1vw, 3px) dashed #FFD700;
+        }
+        
+        .element-sample {
+            width: clamp(50px, 15vw, 100px);
+            height: clamp(50px, 15vw, 100px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.8rem, 6vw, 3.5rem);
+            border-radius: clamp(10px, 3vw, 20px);
+            background: linear-gradient(145deg, rgba(255, 87, 34, 0.8), rgba(178, 34, 34, 0.9));
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .element-sample:hover, .element-sample:active {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 clamp(5px, 3vw, 10px) clamp(12px, 4vw, 25px) rgba(0, 0, 0, 0.6);
+        }
+        
+        /* 福字倒转样式 */
+        .fu-character {
+            transform: rotate(180deg);
+            display: inline-block;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+        }
+        
+        .subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.5rem);
+            color: #FFEC19;
+            margin-top: clamp(10px, 3vw, 15px);
+            font-style: italic;
+            text-shadow: 1px 1px 2px #000;
+            padding: 0 clamp(10px, 3vw, 20px);
+        }
+        
+        /* 移动端优化控制栏 */
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            gap: clamp(8px, 3vw, 25px);
+            z-index: 5;
+            pointer-events: auto;
+            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 25px);
+            background: linear-gradient(to top, rgba(139, 0, 0, 0.9), rgba(178, 34, 34, 0.7));
+            border-top: clamp(2px, 1vw, 3px) solid #FFD700;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #B22222, #8B0000);
+            color: #FFD700;
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            padding: clamp(8px, 3vw, 12px) clamp(12px, 4vw, 20px);
+            font-size: clamp(0.9rem, 3.5vw, 1.3rem);
+            border-radius: clamp(20px, 8vw, 40px);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-weight: bold;
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            text-shadow: 1px 1px 2px #000;
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: clamp(36px, 10vw, 48px);
+        }
+        
+        button:hover, button:active {
+            background: linear-gradient(to bottom, #8B0000, #B22222);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 clamp(5px, 3vw, 12px) clamp(12px, 4vw, 25px) rgba(0, 0, 0, 0.6);
+            border-color: #FFEC19;
+            color: #FFEC19;
+        }
+        
+        /* 显示说明按钮 - 移动端优化 */
+        #showInstructionsBtn {
+            position: fixed;
+            top: clamp(80px, 20vw, 100px);
+            left: clamp(15px, 4vw, 25px);
+            z-index: 5;
+            background: linear-gradient(to bottom, #B22222, #8B0000);
+            padding: clamp(8px, 3vw, 10px) clamp(12px, 4vw, 20px);
+            font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+            border-radius: clamp(15px, 6vw, 30px);
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            min-width: auto;
+            flex: none;
+            width: auto;
+            max-width: 40vw;
+            white-space: nowrap;
+        }
+        
+        /* 显示统计按钮 */
+        #showStatsBtn {
+            position: fixed;
+            top: clamp(130px, 30vw, 150px);
+            left: clamp(15px, 4vw, 25px);
+            z-index: 5;
+            background: linear-gradient(to bottom, #B22222, #8B0000);
+            padding: clamp(8px, 3vw, 10px) clamp(12px, 4vw, 20px);
+            font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+            border-radius: clamp(15px, 6vw, 30px);
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            min-width: auto;
+            flex: none;
+            width: auto;
+            max-width: 40vw;
+            white-space: nowrap;
+        }
+        
+        .sound-status {
+            position: fixed;
+            bottom: clamp(70px, 20vw, 90px);
+            right: clamp(15px, 4vw, 25px);
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.9), rgba(139, 0, 0, 0.9));
+            padding: clamp(8px, 3vw, 10px) clamp(12px, 4vw, 20px);
+            border-radius: clamp(15px, 6vw, 30px);
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            font-size: clamp(0.8rem, 3vw, 1.1rem);
+            pointer-events: auto;
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 40vw;
+            white-space: nowrap;
+        }
+        
+        .sound-status span {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: clamp(0.9rem, 3.5vw, 1.3rem);
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        footer {
+            position: fixed;
+            bottom: clamp(60px, 20vw, 80px);
+            width: 100%;
+            text-align: center;
+            font-size: clamp(0.7rem, 2.5vw, 1rem);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0 clamp(10px, 3vw, 20px);
+            z-index: 2;
+            text-shadow: 1px 1px 2px #000;
+            pointer-events: none;
+        }
+        
+        /* 烟花动画 */
+        @keyframes firework {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+        
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: firework 0.8s ease-out forwards;
+        }
+        
+        /* 欢迎提示 */
+        .welcome-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.95), rgba(139, 0, 0, 0.95));
+            padding: clamp(20px, 6vw, 40px);
+            border-radius: clamp(20px, 6vw, 40px);
+            border: clamp(3px, 1.5vw, 5px) solid #FFD700;
+            box-shadow: 0 0 40px rgba(255, 87, 34, 0.9);
+            text-align: center;
+            z-index: 15;
+            max-width: min(90vw, 500px);
+            animation: welcomeFade 10s forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes welcomeFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.9); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); display: none; }
+        }
+        
+        .welcome-message h3 {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            color: #FFEC19;
+            margin-bottom: clamp(15px, 5vw, 25px);
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+        
+        .welcome-message p {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            line-height: 1.5;
+            margin-bottom: clamp(10px, 4vw, 20px);
+            color: #FFD700;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .blessing-counter {
+                min-width: 180px;
+                padding: 10px 15px;
+            }
+            
+            .counter-value {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            
+            button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-height: 36px;
+            }
+            
+            #showInstructionsBtn, #showStatsBtn {
+                top: auto;
+                bottom: 120px;
+                left: 15px;
+            }
+            
+            #showStatsBtn {
+                bottom: 170px;
+            }
+            
+            .sound-status {
+                bottom: 120px;
+                right: 15px;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .blessing-counter {
+                min-width: 250px;
+            }
+            
+            .counter-value {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .blessing-counter {
+                min-width: 300px;
+            }
+        }
+        
+        /* 防止文本选择 */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="no-select">
+    <canvas id="canvas"></canvas>
+    
+    <!-- 欢迎提示 -->
+    <div class="welcome-message" id="welcomeMessage">
+        <h3>🎉 欢迎使用中华节日音画 🎉</h3>
+        <p>点击屏幕任意位置开始收集节日祝福</p>
+        <p>每个互动都会生成美丽的节日元素</p>
+        <p>收集祝福解锁里程碑成就！</p>
+    </div>
+    
+    <!-- 祝福计数器 -->
+    <div class="blessing-counter">
+        <div class="counter-icon">🎁</div>
+        <div class="counter-content">
+            <div class="counter-label">已收到祝福</div>
+            <div class="counter-value" id="blessingCount">0</div>
+            <div class="counter-unit">个祝福</div>
+        </div>
+    </div>
+    
+    <!-- 里程碑提示 -->
+    <div class="milestone-notification" id="milestoneNotification">
+        <div class="milestone-emoji" id="milestoneEmoji">🎉</div>
+        <h3 id="milestoneTitle">恭喜！</h3>
+        <p id="milestoneMessage">您已收到第一个祝福！</p>
+        <p>继续点击屏幕收集更多祝福！</p>
+    </div>
+    
+    <!-- 统计面板 -->
+    <div class="stats-panel" id="statsPanel">
+        <div class="stats-item">
+            <span class="stats-label">总祝福数:</span>
+            <span class="stats-value" id="statsTotal">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">红包祝福:</span>
+            <span class="stats-value" id="statsRedEnvelope">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">福字祝福:</span>
+            <span class="stats-value" id="statsFuCharacter">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">灯笼祝福:</span>
+            <span class="stats-value" id="statsLantern">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">其他祝福:</span>
+            <span class="stats-value" id="statsOther">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">最高连击:</span>
+            <span class="stats-value" id="statsCombo">0</span>
+        </div>
+    </div>
+    
+    <!-- 中央固定使用说明 - 默认隐藏 -->
+    <div class="instructions-center" id="instructionsPanel">
+        <button class="close-btn" id="closeInstructionsBtn">×</button>
+        <h1>🎆 中华节日音画 🎆</h1>
+        <h2>🎵 互动使用说明 🎵</h2>
+        
+        <div class="instruction-item">
+            <span class="icon">🖱️</span>
+            <div><span class="highlight">点击屏幕任意位置</span> - 生成节日元素并收集祝福</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">🎯</span>
+            <div>收集更多祝福解锁<span class="highlight">里程碑成就</span></div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">📊</span>
+            <div>查看<span class="highlight">详细统计</span>了解您的祝福收集情况</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">⌨️</span>
+            <div>按下键盘 <span class="highlight">A-Z 任意键</span> - 触发不同祝福</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">↕️</span>
+            <div><span class="highlight">拖动鼠标/手指滑动</span> - 持续收集祝福</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">␡</span>
+            <div>按下 <span class="highlight">空格键</span> - 清空画面</div>
+        </div>
+        
+        <div class="festival-elements">
+            <div class="element-sample">🧧</div>
+            <div class="element-sample"><span class="fu-character">福</span></div>
+            <div class="element-sample">🏮</div>
+            <div class="element-sample">🎆</div>
+            <div class="element-sample">🍊</div>
+            <div class="element-sample">🥟</div>
+        </div>
+        
+        <div class="subtitle">收集祝福，解锁成就，感受节日喜庆氛围！</div>
+    </div>
+    
+    <!-- 显示说明按钮 -->
+    <button id="showInstructionsBtn">📖 显示说明</button>
+    
+    <!-- 显示统计按钮 -->
+    <button id="showStatsBtn">📊 显示统计</button>
+    
+    <div class="controls">
+        <button id="clearBtn">清空画面 🧹</button>
+        <button id="toggleSound">切换声音 🔊</button>
+        <button id="changeBg">更换背景 🎨</button>
+        <button id="resetStats">重置统计 🔄</button>
+    </div>
+    
+    <div class="sound-status">
+        声音: <span id="soundStatus">开启 🔊</span>
+    </div>
+    
+    <footer>
+        <p>🎊 设计灵感来源于传统中国节日 | 本页面所有音效为模拟民族乐器声音 🎊</p>
+    </footer>
+
+    <script>
+        // 检测移动设备
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // 获取Canvas元素和上下文
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 初始化Canvas尺寸
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        
+        // 获取UI元素
+        const instructionsPanel = document.getElementById('instructionsPanel');
+        const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
+        const showInstructionsBtn = document.getElementById('showInstructionsBtn');
+        const showStatsBtn = document.getElementById('showStatsBtn');
+        const statsPanel = document.getElementById('statsPanel');
+        const milestoneNotification = document.getElementById('milestoneNotification');
+        const milestoneEmoji = document.getElementById('milestoneEmoji');
+        const milestoneTitle = document.getElementById('milestoneTitle');
+        const milestoneMessage = document.getElementById('milestoneMessage');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        
+        // 音频上下文
+        let audioContext;
+        let isSoundEnabled = true;
+        const soundStatus = document.getElementById('soundStatus');
+        const toggleSoundBtn = document.getElementById('toggleSound');
+        const clearBtn = document.getElementById('clearBtn');
+        const changeBgBtn = document.getElementById('changeBg');
+        const resetStatsBtn = document.getElementById('resetStats');
+        
+        // 祝福计数元素
+        const blessingCountElement = document.getElementById('blessingCount');
+        const statsTotalElement = document.getElementById('statsTotal');
+        const statsRedEnvelopeElement = document.getElementById('statsRedEnvelope');
+        const statsFuCharacterElement = document.getElementById('statsFuCharacter');
+        const statsLanternElement = document.getElementById('statsLantern');
+        const statsOtherElement = document.getElementById('statsOther');
+        const statsComboElement = document.getElementById('statsCombo');
+        
+        // 祝福统计数据
+        let blessingStats = {
+            total: 0,
+            byType: {
+                redEnvelope: 0,
+                fuCharacter: 0,
+                lantern: 0,
+                other: 0
+            },
+            combo: 0,
+            currentCombo: 0,
+            lastBlessingTime: 0,
+            milestones: []
+        };
+        
+        // 里程碑设置
+        const milestones = [
+            { count: 1, emoji: "🎉", title: "第一个祝福！", message: "您已收到第一个节日祝福！" },
+            { count: 10, emoji: "🧧", title: "十全十美！", message: "已收集10个祝福，继续努力！" },
+            { count: 25, emoji: "🏮", title: "双喜临门！", message: "25个祝福达成，福气满满！" },
+            { count: 50, emoji: "🎊", title: "五福临门！", message: "50个祝福！您真是福星高照！" },
+            { count: 100, emoji: "💰", title: "百福具臻！", message: "100个祝福！福气爆棚！" },
+            { count: 250, emoji: "🎆", title: "福运亨通！", message: "250个祝福！福气冲天！" },
+            { count: 500, emoji: "👑", title: "福如东海！", message: "500个祝福！福气王者！" },
+            { count: 1000, emoji: "🏆", title: "千福万祥！", message: "1000个祝福！福气至尊！" }
+        ];
+        
+        // 保存和加载统计数据
+        function saveStats() {
+            localStorage.setItem('blessingStats', JSON.stringify(blessingStats));
+        }
+        
+        function loadStats() {
+            const savedStats = localStorage.getItem('blessingStats');
+            if (savedStats) {
+                blessingStats = JSON.parse(savedStats);
+                updateBlessingCount();
+                updateStatsPanel();
+            }
+        }
+        
+        // 重置统计数据
+        function resetStats() {
+            if (confirm("确定要重置所有统计数据吗？这将清除您的祝福计数和成就记录。")) {
+                blessingStats = {
+                    total: 0,
+                    byType: {
+                        redEnvelope: 0,
+                        fuCharacter: 0,
+                        lantern: 0,
+                        other: 0
+                    },
+                    combo: 0,
+                    currentCombo: 0,
+                    lastBlessingTime: 0,
+                    milestones: []
+                };
+                updateBlessingCount();
+                updateStatsPanel();
+                saveStats();
+                
+                // 显示重置提示
+                showMilestoneNotification("🔄", "统计已重置", "所有统计数据已清零，重新开始收集祝福吧！");
+            }
+        }
+        
+        // 更新祝福计数显示
+        function updateBlessingCount() {
+            blessingCountElement.textContent = blessingStats.total;
+            statsTotalElement.textContent = blessingStats.total;
+            
+            // 根据计数大小调整动画
+            if (blessingStats.total > 0) {
+                blessingCountElement.style.fontSize = clampSize(1.8, 3, blessingStats.total, 1000) + 'rem';
+            }
+        }
+        
+        // 辅助函数：根据数值调整大小
+        function clampSize(minRem, maxRem, value, maxValue) {
+            const scale = Math.min(value / maxValue, 1);
+            return minRem + (maxRem - minRem) * scale;
+        }
+        
+        // 更新统计面板
+        function updateStatsPanel() {
+            statsRedEnvelopeElement.textContent = blessingStats.byType.redEnvelope;
+            statsFuCharacterElement.textContent = blessingStats.byType.fuCharacter;
+            statsLanternElement.textContent = blessingStats.byType.lantern;
+            statsOtherElement.textContent = blessingStats.byType.other;
+            statsComboElement.textContent = blessingStats.combo;
+        }
+        
+        // 显示里程碑通知
+        function showMilestoneNotification(emoji, title, message) {
+            milestoneEmoji.textContent = emoji;
+            milestoneTitle.textContent = title;
+            milestoneMessage.textContent = message;
+            
+            milestoneNotification.classList.add('show');
+            
+            // 播放特殊音效
+            playMilestoneSound();
+            
+            // 5秒后自动隐藏
+            setTimeout(() => {
+                milestoneNotification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // 检查里程碑
+        function checkMilestones() {
+            const currentTotal = blessingStats.total;
+            
+            for (const milestone of milestones) {
+                if (currentTotal >= milestone.count && !blessingStats.milestones.includes(milestone.count)) {
+                    // 解锁新里程碑
+                    blessingStats.milestones.push(milestone.count);
+                    saveStats();
+                    
+                    // 显示里程碑通知
+                    showMilestoneNotification(milestone.emoji, milestone.title, milestone.message);
+                    
+                    // 播放庆祝动画
+                    createCelebrationEffect();
+                    break; // 每次只显示一个里程碑
+                }
+            }
+        }
+        
+        // 创建庆祝效果
+        function createCelebrationEffect() {
+            // 在屏幕中央生成大量烟花
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const x = canvas.width / 2 + (Math.random() - 0.5) * 200;
+                    const y = canvas.height / 2 + (Math.random() - 0.5) * 200;
+                    createFirework(x, y, getRandomColor(), false);
+                }, i * 100);
+            }
+            
+            // 在计数器周围生成旋转元素
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const angle = (i / 12) * Math.PI * 2;
+                    const radius = 100;
+                    const x = canvas.width / 2 + Math.cos(angle) * radius;
+                    const y = canvas.height / 2 + Math.sin(angle) * radius;
+                    
+                    const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                    const keyIndex = Math.floor(Math.random() * 26);
+                    // 注意：这里只是绘制元素，不增加计数
+                    createVisualElement(x, y, elementIndex, keyIndex, false);
+                }, i * 150);
+            }
+        }
+        
+        // 创建视觉元素（不增加计数）
+        function createVisualElement(x, y, elementIndex, keyIndex, isTouch = false) {
+            if (activeElements.length >= maxElements) {
+                activeElements.shift();
+            }
+            
+            const elementTypeIndex = elementIndex % festivalElements.length;
+            const element = festivalElements[elementTypeIndex];
+            
+            const baseSize = isMobile ? 
+                (40 + (keyIndex % 5) * 8) : 
+                (70 + (keyIndex % 7) * 15);
+                
+            const size = baseSize * element.sizeMultiplier;
+            
+            const blessing = blessings[Math.floor(Math.random() * blessings.length)];
+            const blessingColor = blessingColors[Math.floor(Math.random() * blessingColors.length)];
+            
+            const newElement = {
+                x, y,
+                size: isTouch ? size * 0.8 : size,
+                type: element.type,
+                char: element.char,
+                color: element.color,
+                instrument: element.instrument,
+                blessing: blessing,
+                blessingColor: blessingColor,
+                opacity: 1,
+                life: isTouch ? (80 + Math.random() * 60) : (120 + Math.random() * 100),
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * (isMobile ? 2 : 3),
+                velocityX: (Math.random() - 0.5) * (isMobile ? 1.5 : 2.5),
+                velocityY: (Math.random() - 0.5) * (isMobile ? 1.5 : 2) - (isMobile ? 1.5 : 2.5),
+                createdAt: Date.now(),
+                scale: 1,
+                scaleDirection: Math.random() > 0.5 ? 1 : -1
+            };
+            
+            activeElements.push(newElement);
+            
+            if (isSoundEnabled) {
+                playInstrumentSound(keyIndex, element.instrument);
+            }
+            
+            createFirework(x, y, element.color, isTouch);
+        }
+        
+        // 播放里程碑音效
+        function playMilestoneSound() {
+            if (!isSoundEnabled || !audioContext) return;
+            
+            try {
+                // 创建更喜庆的里程碑音效
+                const now = audioContext.currentTime;
+                
+                // 播放一组喜庆的音符
+                const frequencies = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = freq;
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.8);
+                    }, index * 150);
+                });
+            } catch (e) {
+                console.log("播放里程碑音效时出错:", e);
+            }
+        }
+        
+        // 获取随机颜色
+        function getRandomColor() {
+            const colors = ['#FF0000', '#FFD700', '#FF6B6B', '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#00BCD4'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // 增加祝福计数
+        function addBlessingCount(elementType) {
+            const now = Date.now();
+            
+            // 更新连击计数
+            if (now - blessingStats.lastBlessingTime < 2000) { // 2秒内再次点击算连击
+                blessingStats.currentCombo++;
+                if (blessingStats.currentCombo > blessingStats.combo) {
+                    blessingStats.combo = blessingStats.currentCombo;
+                }
+            } else {
+                blessingStats.currentCombo = 1;
+            }
+            
+            blessingStats.lastBlessingTime = now;
+            
+            // 更新总计数
+            blessingStats.total++;
+            
+            // 更新类型计数
+            if (elementType === 'redEnvelope') {
+                blessingStats.byType.redEnvelope++;
+            } else if (elementType === 'fuCharacter') {
+                blessingStats.byType.fuCharacter++;
+            } else if (elementType === 'lantern') {
+                blessingStats.byType.lantern++;
+            } else {
+                blessingStats.byType.other++;
+            }
+            
+            // 更新显示
+            updateBlessingCount();
+            updateStatsPanel();
+            
+            // 检查里程碑
+            checkMilestones();
+            
+            // 保存数据
+            saveStats();
+            
+            // 更新计数器动画
+            animateCounter();
+        }
+        
+        // 计数器动画
+        function animateCounter() {
+            const counter = document.querySelector('.blessing-counter');
+            counter.style.animation = 'none';
+            setTimeout(() => {
+                counter.style.animation = 'counterPulse 0.5s ease';
+            }, 10);
+        }
+        
+        // 初始化音频
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("音频上下文初始化成功");
+            } catch (e) {
+                console.log("浏览器不支持Web Audio API，声音功能将被禁用");
+                isSoundEnabled = false;
+                soundStatus.textContent = "不支持 🔊";
+                toggleSoundBtn.disabled = true;
+                toggleSoundBtn.textContent = "声音不支持";
+            }
+        }
+
+        // 播放声音函数
+        function playSound(frequency, type = 'sine', duration = 0.5) {
+            if (!isSoundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log("播放声音时出错:", e);
+            }
+        }
+
+        // 播放民族乐器风格声音
+        function playInstrumentSound(noteIndex, instrumentType) {
+            if (!isSoundEnabled) return;
+            
+            const baseFreq = 261.63;
+            const instrumentMultipliers = {
+                'guzheng': [1, 1.122, 1.26, 1.335, 1.498, 1.682, 1.888, 2],
+                'pipa': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498],
+                'dizi': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498],
+                'erhu': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498],
+                'bell': [1, 1.26, 1.498, 1.682, 2]
+            };
+            
+            const instrument = instrumentMultipliers[instrumentType] || instrumentMultipliers['guzheng'];
+            const freqIndex = noteIndex % instrument.length;
+            const frequency = baseFreq * instrument[freqIndex];
+            
+            const waveTypes = {
+                'guzheng': 'sine',
+                'pipa': 'square',
+                'dizi': 'sine',
+                'erhu': 'sawtooth',
+                'bell': 'sine'
+            };
+            
+            const waveType = waveTypes[instrumentType] || 'sine';
+            
+            const durations = {
+                'guzheng': isMobile ? 0.7 : 1.0,
+                'pipa': isMobile ? 0.5 : 0.7,
+                'dizi': isMobile ? 0.6 : 0.8,
+                'erhu': isMobile ? 0.9 : 1.2,
+                'bell': isMobile ? 1.5 : 2.0
+            };
+            
+            const duration = durations[instrumentType] || 0.5;
+            
+            playSound(frequency, waveType, duration);
+        }
+
+        // 节日元素定义
+        const festivalElements = [
+            { type: 'redEnvelope', char: '🧧', color: '#D32F2F', instrument: 'guzheng', sizeMultiplier: isMobile ? 1.2 : 1.5 },
+            { type: 'fuCharacter', char: '福', color: '#FFD700', instrument: 'bell', sizeMultiplier: isMobile ? 1.4 : 1.8 },
+            { type: 'lantern', char: '🏮', color: '#FF5722', instrument: 'pipa', sizeMultiplier: isMobile ? 1.3 : 1.6 },
+            { type: 'firecracker', char: '🎆', color: '#FF9800', instrument: 'dizi', sizeMultiplier: isMobile ? 1.1 : 1.4 },
+            { type: 'goldIngot', char: '💰', color: '#FFD700', instrument: 'erhu', sizeMultiplier: isMobile ? 1.2 : 1.5 },
+            { type: 'springCouplet', char: '📜', color: '#000000', instrument: 'guzheng', sizeMultiplier: isMobile ? 1.4 : 1.7 },
+            { type: 'orange', char: '🍊', color: '#FF9800', instrument: 'pipa', sizeMultiplier: isMobile ? 1.0 : 1.3 },
+            { type: 'chineseKnot', char: '🎀', color: '#D32F2F', instrument: 'dizi', sizeMultiplier: isMobile ? 1.1 : 1.4 },
+            { type: 'dumpling', char: '🥟', color: '#FFFFFF', instrument: 'erhu', sizeMultiplier: isMobile ? 1.0 : 1.3 },
+            { type: 'moon', char: '🎑', color: '#FFEB3B', instrument: 'bell', sizeMultiplier: isMobile ? 1.3 : 1.6 }
+        ];
+
+        // 喜庆祝福语数组
+        const blessings = [
+            "🎉 新年快乐 🎉", "🎊 万事如意 🎊", "💰 恭喜发财 💰", "🍎 岁岁平安 🍎", 
+            "🏠 阖家欢乐 🏠", "💪 身体健康 💪", "🐉 龙马精神 🐉", "🌈 吉祥如意 🌈",
+            "✨ 心想事成 ✨", "🪙 五福临门 🪙", "💸 财源广进 💸", "☀️ 福星高照 ☀️",
+            "🐟 年年有余 🐟", "📈 步步高升 📈", "😄 笑口常开 😄", "❤️ 幸福美满 ❤️"
+        ];
+
+        // 喜庆文字颜色
+        const blessingColors = ['#FF0000', '#FFD700', '#FF6B6B', '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#00BCD4'];
+
+        // 存储活跃的元素
+        const activeElements = [];
+        const maxElements = isMobile ? 60 : 120;
+
+        // 背景颜色
+        let bgColors = [
+            { primary: '#8B0000', secondary: '#B22222' },
+            { primary: '#0A2E5C', secondary: '#1A4B8C' },
+            { primary: '#1B5E20', secondary: '#2E7D32' },
+            { primary: '#4A148C', secondary: '#6A1B9A' },
+            { primary: '#B71C1C', secondary: '#D32F2F' },
+            { primary: '#E65100', secondary: '#FF6F00' }
+        ];
+        let currentBgIndex = 0;
+
+        // 显示/隐藏使用说明
+        function toggleInstructions(show) {
+            if (show) {
+                instructionsPanel.classList.add('show');
+                showInstructionsBtn.textContent = "📖 隐藏说明";
+            } else {
+                instructionsPanel.classList.remove('show');
+                showInstructionsBtn.textContent = "📖 显示说明";
+            }
+        }
+        
+        // 显示/隐藏统计面板
+        function toggleStatsPanel(show) {
+            if (show === undefined) {
+                show = !statsPanel.classList.contains('show');
+            }
+            
+            if (show) {
+                statsPanel.classList.add('show');
+                showStatsBtn.textContent = "📊 隐藏统计";
+            } else {
+                statsPanel.classList.remove('show');
+                showStatsBtn.textContent = "📊 显示统计";
+            }
+        }
+        
+        // 绘制节日元素（增加计数版本）
+        function drawFestivalElement(x, y, elementIndex, keyIndex, isTouch = false) {
+            if (activeElements.length >= maxElements) {
+                activeElements.shift();
+            }
+            
+            const elementTypeIndex = elementIndex % festivalElements.length;
+            const element = festivalElements[elementTypeIndex];
+            
+            // 增加祝福计数 - 只有在用户操作时才调用
+            addBlessingCount(element.type);
+            
+            const baseSize = isMobile ? 
+                (40 + (keyIndex % 5) * 8) : 
+                (70 + (keyIndex % 7) * 15);
+                
+            const size = baseSize * element.sizeMultiplier;
+            
+            const blessing = blessings[Math.floor(Math.random() * blessings.length)];
+            const blessingColor = blessingColors[Math.floor(Math.random() * blessingColors.length)];
+            
+            const newElement = {
+                x, y,
+                size: isTouch ? size * 0.8 : size,
+                type: element.type,
+                char: element.char,
+                color: element.color,
+                instrument: element.instrument,
+                blessing: blessing,
+                blessingColor: blessingColor,
+                opacity: 1,
+                life: isTouch ? (80 + Math.random() * 60) : (120 + Math.random() * 100),
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * (isMobile ? 2 : 3),
+                velocityX: (Math.random() - 0.5) * (isMobile ? 1.5 : 2.5),
+                velocityY: (Math.random() - 0.5) * (isMobile ? 1.5 : 2) - (isMobile ? 1.5 : 2.5),
+                createdAt: Date.now(),
+                scale: 1,
+                scaleDirection: Math.random() > 0.5 ? 1 : -1
+            };
+            
+            activeElements.push(newElement);
+            
+            if (isSoundEnabled) {
+                playInstrumentSound(keyIndex, element.instrument);
+            }
+            
+            createFirework(x, y, element.color, isTouch);
+        }
+
+        // 创建烟花效果
+        function createFirework(x, y, color, isTouch = false) {
+            const particles = isTouch ? 10 : 16;
+            
+            for (let i = 0; i < particles; i++) {
+                const angle = (i / particles) * Math.PI * 2;
+                const velocity = isTouch ? (2 + Math.random() * 3) : (3 + Math.random() * 4);
+                
+                const particle = {
+                    x, y,
+                    velocityX: Math.cos(angle) * velocity,
+                    velocityY: Math.sin(angle) * velocity,
+                    size: isTouch ? (3 + Math.random() * 4) : (4 + Math.random() * 6),
+                    color: color,
+                    life: isTouch ? 25 : 40
+                };
+                
+                activeElements.push(particle);
+            }
+        }
+
+        // 绘制所有元素
+        function draw() {
+            const bgColor = bgColors[currentBgIndex];
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
+            );
+            gradient.addColorStop(0, bgColor.primary);
+            gradient.addColorStop(1, bgColor.secondary);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawBackgroundDecorations();
+            
+            for (let i = 0; i < activeElements.length; i++) {
+                const element = activeElements[i];
+                
+                element.x += element.velocityX || 0;
+                element.y += element.velocityY || 0;
+                element.rotation += element.rotationSpeed || 0;
+                element.life -= 1;
+                
+                if (element.scale !== undefined) {
+                    element.scale += 0.01 * element.scaleDirection;
+                    if (element.scale > 1.2) element.scaleDirection = -1;
+                    if (element.scale < 0.9) element.scaleDirection = 1;
+                }
+                
+                if (element.life < 60) {
+                    element.opacity = element.life / 60;
+                }
+                
+                if (element.life <= 0) {
+                    activeElements.splice(i, 1);
+                    i--;
+                    continue;
+                }
+                
+                ctx.globalAlpha = element.opacity;
+                
+                if (element.type) {
+                    drawElement(element);
+                } else {
+                    drawParticle(element);
+                }
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+
+        // 绘制背景装饰
+        function drawBackgroundDecorations() {
+            const lanternCount = isMobile ? 6 : 10;
+            const now = Date.now();
+            
+            for (let i = 0; i < lanternCount; i++) {
+                const x = (canvas.width / (lanternCount + 1)) * (i + 1);
+                const y = 40 + Math.sin(now / 800 + i) * (isMobile ? 12 : 20);
+                const size = isMobile ? 40 : 60;
+                
+                ctx.fillStyle = 'rgba(255, 87, 34, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(x, y, size/2, size, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'rgba(255, 193, 7, 0.3)';
+                ctx.fillRect(x - size/2.5, y - size - 5, size/1.25, 5);
+                ctx.fillRect(x - size/2.5, y + size, size/1.25, 5);
+                
+                if (!isMobile) {
+                    ctx.strokeStyle = 'rgba(255, 193, 7, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y + size + 5);
+                    for (let j = 0; j < 5; j++) {
+                        const sx = x - size/2.5 + (j * size/5);
+                        ctx.lineTo(sx, y + size + 20);
+                    }
+                    ctx.stroke();
+                }
+                
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+                ctx.font = `bold ${size * 0.3}px 'Ma Shan Zheng', cursive`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('福', x, y);
+            }
+        }
+
+        // 绘制节日元素
+        function drawElement(element) {
+            ctx.save();
+            ctx.translate(element.x, element.y);
+            
+            const scale = element.scale || 1;
+            ctx.scale(scale, scale);
+            
+            ctx.rotate(element.rotation * Math.PI / 180);
+            
+            ctx.fillStyle = element.color + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+            
+            const size = element.size;
+            switch(element.type) {
+                case 'redEnvelope':
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                    ctx.fillStyle = '#FFD700' + Math.floor(element.opacity * 200).toString(16).padStart(2, '0');
+                    ctx.fillRect(-size/2, -size/2, size, size/3);
+                    break;
+                case 'fuCharacter':
+                    ctx.fillStyle = '#D32F2F' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                    ctx.fillStyle = '#FFD700' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.font = `bold ${size * (isMobile ? 0.7 : 0.9)}px 'Ma Shan Zheng', cursive`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(element.char, 0, 0);
+                    break;
+                case 'lantern':
+                    ctx.fillStyle = element.color + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, size/2, size, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                default:
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+            }
+            
+            ctx.fillStyle = '#FFFFFF' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+            ctx.font = `bold ${size * (isMobile ? 0.5 : 0.7)}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(element.char, 0, 0);
+            
+            if (size > (isMobile ? 30 : 40)) {
+                const blessingSize = Math.max(size * (isMobile ? 0.25 : 0.35), isMobile ? 16 : 24);
+                ctx.font = `bold ${blessingSize}px 'ZCOOL QingKe HuangYou', cursive`;
+                ctx.fillStyle = element.blessingColor + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                
+                if (!isMobile) {
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+                }
+                
+                ctx.fillText(element.blessing, 0, size * (isMobile ? 0.7 : 0.8));
+                
+                if (!isMobile) {
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                }
+            }
+            
+            ctx.restore();
+        }
+
+        // 绘制烟花粒子
+        function drawParticle(particle) {
+            ctx.fillStyle = particle.color + Math.floor((particle.life / (isMobile ? 25 : 40)) * 255).toString(16).padStart(2, '0');
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 动画循环
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 显示/隐藏使用说明
+            showInstructionsBtn.addEventListener('click', function() {
+                const isShowing = instructionsPanel.classList.contains('show');
+                toggleInstructions(!isShowing);
+                // 隐藏统计面板
+                if (statsPanel.classList.contains('show')) {
+                    toggleStatsPanel(false);
+                }
+            });
+            
+            closeInstructionsBtn.addEventListener('click', function() {
+                toggleInstructions(false);
+            });
+            
+            // 显示/隐藏统计面板
+            showStatsBtn.addEventListener('click', function() {
+                toggleStatsPanel();
+                // 隐藏说明面板
+                if (instructionsPanel.classList.contains('show')) {
+                    toggleInstructions(false);
+                }
+            });
+            
+            // 键盘事件
+            document.addEventListener('keydown', function(e) {
+                if (e.key === ' ') {
+                    activeElements.length = 0;
+                    return;
+                }
+                
+                if (e.key === 'F1') {
+                    e.preventDefault();
+                    const isShowing = instructionsPanel.classList.contains('show');
+                    toggleInstructions(!isShowing);
+                    return;
+                }
+                
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    toggleStatsPanel();
+                    return;
+                }
+                
+                if (e.key.length !== 1) return;
+                
+                const keyIndex = e.key.toLowerCase().charCodeAt(0) - 97;
+                if (keyIndex >= 0 && keyIndex < 26) {
+                    const x = Math.max(100, Math.random() * (canvas.width - 100));
+                    const y = Math.max(100, Math.random() * (canvas.height - 100));
+                    drawFestivalElement(x, y, keyIndex, keyIndex);
+                }
+            });
+            
+            // 鼠标事件
+            let isDragging = false;
+            
+            canvas.addEventListener('mousedown', function(e) {
+                if (isMobile) return;
+                isDragging = true;
+                handleInteraction(e.clientX, e.clientY);
+            });
+            
+            canvas.addEventListener('mousemove', function(e) {
+                if (isMobile || !isDragging) return;
+                handleInteraction(e.clientX, e.clientY);
+            });
+            
+            canvas.addEventListener('mouseup', function() {
+                if (isMobile) return;
+                isDragging = false;
+            });
+            
+            canvas.addEventListener('mouseleave', function() {
+                if (isMobile) return;
+                isDragging = false;
+            });
+            
+            // 触摸事件
+            let lastTouchTime = 0;
+            let touchMoveTimeout = null;
+            
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                handleInteraction(touch.clientX, touch.clientY, true);
+                lastTouchTime = Date.now();
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - lastTouchTime > 50) {
+                    const touch = e.touches[0];
+                    handleInteraction(touch.clientX, touch.clientY, true);
+                    lastTouchTime = now;
+                }
+                
+                if (touchMoveTimeout) {
+                    clearTimeout(touchMoveTimeout);
+                }
+                
+                touchMoveTimeout = setTimeout(() => {
+                    const touch = e.touches[0];
+                    handleInteraction(touch.clientX, touch.clientY, true);
+                }, 100);
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                if (touchMoveTimeout) {
+                    clearTimeout(touchMoveTimeout);
+                    touchMoveTimeout = null;
+                }
+            }, { passive: false });
+            
+            // 窗口调整大小
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+            });
+            
+            // 控制按钮事件
+            clearBtn.addEventListener('click', function() {
+                activeElements.length = 0;
+            });
+            
+            toggleSoundBtn.addEventListener('click', function() {
+                isSoundEnabled = !isSoundEnabled;
+                soundStatus.textContent = isSoundEnabled ? "开启 🔊" : "关闭 🔇";
+                toggleSoundBtn.textContent = isSoundEnabled ? "关闭声音 🔇" : "开启声音 🔊";
+                
+                if (isSoundEnabled && audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            });
+            
+            changeBgBtn.addEventListener('click', function() {
+                currentBgIndex = (currentBgIndex + 1) % bgColors.length;
+            });
+            
+            resetStatsBtn.addEventListener('click', resetStats);
+            
+            // 双击事件 - 快速生成多个元素
+            let lastClickTime = 0;
+            canvas.addEventListener('click', function(e) {
+                if (isMobile) return;
+                
+                const now = Date.now();
+                if (now - lastClickTime < 300) {
+                    for (let i = 0; i < 3; i++) {
+                        const rect = canvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left + (Math.random() - 0.5) * 100;
+                        const y = e.clientY - rect.top + (Math.random() - 0.5) * 100;
+                        const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                        const keyIndex = Math.floor(Math.random() * 26);
+                        drawFestivalElement(x, y, elementIndex, keyIndex);
+                    }
+                } else {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                    const keyIndex = Math.floor(Math.random() * 26);
+                    drawFestivalElement(x, y, elementIndex, keyIndex);
+                }
+                lastClickTime = now;
+            });
+        }
+        
+        // 处理交互
+        function handleInteraction(clientX, clientY, isTouch = false) {
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            const elementIndex = Math.floor(Math.random() * festivalElements.length);
+            const keyIndex = Math.floor(Math.random() * 26);
+            drawFestivalElement(x, y, elementIndex, keyIndex, isTouch);
+        }
+
+        // 初始化
+        function init() {
+            console.log(`设备类型: ${isMobile ? '移动设备' : '桌面设备'}`);
+            
+            initAudio();
+            setupEventListeners();
+            animate();
+            
+            // 默认不显示使用说明
+            toggleInstructions(false);
+            
+            // 加载统计数据
+            loadStats();
+            
+            // 移除自动生成祝福图片的代码
+            // 页面初始加载时不生成任何元素，等待用户操作
+            
+            // 显示欢迎消息
+            setTimeout(() => {
+                welcomeMessage.style.display = 'block';
+                setTimeout(() => {
+                    welcomeMessage.style.display = 'none';
+                }, 10000); // 10秒后自动隐藏
+            }, 500);
+            
+            console.log("中华节日音画已初始化完成！");
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

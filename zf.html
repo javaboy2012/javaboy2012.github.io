@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>中华节日音画 - 中国风互动音乐体验</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=ZCOOL+XiaoWei&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed; /* 防止移动端滚动 */
+        }
+        
+        body {
+            background-color: #8B0000;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(139, 0, 0, 0.4) 0%, transparent 50%);
+            font-family: 'ZCOOL QingKe HuangYou', cursive, sans-serif;
+            color: #FFD700;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            touch-action: none; /* 防止浏览器默认触摸行为 */
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: block;
+        }
+        
+        /* 中央固定使用说明 - 默认隐藏 */
+        .instructions-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.98), rgba(139, 0, 0, 0.98));
+            padding: clamp(15px, 4vw, 30px) clamp(20px, 5vw, 40px);
+            border-radius: clamp(15px, 4vw, 25px);
+            border: clamp(2px, 1vw, 4px) solid #FFD700;
+            max-width: min(95vw, 800px);
+            width: 90vw;
+            box-shadow: 
+                0 0 clamp(20px, 5vw, 40px) rgba(255, 87, 34, 0.8),
+                0 clamp(5px, 2vw, 10px) clamp(15px, 4vw, 30px) rgba(0, 0, 0, 0.5),
+                inset 0 0 clamp(10px, 3vw, 20px) rgba(255, 215, 0, 0.3);
+            text-align: center;
+            pointer-events: auto;
+            animation: glow 3s infinite alternate;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* 移动端流畅滚动 */
+        }
+        
+        .instructions-center.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 clamp(15px, 4vw, 30px) rgba(255, 87, 34, 0.7), 0 clamp(5px, 2vw, 10px) clamp(15px, 4vw, 30px) rgba(0, 0, 0, 0.5), inset 0 0 clamp(10px, 3vw, 20px) rgba(255, 215, 0, 0.3); }
+            100% { box-shadow: 0 0 clamp(25px, 6vw, 50px) rgba(255, 87, 34, 1), 0 clamp(8px, 3vw, 15px) clamp(20px, 5vw, 40px) rgba(0, 0, 0, 0.6), inset 0 0 clamp(15px, 4vw, 30px) rgba(255, 215, 0, 0.5); }
+        }
+        
+        /* 关闭按钮 */
+        .close-btn {
+            position: absolute;
+            top: clamp(8px, 2vw, 15px);
+            right: clamp(10px, 3vw, 20px);
+            background: #FFD700;
+            color: #8B0000;
+            border: none;
+            width: clamp(30px, 8vw, 40px);
+            height: clamp(30px, 8vw, 40px);
+            border-radius: 50%;
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 clamp(2px, 1vw, 4px) clamp(4px, 2vw, 8px) rgba(0, 0, 0, 0.3);
+            z-index: 11;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .close-btn:hover, .close-btn:active {
+            background: #FFEC19;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 clamp(3px, 1.5vw, 6px) clamp(6px, 3vw, 12px) rgba(0, 0, 0, 0.4);
+        }
+        
+        .instructions-center h1 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: clamp(1.8rem, 6vw, 3.5rem);
+            color: #FFD700;
+            text-shadow: 
+                0 0 clamp(8px, 2vw, 15px) rgba(255, 87, 34, 0.9),
+                0 0 clamp(15px, 4vw, 30px) rgba(255, 87, 34, 0.6),
+                clamp(2px, 1vw, 3px) clamp(2px, 1vw, 3px) 0 #8B0000;
+            margin-bottom: clamp(8px, 2vw, 15px);
+            letter-spacing: clamp(3px, 2vw, 8px);
+            line-height: 1.2;
+        }
+        
+        .instructions-center h2 {
+            color: #FFD700;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            margin-bottom: clamp(15px, 4vw, 25px);
+            text-shadow: clamp(1px, 0.5vw, 2px) clamp(1px, 0.5vw, 2px) 0 #8B0000;
+            border-bottom: clamp(2px, 1vw, 3px) solid #FFD700;
+            padding-bottom: clamp(5px, 2vw, 10px);
+            display: inline-block;
+            line-height: 1.3;
+        }
+        
+        .instruction-item {
+            font-size: clamp(1rem, 3.5vw, 1.8rem);
+            line-height: 1.6;
+            margin-bottom: clamp(10px, 3vw, 15px);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: left;
+            padding: 0 clamp(5px, 2vw, 10px);
+        }
+        
+        .highlight {
+            color: #FFEC19;
+            font-weight: bold;
+            background-color: rgba(139, 0, 0, 0.7);
+            padding: clamp(3px, 1vw, 4px) clamp(8px, 2vw, 12px);
+            border-radius: clamp(5px, 2vw, 10px);
+            border: clamp(1px, 0.5vw, 2px) solid #FFD700;
+            margin: 0 clamp(4px, 1vw, 8px);
+            display: inline-block;
+            text-shadow: 1px 1px 2px #000;
+            font-size: clamp(0.9rem, 3vw, 1.6rem);
+            white-space: nowrap;
+        }
+        
+        .icon {
+            font-size: clamp(1.2rem, 4vw, 2.2rem);
+            margin-right: clamp(8px, 3vw, 15px);
+            min-width: clamp(30px, 8vw, 50px);
+            flex-shrink: 0;
+        }
+        
+        .festival-elements {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: clamp(10px, 3vw, 20px);
+            margin-top: clamp(15px, 4vw, 25px);
+            padding-top: clamp(10px, 3vw, 20px);
+            border-top: clamp(2px, 1vw, 3px) dashed #FFD700;
+        }
+        
+        .element-sample {
+            width: clamp(50px, 15vw, 100px);
+            height: clamp(50px, 15vw, 100px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.8rem, 6vw, 3.5rem);
+            border-radius: clamp(10px, 3vw, 20px);
+            background: linear-gradient(145deg, rgba(255, 87, 34, 0.8), rgba(178, 34, 34, 0.9));
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .element-sample:hover, .element-sample:active {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 clamp(5px, 3vw, 10px) clamp(12px, 4vw, 25px) rgba(0, 0, 0, 0.6);
+        }
+        
+        /* 福字倒转样式 */
+        .fu-character {
+            transform: rotate(180deg);
+            display: inline-block;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+        }
+        
+        .subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.5rem);
+            color: #FFEC19;
+            margin-top: clamp(10px, 3vw, 15px);
+            font-style: italic;
+            text-shadow: 1px 1px 2px #000;
+            padding: 0 clamp(10px, 3vw, 20px);
+        }
+        
+        /* 移动端优化控制栏 */
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            gap: clamp(8px, 3vw, 25px);
+            z-index: 5;
+            pointer-events: auto;
+            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 25px);
+            background: linear-gradient(to top, rgba(139, 0, 0, 0.9), rgba(178, 34, 34, 0.7));
+            border-top: clamp(2px, 1vw, 3px) solid #FFD700;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #B22222, #8B0000);
+            color: #FFD700;
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            padding: clamp(8px, 3vw, 12px) clamp(12px, 4vw, 20px);
+            font-size: clamp(0.9rem, 3.5vw, 1.3rem);
+            border-radius: clamp(20px, 8vw, 40px);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-weight: bold;
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            text-shadow: 1px 1px 2px #000;
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: clamp(36px, 10vw, 48px);
+        }
+        
+        button:hover, button:active {
+            background: linear-gradient(to bottom, #8B0000, #B22222);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 clamp(5px, 3vw, 12px) clamp(12px, 4vw, 25px) rgba(0, 0, 0, 0.6);
+            border-color: #FFEC19;
+            color: #FFEC19;
+        }
+        
+        /* 显示说明按钮 - 移动端优化 */
+        #showInstructionsBtn {
+            position: fixed;
+            top: clamp(15px, 4vw, 25px);
+            left: clamp(15px, 4vw, 25px);
+            z-index: 5;
+            background: linear-gradient(to bottom, #B22222, #8B0000);
+            padding: clamp(8px, 3vw, 10px) clamp(12px, 4vw, 20px);
+            font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+            border-radius: clamp(15px, 6vw, 30px);
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            min-width: auto;
+            flex: none;
+            width: auto;
+            max-width: 40vw;
+            white-space: nowrap;
+        }
+        
+        .sound-status {
+            position: fixed;
+            top: clamp(15px, 4vw, 25px);
+            right: clamp(15px, 4vw, 25px);
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.9), rgba(139, 0, 0, 0.9));
+            padding: clamp(8px, 3vw, 10px) clamp(12px, 4vw, 20px);
+            border-radius: clamp(15px, 6vw, 30px);
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            font-size: clamp(0.8rem, 3vw, 1.1rem);
+            pointer-events: auto;
+            box-shadow: 0 clamp(3px, 2vw, 6px) clamp(8px, 3vw, 15px) rgba(0, 0, 0, 0.4);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 40vw;
+            white-space: nowrap;
+        }
+        
+        .sound-status span {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: clamp(0.9rem, 3.5vw, 1.3rem);
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        footer {
+            position: fixed;
+            bottom: clamp(60px, 20vw, 80px);
+            width: 100%;
+            text-align: center;
+            font-size: clamp(0.7rem, 2.5vw, 1rem);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0 clamp(10px, 3vw, 20px);
+            z-index: 2;
+            text-shadow: 1px 1px 2px #000;
+            pointer-events: none;
+        }
+        
+        /* 移动端提示 */
+        .mobile-tip {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.95), rgba(139, 0, 0, 0.95));
+            padding: clamp(15px, 4vw, 25px);
+            border-radius: clamp(15px, 4vw, 25px);
+            border: clamp(2px, 1vw, 3px) solid #FFD700;
+            color: #FFD700;
+            text-align: center;
+            z-index: 20;
+            max-width: 85vw;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            pointer-events: auto;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .mobile-tip.show {
+            display: block;
+        }
+        
+        .mobile-tip h3 {
+            font-size: clamp(1.2rem, 4.5vw, 1.8rem);
+            margin-bottom: clamp(10px, 3vw, 15px);
+            color: #FFEC19;
+        }
+        
+        .mobile-tip p {
+            font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+            line-height: 1.5;
+            margin-bottom: clamp(15px, 4vw, 20px);
+        }
+        
+        .mobile-tip button {
+            margin: 0 auto;
+            width: 80%;
+            max-width: 200px;
+        }
+        
+        /* 横屏提示 */
+        .orientation-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #8B0000;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: #FFD700;
+        }
+        
+        .orientation-warning.show {
+            display: flex;
+        }
+        
+        .orientation-warning h3 {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            margin-bottom: 20px;
+            color: #FFEC19;
+        }
+        
+        .orientation-warning p {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            line-height: 1.5;
+            margin-bottom: 30px;
+            max-width: 80%;
+        }
+        
+        .orientation-warning .phone-icon {
+            font-size: clamp(3rem, 12vw, 6rem);
+            margin-bottom: 30px;
+            animation: rotatePhone 3s infinite;
+        }
+        
+        @keyframes rotatePhone {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        /* 烟花动画 */
+        @keyframes firework {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+        
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: firework 0.8s ease-out forwards;
+        }
+        
+        /* 响应式调整 - 使用媒体查询 */
+        @media (max-width: 480px) {
+            .controls {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            
+            button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-height: 36px;
+            }
+            
+            .instruction-item {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+            
+            .icon {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+            
+            .festival-elements {
+                gap: 10px;
+            }
+            
+            .element-sample {
+                width: 55px;
+                height: 55px;
+                font-size: 2rem;
+            }
+            
+            .sound-status {
+                font-size: 0.7rem;
+                padding: 6px 10px;
+            }
+            
+            .sound-status span {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1024px) {
+            /* 平板样式优化 */
+            .instructions-center {
+                max-width: 85vw;
+            }
+            
+            .controls {
+                padding: 12px 20px;
+            }
+            
+            button {
+                font-size: 1.1rem;
+                padding: 10px 18px;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            /* 桌面端样式优化 */
+            .controls {
+                justify-content: center;
+                gap: 30px;
+                padding: 15px 30px;
+            }
+            
+            button {
+                max-width: 200px;
+            }
+        }
+        
+        /* 横屏检测 */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .orientation-warning.show {
+                display: flex;
+            }
+            
+            .controls, #showInstructionsBtn, .sound-status, footer {
+                display: none !important;
+            }
+        }
+        
+        /* 防止文本选择 */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="no-select">
+    <canvas id="canvas"></canvas>
+    
+    <!-- 中央固定使用说明 - 默认隐藏 -->
+    <div class="instructions-center" id="instructionsPanel">
+        <button class="close-btn" id="closeInstructionsBtn">×</button>
+        <h1>🎆 中华节日音画 🎆</h1>
+        <h2>🎵 互动使用说明 🎵</h2>
+        
+        <div class="instruction-item">
+            <span class="icon">🖱️</span>
+            <div><span class="highlight">点击屏幕任意位置</span> - 生成大型节日元素</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">⌨️</span>
+            <div>按下键盘 <span class="highlight">A-Z 任意键</span> - 触发不同节日元素和声音</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">↕️</span>
+            <div><span class="highlight">拖动鼠标/手指滑动</span> - 持续生成喜庆元素和音乐</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">␡</span>
+            <div>按下 <span class="highlight">空格键</span> - 清空画面所有元素</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">📱</span>
+            <div><span class="highlight">移动端提示</span> - 单指点击或滑动生成元素，双指缩放查看</div>
+        </div>
+        
+        <div class="festival-elements">
+            <div class="element-sample">🧧</div>
+            <div class="element-sample"><span class="fu-character">福</span></div>
+            <div class="element-sample">🏮</div>
+            <div class="element-sample">🎆</div>
+            <div class="element-sample">🍊</div>
+            <div class="element-sample">🥟</div>
+        </div>
+        
+        <div class="subtitle">感受中国节日氛围，让喜庆元素充满屏幕！</div>
+    </div>
+    
+    <!-- 显示说明按钮 -->
+    <button id="showInstructionsBtn">📖 显示说明</button>
+    
+    <!-- 移动端操作提示 -->
+    <div class="mobile-tip" id="mobileTip">
+        <h3>📱 移动端操作指南</h3>
+        <p>👆 <strong>单指点击</strong> - 生成节日元素</p>
+        <p>👆 <strong>单指滑动</strong> - 持续生成元素</p>
+        <p>🤏 <strong>双指缩放</strong> - 查看详细内容</p>
+        <p>🎵 <strong>建议开启声音</strong> - 获得完整体验</p>
+        <button id="closeMobileTip">开始体验</button>
+    </div>
+    
+    <!-- 横屏提示 -->
+    <div class="orientation-warning" id="orientationWarning">
+        <div class="phone-icon">📱</div>
+        <h3>请将手机竖屏使用</h3>
+        <p>为了获得最佳体验，请将您的设备旋转至竖屏模式</p>
+        <p>横屏模式可能无法正常显示所有内容</p>
+    </div>
+    
+    <div class="controls">
+        <button id="clearBtn">清空画面 🧹</button>
+        <button id="toggleSound">切换声音 🔊</button>
+        <button id="changeBg">更换背景 🎨</button>
+    </div>
+    
+    <div class="sound-status">
+        声音: <span id="soundStatus">开启 🔊</span>
+    </div>
+    
+    <footer>
+        <p>🎊 设计灵感来源于传统中国节日 | 本页面所有音效为模拟民族乐器声音 🎊</p>
+    </footer>
+
+    <script>
+        // 检测移动设备
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        // 获取Canvas元素和上下文
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 初始化Canvas尺寸
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            console.log(`Canvas尺寸已调整: ${canvas.width}x${canvas.height}`);
+        }
+        
+        resizeCanvas();
+        
+        // 获取UI元素
+        const instructionsPanel = document.getElementById('instructionsPanel');
+        const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
+        const showInstructionsBtn = document.getElementById('showInstructionsBtn');
+        const mobileTip = document.getElementById('mobileTip');
+        const closeMobileTip = document.getElementById('closeMobileTip');
+        const orientationWarning = document.getElementById('orientationWarning');
+        
+        // 音频上下文
+        let audioContext;
+        let isSoundEnabled = true;
+        const soundStatus = document.getElementById('soundStatus');
+        const toggleSoundBtn = document.getElementById('toggleSound');
+        const clearBtn = document.getElementById('clearBtn');
+        const changeBgBtn = document.getElementById('changeBg');
+
+        // 初始化音频
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("音频上下文初始化成功");
+            } catch (e) {
+                console.log("浏览器不支持Web Audio API，声音功能将被禁用");
+                isSoundEnabled = false;
+                soundStatus.textContent = "不支持 🔊";
+                toggleSoundBtn.disabled = true;
+                toggleSoundBtn.textContent = "声音不支持";
+            }
+        }
+
+        // 播放声音函数
+        function playSound(frequency, type = 'sine', duration = 0.5) {
+            if (!isSoundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log("播放声音时出错:", e);
+            }
+        }
+
+        // 播放民族乐器风格声音
+        function playInstrumentSound(noteIndex, instrumentType) {
+            if (!isSoundEnabled) return;
+            
+            // 基础频率 (C4)
+            const baseFreq = 261.63;
+            // 不同乐器的频率乘数
+            const instrumentMultipliers = {
+                'guzheng': [1, 1.122, 1.26, 1.335, 1.498, 1.682, 1.888, 2],
+                'pipa': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498],
+                'dizi': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498],
+                'erhu': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498],
+                'bell': [1, 1.26, 1.498, 1.682, 2]
+            };
+            
+            const instrument = instrumentMultipliers[instrumentType] || instrumentMultipliers['guzheng'];
+            const freqIndex = noteIndex % instrument.length;
+            const frequency = baseFreq * instrument[freqIndex];
+            
+            const waveTypes = {
+                'guzheng': 'sine',
+                'pipa': 'square',
+                'dizi': 'sine',
+                'erhu': 'sawtooth',
+                'bell': 'sine'
+            };
+            
+            const waveType = waveTypes[instrumentType] || 'sine';
+            
+            const durations = {
+                'guzheng': isMobile ? 0.7 : 1.0,
+                'pipa': isMobile ? 0.5 : 0.7,
+                'dizi': isMobile ? 0.6 : 0.8,
+                'erhu': isMobile ? 0.9 : 1.2,
+                'bell': isMobile ? 1.5 : 2.0
+            };
+            
+            const duration = durations[instrumentType] || 0.5;
+            
+            playSound(frequency, waveType, duration);
+        }
+
+        // 节日元素定义 - 移动端适配尺寸
+        const festivalElements = [
+            { type: 'redEnvelope', char: '🧧', color: '#D32F2F', instrument: 'guzheng', sizeMultiplier: isMobile ? 1.2 : 1.5 },
+            { type: 'fuCharacter', char: '福', color: '#FFD700', instrument: 'bell', sizeMultiplier: isMobile ? 1.4 : 1.8 },
+            { type: 'lantern', char: '🏮', color: '#FF5722', instrument: 'pipa', sizeMultiplier: isMobile ? 1.3 : 1.6 },
+            { type: 'firecracker', char: '🎆', color: '#FF9800', instrument: 'dizi', sizeMultiplier: isMobile ? 1.1 : 1.4 },
+            { type: 'goldIngot', char: '💰', color: '#FFD700', instrument: 'erhu', sizeMultiplier: isMobile ? 1.2 : 1.5 },
+            { type: 'springCouplet', char: '📜', color: '#000000', instrument: 'guzheng', sizeMultiplier: isMobile ? 1.4 : 1.7 },
+            { type: 'orange', char: '🍊', color: '#FF9800', instrument: 'pipa', sizeMultiplier: isMobile ? 1.0 : 1.3 },
+            { type: 'chineseKnot', char: '🎀', color: '#D32F2F', instrument: 'dizi', sizeMultiplier: isMobile ? 1.1 : 1.4 },
+            { type: 'dumpling', char: '🥟', color: '#FFFFFF', instrument: 'erhu', sizeMultiplier: isMobile ? 1.0 : 1.3 },
+            { type: 'moon', char: '🎑', color: '#FFEB3B', instrument: 'bell', sizeMultiplier: isMobile ? 1.3 : 1.6 }
+        ];
+
+        // 喜庆祝福语数组
+        const blessings = [
+            "🎉 新年快乐 🎉", "🎊 万事如意 🎊", "💰 恭喜发财 💰", "🍎 岁岁平安 🍎", 
+            "🏠 阖家欢乐 🏠", "💪 身体健康 💪", "🐉 龙马精神 🐉", "🌈 吉祥如意 🌈",
+            "✨ 心想事成 ✨", "🪙 五福临门 🪙", "💸 财源广进 💸", "☀️ 福星高照 ☀️",
+            "🐟 年年有余 🐟", "📈 步步高升 📈", "😄 笑口常开 😄", "❤️ 幸福美满 ❤️"
+        ];
+
+        // 喜庆文字颜色
+        const blessingColors = ['#FF0000', '#FFD700', '#FF6B6B', '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#00BCD4'];
+
+        // 存储活跃的元素
+        const activeElements = [];
+        const maxElements = isMobile ? 60 : 120; // 移动端减少元素数量
+
+        // 背景颜色
+        let bgColors = [
+            { primary: '#8B0000', secondary: '#B22222' },
+            { primary: '#0A2E5C', secondary: '#1A4B8C' },
+            { primary: '#1B5E20', secondary: '#2E7D32' },
+            { primary: '#4A148C', secondary: '#6A1B9A' },
+            { primary: '#B71C1C', secondary: '#D32F2F' },
+            { primary: '#E65100', secondary: '#FF6F00' }
+        ];
+        let currentBgIndex = 0;
+
+        // 显示/隐藏使用说明
+        function toggleInstructions(show) {
+            if (show) {
+                instructionsPanel.classList.add('show');
+                showInstructionsBtn.textContent = "📖 隐藏说明";
+            } else {
+                instructionsPanel.classList.remove('show');
+                showInstructionsBtn.textContent = "📖 显示说明";
+            }
+        }
+
+        // 显示移动端提示
+        function showMobileTip() {
+            if (isMobile && !sessionStorage.getItem('mobileTipShown')) {
+                setTimeout(() => {
+                    mobileTip.classList.add('show');
+                    sessionStorage.setItem('mobileTipShown', 'true');
+                }, 1000);
+            }
+        }
+
+        // 检查横屏状态
+        function checkOrientation() {
+            if (isMobile && window.innerHeight < window.innerWidth && window.innerHeight < 600) {
+                orientationWarning.classList.add('show');
+                return true;
+            } else {
+                orientationWarning.classList.remove('show');
+                return false;
+            }
+        }
+
+        // 绘制节日元素 (移动端适配尺寸)
+        function drawFestivalElement(x, y, elementIndex, keyIndex, isTouch = false) {
+            if (activeElements.length >= maxElements) {
+                activeElements.shift();
+            }
+            
+            const elementTypeIndex = elementIndex % festivalElements.length;
+            const element = festivalElements[elementTypeIndex];
+            
+            // 移动端和桌面端使用不同尺寸
+            const baseSize = isMobile ? 
+                (40 + (keyIndex % 5) * 8) : 
+                (70 + (keyIndex % 7) * 15);
+                
+            const size = baseSize * element.sizeMultiplier;
+            
+            const blessing = blessings[Math.floor(Math.random() * blessings.length)];
+            const blessingColor = blessingColors[Math.floor(Math.random() * blessingColors.length)];
+            
+            // 移动端触摸生成时，元素更小、生命周期更短
+            const newElement = {
+                x, y,
+                size: isTouch ? size * 0.8 : size,
+                type: element.type,
+                char: element.char,
+                color: element.color,
+                instrument: element.instrument,
+                blessing: blessing,
+                blessingColor: blessingColor,
+                opacity: 1,
+                life: isTouch ? (80 + Math.random() * 60) : (120 + Math.random() * 100),
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * (isMobile ? 2 : 3),
+                velocityX: (Math.random() - 0.5) * (isMobile ? 1.5 : 2.5),
+                velocityY: (Math.random() - 0.5) * (isMobile ? 1.5 : 2) - (isMobile ? 1.5 : 2.5),
+                createdAt: Date.now(),
+                scale: 1,
+                scaleDirection: Math.random() > 0.5 ? 1 : -1
+            };
+            
+            activeElements.push(newElement);
+            
+            if (isSoundEnabled) {
+                playInstrumentSound(keyIndex, element.instrument);
+            }
+            
+            createFirework(x, y, element.color, isTouch);
+        }
+
+        // 创建烟花效果
+        function createFirework(x, y, color, isTouch = false) {
+            const particles = isTouch ? 10 : 16;
+            
+            for (let i = 0; i < particles; i++) {
+                const angle = (i / particles) * Math.PI * 2;
+                const velocity = isTouch ? (2 + Math.random() * 3) : (3 + Math.random() * 4);
+                
+                const particle = {
+                    x, y,
+                    velocityX: Math.cos(angle) * velocity,
+                    velocityY: Math.sin(angle) * velocity,
+                    size: isTouch ? (3 + Math.random() * 4) : (4 + Math.random() * 6),
+                    color: color,
+                    life: isTouch ? 25 : 40
+                };
+                
+                activeElements.push(particle);
+            }
+        }
+
+        // 绘制所有元素
+        function draw() {
+            const bgColor = bgColors[currentBgIndex];
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
+            );
+            gradient.addColorStop(0, bgColor.primary);
+            gradient.addColorStop(1, bgColor.secondary);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawBackgroundDecorations();
+            
+            for (let i = 0; i < activeElements.length; i++) {
+                const element = activeElements[i];
+                
+                element.x += element.velocityX || 0;
+                element.y += element.velocityY || 0;
+                element.rotation += element.rotationSpeed || 0;
+                element.life -= 1;
+                
+                if (element.scale !== undefined) {
+                    element.scale += 0.01 * element.scaleDirection;
+                    if (element.scale > 1.2) element.scaleDirection = -1;
+                    if (element.scale < 0.9) element.scaleDirection = 1;
+                }
+                
+                if (element.life < 60) {
+                    element.opacity = element.life / 60;
+                }
+                
+                if (element.life <= 0) {
+                    activeElements.splice(i, 1);
+                    i--;
+                    continue;
+                }
+                
+                ctx.globalAlpha = element.opacity;
+                
+                if (element.type) {
+                    drawElement(element);
+                } else {
+                    drawParticle(element);
+                }
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+
+        // 绘制背景装饰
+        function drawBackgroundDecorations() {
+            const lanternCount = isMobile ? 6 : 10;
+            const now = Date.now();
+            
+            for (let i = 0; i < lanternCount; i++) {
+                const x = (canvas.width / (lanternCount + 1)) * (i + 1);
+                const y = 40 + Math.sin(now / 800 + i) * (isMobile ? 12 : 20);
+                const size = isMobile ? 40 : 60;
+                
+                ctx.fillStyle = 'rgba(255, 87, 34, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(x, y, size/2, size, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'rgba(255, 193, 7, 0.3)';
+                ctx.fillRect(x - size/2.5, y - size - 5, size/1.25, 5);
+                ctx.fillRect(x - size/2.5, y + size, size/1.25, 5);
+                
+                if (!isMobile) {
+                    ctx.strokeStyle = 'rgba(255, 193, 7, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y + size + 5);
+                    for (let j = 0; j < 5; j++) {
+                        const sx = x - size/2.5 + (j * size/5);
+                        ctx.lineTo(sx, y + size + 20);
+                    }
+                    ctx.stroke();
+                }
+                
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+                ctx.font = `bold ${size * 0.3}px 'Ma Shan Zheng', cursive`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('福', x, y);
+            }
+        }
+
+        // 绘制节日元素
+        function drawElement(element) {
+            ctx.save();
+            ctx.translate(element.x, element.y);
+            
+            const scale = element.scale || 1;
+            ctx.scale(scale, scale);
+            
+            ctx.rotate(element.rotation * Math.PI / 180);
+            
+            ctx.fillStyle = element.color + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+            
+            const size = element.size;
+            switch(element.type) {
+                case 'redEnvelope':
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                    ctx.fillStyle = '#FFD700' + Math.floor(element.opacity * 200).toString(16).padStart(2, '0');
+                    ctx.fillRect(-size/2, -size/2, size, size/3);
+                    break;
+                case 'fuCharacter':
+                    ctx.fillStyle = '#D32F2F' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                    ctx.fillStyle = '#FFD700' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.font = `bold ${size * (isMobile ? 0.7 : 0.9)}px 'Ma Shan Zheng', cursive`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(element.char, 0, 0);
+                    break;
+                case 'lantern':
+                    ctx.fillStyle = element.color + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, size/2, size, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                default:
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+            }
+            
+            ctx.fillStyle = '#FFFFFF' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+            ctx.font = `bold ${size * (isMobile ? 0.5 : 0.7)}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(element.char, 0, 0);
+            
+            if (size > (isMobile ? 30 : 40)) {
+                const blessingSize = Math.max(size * (isMobile ? 0.25 : 0.35), isMobile ? 16 : 24);
+                ctx.font = `bold ${blessingSize}px 'ZCOOL QingKe HuangYou', cursive`;
+                ctx.fillStyle = element.blessingColor + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                
+                if (!isMobile) {
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+                }
+                
+                ctx.fillText(element.blessing, 0, size * (isMobile ? 0.7 : 0.8));
+                
+                if (!isMobile) {
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                }
+            }
+            
+            ctx.restore();
+        }
+
+        // 绘制烟花粒子
+        function drawParticle(particle) {
+            ctx.fillStyle = particle.color + Math.floor((particle.life / (isMobile ? 25 : 40)) * 255).toString(16).padStart(2, '0');
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 动画循环
+        function animate() {
+            if (!checkOrientation()) {
+                draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 显示/隐藏使用说明
+            showInstructionsBtn.addEventListener('click', function() {
+                const isShowing = instructionsPanel.classList.contains('show');
+                toggleInstructions(!isShowing);
+            });
+            
+            closeInstructionsBtn.addEventListener('click', function() {
+                toggleInstructions(false);
+            });
+            
+            // 关闭移动端提示
+            closeMobileTip.addEventListener('click', function() {
+                mobileTip.classList.remove('show');
+            });
+            
+            // 键盘事件
+            document.addEventListener('keydown', function(e) {
+                if (e.key === ' ') {
+                    activeElements.length = 0;
+                    return;
+                }
+                
+                if (e.key === 'F1') {
+                    e.preventDefault();
+                    const isShowing = instructionsPanel.classList.contains('show');
+                    toggleInstructions(!isShowing);
+                    return;
+                }
+                
+                if (e.key.length !== 1) return;
+                
+                const keyIndex = e.key.toLowerCase().charCodeAt(0) - 97;
+                if (keyIndex >= 0 && keyIndex < 26) {
+                    const x = Math.max(100, Math.random() * (canvas.width - 100));
+                    const y = Math.max(100, Math.random() * (canvas.height - 100));
+                    drawFestivalElement(x, y, keyIndex, keyIndex);
+                }
+            });
+            
+            // 鼠标事件
+            let isDragging = false;
+            
+            canvas.addEventListener('mousedown', function(e) {
+                if (isMobile) return; // 移动端使用触摸事件
+                isDragging = true;
+                handleInteraction(e.clientX, e.clientY);
+            });
+            
+            canvas.addEventListener('mousemove', function(e) {
+                if (isMobile || !isDragging) return;
+                handleInteraction(e.clientX, e.clientY);
+            });
+            
+            canvas.addEventListener('mouseup', function() {
+                if (isMobile) return;
+                isDragging = false;
+            });
+            
+            canvas.addEventListener('mouseleave', function() {
+                if (isMobile) return;
+                isDragging = false;
+            });
+            
+            // 触摸事件 - 移动端优化
+            let lastTouchTime = 0;
+            let touchMoveTimeout = null;
+            
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                if (checkOrientation()) return;
+                
+                const touch = e.touches[0];
+                handleInteraction(touch.clientX, touch.clientY, true);
+                lastTouchTime = Date.now();
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                if (checkOrientation()) return;
+                
+                const now = Date.now();
+                // 限制触摸移动的触发频率，提高性能
+                if (now - lastTouchTime > 50) {
+                    const touch = e.touches[0];
+                    handleInteraction(touch.clientX, touch.clientY, true);
+                    lastTouchTime = now;
+                }
+                
+                // 清除之前的超时
+                if (touchMoveTimeout) {
+                    clearTimeout(touchMoveTimeout);
+                }
+                
+                // 设置新的超时
+                touchMoveTimeout = setTimeout(() => {
+                    const touch = e.touches[0];
+                    handleInteraction(touch.clientX, touch.clientY, true);
+                }, 100);
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                if (touchMoveTimeout) {
+                    clearTimeout(touchMoveTimeout);
+                    touchMoveTimeout = null;
+                }
+            }, { passive: false });
+            
+            // 窗口调整大小
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                checkOrientation();
+            });
+            
+            // 方向变化
+            window.addEventListener('orientationchange', function() {
+                setTimeout(() => {
+                    resizeCanvas();
+                    checkOrientation();
+                }, 300);
+            });
+            
+            // 控制按钮事件
+            clearBtn.addEventListener('click', function() {
+                activeElements.length = 0;
+            });
+            
+            toggleSoundBtn.addEventListener('click', function() {
+                isSoundEnabled = !isSoundEnabled;
+                soundStatus.textContent = isSoundEnabled ? "开启 🔊" : "关闭 🔇";
+                toggleSoundBtn.textContent = isSoundEnabled ? "关闭声音 🔇" : "开启声音 🔊";
+                
+                if (isSoundEnabled && audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            });
+            
+            changeBgBtn.addEventListener('click', function() {
+                currentBgIndex = (currentBgIndex + 1) % bgColors.length;
+            });
+            
+            // 双击事件 - 移动端快速生成多个元素
+            let lastClickTime = 0;
+            canvas.addEventListener('click', function(e) {
+                if (isMobile) return; // 移动端使用触摸事件
+                
+                const now = Date.now();
+                if (now - lastClickTime < 300) { // 双击
+                    for (let i = 0; i < 3; i++) {
+                        const rect = canvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left + (Math.random() - 0.5) * 100;
+                        const y = e.clientY - rect.top + (Math.random() - 0.5) * 100;
+                        const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                        const keyIndex = Math.floor(Math.random() * 26);
+                        drawFestivalElement(x, y, elementIndex, keyIndex);
+                    }
+                } else {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                    const keyIndex = Math.floor(Math.random() * 26);
+                    drawFestivalElement(x, y, elementIndex, keyIndex);
+                }
+                lastClickTime = now;
+            });
+        }
+        
+        // 处理交互
+        function handleInteraction(clientX, clientY, isTouch = false) {
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            const elementIndex = Math.floor(Math.random() * festivalElements.length);
+            const keyIndex = Math.floor(Math.random() * 26);
+            drawFestivalElement(x, y, elementIndex, keyIndex, isTouch);
+        }
+
+        // 初始化
+        function init() {
+            console.log(`设备类型: ${isMobile ? '移动设备' : '桌面设备'}, 触摸支持: ${isTouchDevice}`);
+            
+            initAudio();
+            setupEventListeners();
+            animate();
+            
+            // 默认不显示使用说明
+            toggleInstructions(false);
+            
+            // 显示移动端提示
+            showMobileTip();
+            
+            // 检查横屏状态
+            checkOrientation();
+            
+            // 初始显示一些元素
+            for (let i = 0; i < (isMobile ? 4 : 8); i++) {
+                const x = Math.max(50, Math.random() * (canvas.width - 50));
+                const y = Math.max(50, Math.random() * (canvas.height - 50));
+                const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                const keyIndex = Math.floor(Math.random() * 26);
+                drawFestivalElement(x, y, elementIndex, keyIndex);
+            }
+            
+            console.log("中华节日音画已初始化完成！");
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

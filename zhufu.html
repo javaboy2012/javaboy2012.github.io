@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中华节日音画 - 中国风互动音乐体验</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=ZCOOL+XiaoWei&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            overflow: hidden;
+        }
+        
+        body {
+            background-color: #8B0000;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(139, 0, 0, 0.4) 0%, transparent 50%);
+            font-family: 'ZCOOL QingKe HuangYou', cursive, sans-serif;
+            color: #FFD700;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* 中央固定使用说明 - 默认隐藏 */
+        .instructions-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.95), rgba(139, 0, 0, 0.95));
+            padding: 30px 40px;
+            border-radius: 25px;
+            border: 4px solid #FFD700;
+            max-width: 800px;
+            width: 85%;
+            box-shadow: 
+                0 0 40px rgba(255, 87, 34, 0.8),
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(255, 215, 0, 0.3);
+            text-align: center;
+            pointer-events: auto;
+            animation: glow 3s infinite alternate;
+            display: none; /* 默认隐藏 */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .instructions-center.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 30px rgba(255, 87, 34, 0.7), 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.3); }
+            100% { box-shadow: 0 0 50px rgba(255, 87, 34, 1), 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 215, 0, 0.5); }
+        }
+        
+        /* 关闭按钮 */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #FFD700;
+            color: #8B0000;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 11;
+        }
+        
+        .close-btn:hover {
+            background: #FFEC19;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        .instructions-center h1 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 3.5rem;
+            color: #FFD700;
+            text-shadow: 
+                0 0 15px rgba(255, 87, 34, 0.9),
+                0 0 30px rgba(255, 87, 34, 0.6),
+                3px 3px 0 #8B0000;
+            margin-bottom: 15px;
+            letter-spacing: 8px;
+        }
+        
+        .instructions-center h2 {
+            color: #FFD700;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 0 #8B0000;
+            border-bottom: 3px solid #FFD700;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .instruction-item {
+            font-size: 1.8rem;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .highlight {
+            color: #FFEC19;
+            font-weight: bold;
+            background-color: rgba(139, 0, 0, 0.7);
+            padding: 4px 12px;
+            border-radius: 10px;
+            border: 2px solid #FFD700;
+            margin: 0 8px;
+            display: inline-block;
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        .icon {
+            font-size: 2.2rem;
+            margin-right: 15px;
+            min-width: 50px;
+        }
+        
+        .festival-elements {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 3px dashed #FFD700;
+        }
+        
+        .element-sample {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(255, 87, 34, 0.8), rgba(178, 34, 34, 0.9));
+            border: 3px solid #FFD700;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+        }
+        
+        .element-sample:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        }
+        
+        /* 福字倒转样式 */
+        .fu-character {
+            transform: rotate(180deg);
+            display: inline-block;
+            font-size: 3rem;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #FFEC19;
+            margin-top: 15px;
+            font-style: italic;
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            z-index: 5;
+            pointer-events: auto;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #B22222, #8B0000);
+            color: #FFD700;
+            border: 3px solid #FFD700;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-weight: bold;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            text-shadow: 1px 1px 2px #000;
+            letter-spacing: 2px;
+        }
+        
+        button:hover {
+            background: linear-gradient(to bottom, #8B0000, #B22222);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6);
+            border-color: #FFEC19;
+            color: #FFEC19;
+        }
+        
+        /* 显示说明按钮 */
+        #showInstructionsBtn {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            z-index: 5;
+            background: linear-gradient(to bottom, #B22222, #8B0000);
+            padding: 12px 25px;
+            font-size: 1.3rem;
+        }
+        
+        .sound-status {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.9), rgba(139, 0, 0, 0.9));
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 3px solid #FFD700;
+            font-size: 1.3rem;
+            pointer-events: auto;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            z-index: 5;
+        }
+        
+        .sound-status span {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0 20px;
+            z-index: 2;
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        /* 烟花动画 */
+        @keyframes firework {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+        
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: firework 0.8s ease-out forwards;
+        }
+        
+        /* 欢迎提示 */
+        .welcome-tip {
+            position: fixed;
+            top: 80px;
+            left: 25px;
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.9), rgba(139, 0, 0, 0.9));
+            padding: 15px 25px;
+            border-radius: 20px;
+            border: 2px solid #FFD700;
+            font-size: 1.2rem;
+            pointer-events: auto;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            z-index: 5;
+            max-width: 300px;
+            animation: fadeInOut 10s forwards;
+            display: none;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); display: none; }
+        }
+        
+        .welcome-tip.show {
+            display: block;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 1100px) {
+            .instructions-center {
+                width: 90%;
+                padding: 25px 30px;
+            }
+            
+            .instructions-center h1 {
+                font-size: 2.8rem;
+                letter-spacing: 5px;
+            }
+            
+            .instructions-center h2 {
+                font-size: 1.7rem;
+            }
+            
+            .instruction-item {
+                font-size: 1.5rem;
+            }
+            
+            .element-sample {
+                width: 85px;
+                height: 85px;
+                font-size: 2.8rem;
+            }
+            
+            .icon {
+                font-size: 1.8rem;
+                margin-right: 10px;
+                min-width: 40px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .instructions-center {
+                width: 95%;
+                padding: 20px 15px;
+            }
+            
+            .instructions-center h1 {
+                font-size: 2.2rem;
+                letter-spacing: 3px;
+            }
+            
+            .instructions-center h2 {
+                font-size: 1.4rem;
+            }
+            
+            .instruction-item {
+                font-size: 1.2rem;
+                line-height: 1.6;
+            }
+            
+            .element-sample {
+                width: 70px;
+                height: 70px;
+                font-size: 2.2rem;
+            }
+            
+            .icon {
+                font-size: 1.5rem;
+                margin-right: 8px;
+                min-width: 35px;
+            }
+            
+            .highlight {
+                padding: 3px 8px;
+                font-size: 1.1rem;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-size: 1.2rem;
+            }
+            
+            #showInstructionsBtn {
+                top: 15px;
+                left: 15px;
+                padding: 10px 15px;
+                font-size: 1.1rem;
+            }
+            
+            .sound-status {
+                top: 15px;
+                right: 15px;
+                padding: 10px 15px;
+                font-size: 1.1rem;
+            }
+            
+            .controls {
+                gap: 15px;
+                bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <!-- 中央固定使用说明 - 默认隐藏 -->
+    <div class="instructions-center" id="instructionsPanel">
+        <button class="close-btn" id="closeInstructionsBtn">×</button>
+        <h1>🎆 中华节日音画 🎆</h1>
+        <h2>🎵 互动使用说明 🎵</h2>
+        
+        <div class="instruction-item">
+            <span class="icon">🖱️</span>
+            <div><span class="highlight">点击屏幕任意位置</span> - 生成大型节日元素</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">⌨️</span>
+            <div>按下键盘 <span class="highlight">A-Z 任意键</span> - 触发不同节日元素和声音</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">↕️</span>
+            <div><span class="highlight">拖动鼠标</span> - 持续生成喜庆元素和音乐</div>
+        </div>
+        
+        <div class="instruction-item">
+            <span class="icon">␡</span>
+            <div>按下 <span class="highlight">空格键</span> - 清空画面所有元素</div>
+        </div>
+        
+        <div class="festival-elements">
+            <div class="element-sample">🧧</div>
+            <div class="element-sample"><span class="fu-character">福</span></div>
+            <div class="element-sample">🏮</div>
+            <div class="element-sample">🎆</div>
+            <div class="element-sample">🍊</div>
+            <div class="element-sample">🥟</div>
+        </div>
+        
+        <div class="subtitle">感受中国节日氛围，让喜庆元素充满屏幕！</div>
+    </div>
+    
+    <!-- 显示说明按钮 -->
+    <button id="showInstructionsBtn">📖 显示说明</button>
+    
+    <!-- 欢迎提示 -->
+    <div class="welcome-tip" id="welcomeTip">
+        🎉 欢迎使用中华节日音画！<br>
+        点击左上角"显示说明"查看操作方法
+    </div>
+    
+    <div class="controls">
+        <button id="clearBtn">清空画面 🧹</button>
+        <button id="toggleSound">切换声音 🔊</button>
+        <button id="changeBg">更换背景 🎨</button>
+    </div>
+    
+    <div class="sound-status">
+        声音状态: <span id="soundStatus">开启 🔊</span>
+    </div>
+    
+    <footer>
+        <p>🎊 设计灵感来源于传统中国节日 | 本页面所有音效为模拟民族乐器声音 🎊</p>
+    </footer>
+
+    <script>
+        // 获取Canvas元素和上下文
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // 获取UI元素
+        const instructionsPanel = document.getElementById('instructionsPanel');
+        const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
+        const showInstructionsBtn = document.getElementById('showInstructionsBtn');
+        const welcomeTip = document.getElementById('welcomeTip');
+        
+        // 音频上下文
+        let audioContext;
+        let isSoundEnabled = true;
+        const soundStatus = document.getElementById('soundStatus');
+        const toggleSoundBtn = document.getElementById('toggleSound');
+        const clearBtn = document.getElementById('clearBtn');
+        const changeBgBtn = document.getElementById('changeBg');
+
+        // 初始化音频
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("音频上下文初始化成功");
+            } catch (e) {
+                console.log("浏览器不支持Web Audio API，声音功能将被禁用");
+                isSoundEnabled = false;
+                soundStatus.textContent = "不支持 🔊";
+                toggleSoundBtn.disabled = true;
+            }
+        }
+
+        // 播放声音函数
+        function playSound(frequency, type = 'sine', duration = 0.5) {
+            if (!isSoundEnabled || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log("播放声音时出错:", e);
+            }
+        }
+
+        // 播放民族乐器风格声音
+        function playInstrumentSound(noteIndex, instrumentType) {
+            if (!isSoundEnabled) return;
+            
+            // 基础频率 (C4)
+            const baseFreq = 261.63;
+            // 不同乐器的频率乘数
+            const instrumentMultipliers = {
+                'guzheng': [1, 1.122, 1.26, 1.335, 1.498, 1.682, 1.888, 2], // 古筝音阶
+                'pipa': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498], // 琵琶音阶
+                'dizi': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498], // 笛子音阶
+                'erhu': [1, 1.059, 1.122, 1.189, 1.26, 1.335, 1.414, 1.498], // 二胡音阶
+                'bell': [1, 1.26, 1.498, 1.682, 2] // 钟声
+            };
+            
+            // 选择乐器类型
+            const instrument = instrumentMultipliers[instrumentType] || instrumentMultipliers['guzheng'];
+            const freqIndex = noteIndex % instrument.length;
+            const frequency = baseFreq * instrument[freqIndex];
+            
+            // 不同乐器的波形
+            const waveTypes = {
+                'guzheng': 'sine',
+                'pipa': 'square',
+                'dizi': 'sine',
+                'erhu': 'sawtooth',
+                'bell': 'sine'
+            };
+            
+            const waveType = waveTypes[instrumentType] || 'sine';
+            
+            // 不同乐器的持续时间
+            const durations = {
+                'guzheng': 1.0,
+                'pipa': 0.7,
+                'dizi': 0.8,
+                'erhu': 1.2,
+                'bell': 2.0
+            };
+            
+            const duration = durations[instrumentType] || 0.5;
+            
+            playSound(frequency, waveType, duration);
+        }
+
+        // 节日元素定义 - 增大尺寸
+        const festivalElements = [
+            // 0-4: 红包 (加大)
+            { type: 'redEnvelope', char: '🧧', color: '#D32F2F', instrument: 'guzheng', sizeMultiplier: 1.5 },
+            // 5-9: 福字 (加大)
+            { type: 'fuCharacter', char: '福', color: '#FFD700', instrument: 'bell', sizeMultiplier: 1.8 },
+            // 10-14: 灯笼 (加大)
+            { type: 'lantern', char: '🏮', color: '#FF5722', instrument: 'pipa', sizeMultiplier: 1.6 },
+            // 15-19: 鞭炮 (加大)
+            { type: 'firecracker', char: '🎆', color: '#FF9800', instrument: 'dizi', sizeMultiplier: 1.4 },
+            // 20-24: 元宝 (加大)
+            { type: 'goldIngot', char: '💰', color: '#FFD700', instrument: 'erhu', sizeMultiplier: 1.5 },
+            // 25-29: 春联 (加大)
+            { type: 'springCouplet', char: '📜', color: '#000000', instrument: 'guzheng', sizeMultiplier: 1.7 },
+            // 30-34: 橘子 (吉祥如意) (加大)
+            { type: 'orange', char: '🍊', color: '#FF9800', instrument: 'pipa', sizeMultiplier: 1.3 },
+            // 35-39: 中国结 (加大)
+            { type: 'chineseKnot', char: '🎀', color: '#D32F2F', instrument: 'dizi', sizeMultiplier: 1.4 },
+            // 40-44: 饺子 (加大)
+            { type: 'dumpling', char: '🥟', color: '#FFFFFF', instrument: 'erhu', sizeMultiplier: 1.3 },
+            // 45-49: 月亮 (中秋节) (加大)
+            { type: 'moon', char: '🎑', color: '#FFEB3B', instrument: 'bell', sizeMultiplier: 1.6 }
+        ];
+
+        // 喜庆祝福语数组 (增加更多喜庆词汇)
+        const blessings = [
+            "🎉 新年快乐 🎉", "🎊 万事如意 🎊", "💰 恭喜发财 💰", "🍎 岁岁平安 🍎", 
+            "🏠 阖家欢乐 🏠", "💪 身体健康 💪", "🐉 龙马精神 🐉", "🌈 吉祥如意 🌈",
+            "✨ 心想事成 ✨", "🪙 五福临门 🪙", "💸 财源广进 💸", "☀️ 福星高照 ☀️",
+            "🐟 年年有余 🐟", "📈 步步高升 📈", "😄 笑口常开 😄", "❤️ 幸福美满 ❤️",
+            "🎇 爆竹声声 🎇", "🏮 张灯结彩 🏮", "🥟 团圆美满 🥟", "🍊 大吉大利 🍊",
+            "🎁 好事连连 🎁", "🎵 喜气洋洋 🎵", "🥂 举杯同庆 🥂", "🎆 烟花璀璨 🎆"
+        ];
+
+        // 喜庆文字颜色
+        const blessingColors = ['#FF0000', '#FFD700', '#FF6B6B', '#4CAF50', '#2196F3', '#9C27B0', '#FF9800', '#00BCD4'];
+
+        // 存储活跃的元素
+        const activeElements = [];
+        const maxElements = 120; // 最多同时显示的元素数量
+
+        // 背景颜色
+        let bgColors = [
+            { primary: '#8B0000', secondary: '#B22222' }, // 深红 (春节)
+            { primary: '#0A2E5C', secondary: '#1A4B8C' }, // 深蓝 (中秋节)
+            { primary: '#1B5E20', secondary: '#2E7D32' }, // 深绿 (春节)
+            { primary: '#4A148C', secondary: '#6A1B9A' },  // 深紫 (元宵节)
+            { primary: '#B71C1C', secondary: '#D32F2F' }, // 大红 (喜庆)
+            { primary: '#E65100', secondary: '#FF6F00' }  // 橙色 (热闹)
+        ];
+        let currentBgIndex = 0;
+
+        // 显示/隐藏使用说明
+        function toggleInstructions(show) {
+            if (show) {
+                instructionsPanel.classList.add('show');
+                showInstructionsBtn.textContent = "📖 隐藏说明";
+            } else {
+                instructionsPanel.classList.remove('show');
+                showInstructionsBtn.textContent = "📖 显示说明";
+            }
+        }
+
+        // 绘制节日元素 (加大尺寸)
+        function drawFestivalElement(x, y, elementIndex, keyIndex) {
+            // 如果元素太多，移除最旧的一个
+            if (activeElements.length >= maxElements) {
+                activeElements.shift();
+            }
+            
+            const elementTypeIndex = elementIndex % festivalElements.length;
+            const element = festivalElements[elementTypeIndex];
+            // 增加基础尺寸，并应用元素特定的乘数
+            const baseSize = 70 + (keyIndex % 7) * 15;
+            const size = baseSize * element.sizeMultiplier;
+            
+            // 随机选择祝福语和颜色
+            const blessing = blessings[Math.floor(Math.random() * blessings.length)];
+            const blessingColor = blessingColors[Math.floor(Math.random() * blessingColors.length)];
+            
+            // 创建新元素 - 增大尺寸
+            const newElement = {
+                x, y,
+                size,
+                type: element.type,
+                char: element.char,
+                color: element.color,
+                instrument: element.instrument,
+                blessing: blessing,
+                blessingColor: blessingColor,
+                opacity: 1,
+                life: 120 + Math.random() * 100, // 增加生命周期
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * 3,
+                velocityX: (Math.random() - 0.5) * 2.5,
+                velocityY: (Math.random() - 0.5) * 2 - 2.5, // 向上飘动
+                createdAt: Date.now(),
+                scale: 1,
+                scaleDirection: Math.random() > 0.5 ? 1 : -1
+            };
+            
+            activeElements.push(newElement);
+            
+            // 播放对应的声音
+            if (isSoundEnabled) {
+                playInstrumentSound(keyIndex, element.instrument);
+            }
+            
+            // 添加烟花效果
+            createFirework(x, y, element.color);
+        }
+
+        // 创建烟花效果
+        function createFirework(x, y, color) {
+            const particles = 16; // 增加粒子数量
+            
+            for (let i = 0; i < particles; i++) {
+                const angle = (i / particles) * Math.PI * 2;
+                const velocity = 3 + Math.random() * 4; // 增加速度
+                
+                const particle = {
+                    x, y,
+                    velocityX: Math.cos(angle) * velocity,
+                    velocityY: Math.sin(angle) * velocity,
+                    size: 4 + Math.random() * 6, // 增大粒子尺寸
+                    color: color,
+                    life: 40 // 增加生命周期
+                };
+                
+                // 添加到活跃元素数组
+                activeElements.push(particle);
+            }
+        }
+
+        // 绘制所有元素
+        function draw() {
+            // 根据当前背景设置渐变
+            const bgColor = bgColors[currentBgIndex];
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
+            );
+            gradient.addColorStop(0, bgColor.primary);
+            gradient.addColorStop(1, bgColor.secondary);
+            
+            // 绘制背景
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景装饰：灯笼
+            drawBackgroundDecorations();
+            
+            // 绘制所有活跃元素
+            for (let i = 0; i < activeElements.length; i++) {
+                const element = activeElements[i];
+                
+                // 更新元素状态
+                element.x += element.velocityX || 0;
+                element.y += element.velocityY || 0;
+                element.rotation += element.rotationSpeed || 0;
+                element.life -= 1;
+                
+                // 添加脉动效果
+                if (element.scale !== undefined) {
+                    element.scale += 0.01 * element.scaleDirection;
+                    if (element.scale > 1.2) element.scaleDirection = -1;
+                    if (element.scale < 0.9) element.scaleDirection = 1;
+                }
+                
+                // 减少不透明度
+                if (element.life < 60) {
+                    element.opacity = element.life / 60;
+                }
+                
+                // 如果元素生命周期结束，标记为删除
+                if (element.life <= 0) {
+                    activeElements.splice(i, 1);
+                    i--;
+                    continue;
+                }
+                
+                // 设置透明度
+                ctx.globalAlpha = element.opacity;
+                
+                // 绘制元素
+                if (element.type) {
+                    // 这是节日元素
+                    drawElement(element);
+                } else {
+                    // 这是烟花粒子
+                    drawParticle(element);
+                }
+            }
+            
+            // 重置透明度
+            ctx.globalAlpha = 1;
+        }
+
+        // 绘制背景装饰
+        function drawBackgroundDecorations() {
+            // 绘制灯笼
+            const lanternCount = 10; // 增加灯笼数量
+            const now = Date.now();
+            
+            for (let i = 0; i < lanternCount; i++) {
+                const x = (canvas.width / (lanternCount + 1)) * (i + 1);
+                const y = 60 + Math.sin(now / 800 + i) * 20; // 增加摆动幅度
+                const size = 60; // 增大灯笼尺寸
+                
+                // 灯笼主体
+                ctx.fillStyle = 'rgba(255, 87, 34, 0.25)';
+                ctx.beginPath();
+                ctx.ellipse(x, y, size/2, size, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 灯笼上下装饰
+                ctx.fillStyle = 'rgba(255, 193, 7, 0.4)';
+                ctx.fillRect(x - size/2.5, y - size - 8, size/1.25, 8); // 增大装饰
+                ctx.fillRect(x - size/2.5, y + size, size/1.25, 8);
+                
+                // 灯笼穗子
+                ctx.strokeStyle = 'rgba(255, 193, 7, 0.4)';
+                ctx.lineWidth = 2; // 加粗
+                ctx.beginPath();
+                ctx.moveTo(x, y + size + 8);
+                for (let j = 0; j < 7; j++) { // 增加穗子数量
+                    const sx = x - size/2.5 + (j * size/5);
+                    ctx.lineTo(sx, y + size + 30);
+                }
+                ctx.stroke();
+                
+                // 灯笼上的"福"字
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+                ctx.font = `bold ${size * 0.4}px 'Ma Shan Zheng', cursive`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('福', x, y);
+            }
+        }
+
+        // 绘制节日元素 (增大绘制尺寸)
+        function drawElement(element) {
+            ctx.save();
+            ctx.translate(element.x, element.y);
+            
+            // 应用脉动缩放
+            const scale = element.scale || 1;
+            ctx.scale(scale, scale);
+            
+            ctx.rotate(element.rotation * Math.PI / 180);
+            
+            // 绘制元素背景
+            ctx.fillStyle = element.color + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+            
+            // 根据元素类型绘制不同形状
+            const size = element.size;
+            switch(element.type) {
+                case 'redEnvelope':
+                    // 红包形状 (加大)
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                    ctx.fillStyle = '#FFD700' + Math.floor(element.opacity * 200).toString(16).padStart(2, '0');
+                    ctx.fillRect(-size/2, -size/2, size, size/3); // 加大金色部分
+                    break;
+                case 'fuCharacter':
+                    // 福字背景 (加大)
+                    ctx.fillStyle = '#D32F2F' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                    // 福字 (加大)
+                    ctx.fillStyle = '#FFD700' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.font = `bold ${size * 0.9}px 'Ma Shan Zheng', cursive`; // 增大字体
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(element.char, 0, 0);
+                    break;
+                case 'lantern':
+                    // 灯笼形状 (加大)
+                    ctx.fillStyle = element.color + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, size/2, size, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                default:
+                    // 默认圆形 (加大)
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+            }
+            
+            // 绘制字符 (增大)
+            ctx.fillStyle = '#FFFFFF' + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+            ctx.font = `bold ${size * 0.7}px Arial, sans-serif`; // 增大字体
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(element.char, 0, 0);
+            
+            // 绘制祝福语 (增大且更喜庆)
+            if (size > 40) {
+                const blessingSize = Math.max(size * 0.35, 24); // 增大祝福语尺寸
+                ctx.font = `bold ${blessingSize}px 'ZCOOL QingKe HuangYou', cursive`;
+                ctx.fillStyle = element.blessingColor + Math.floor(element.opacity * 255).toString(16).padStart(2, '0');
+                
+                // 为祝福语添加阴影效果
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                
+                ctx.fillText(element.blessing, 0, size * 0.8);
+                
+                // 重置阴影
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
+            
+            ctx.restore();
+        }
+
+        // 绘制烟花粒子 (增大)
+        function drawParticle(particle) {
+            ctx.fillStyle = particle.color + Math.floor((particle.life / 40) * 255).toString(16).padStart(2, '0');
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 动画循环
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // 事件监听
+        function setupEventListeners() {
+            // 显示/隐藏使用说明按钮事件
+            showInstructionsBtn.addEventListener('click', function() {
+                const isShowing = instructionsPanel.classList.contains('show');
+                toggleInstructions(!isShowing);
+            });
+            
+            // 关闭使用说明按钮事件
+            closeInstructionsBtn.addEventListener('click', function() {
+                toggleInstructions(false);
+            });
+            
+            // 键盘事件
+            document.addEventListener('keydown', function(e) {
+                // 空格键清除所有元素
+                if (e.key === ' ') {
+                    activeElements.length = 0;
+                    return;
+                }
+                
+                // 按F1键显示帮助
+                if (e.key === 'F1') {
+                    e.preventDefault();
+                    const isShowing = instructionsPanel.classList.contains('show');
+                    toggleInstructions(!isShowing);
+                    return;
+                }
+                
+                // 忽略功能键
+                if (e.key.length !== 1) return;
+                
+                // 将按键转换为索引
+                const keyIndex = e.key.toLowerCase().charCodeAt(0) - 97;
+                if (keyIndex >= 0 && keyIndex < 26) {
+                    // 随机位置
+                    const x = Math.max(100, Math.random() * (canvas.width - 100));
+                    const y = Math.max(100, Math.random() * (canvas.height - 100));
+                    
+                    drawFestivalElement(x, y, keyIndex, keyIndex);
+                }
+            });
+            
+            // 鼠标点击事件
+            canvas.addEventListener('click', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // 随机元素类型
+                const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                const keyIndex = Math.floor(Math.random() * 26);
+                
+                drawFestivalElement(x, y, elementIndex, keyIndex);
+            });
+            
+            // 鼠标拖拽事件
+            let isDragging = false;
+            canvas.addEventListener('mousedown', function() {
+                isDragging = true;
+            });
+            
+            canvas.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            canvas.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // 随机元素类型
+                const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                const keyIndex = Math.floor(Math.random() * 26);
+                
+                drawFestivalElement(x, y, elementIndex, keyIndex);
+            });
+            
+            // 触摸事件
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                // 随机元素类型
+                const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                const keyIndex = Math.floor(Math.random() * 26);
+                
+                drawFestivalElement(x, y, elementIndex, keyIndex);
+            });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                // 随机元素类型
+                const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                const keyIndex = Math.floor(Math.random() * 26);
+                
+                drawFestivalElement(x, y, elementIndex, keyIndex);
+            });
+            
+            // 窗口大小调整
+            window.addEventListener('resize', function() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+            
+            // 控制按钮事件
+            clearBtn.addEventListener('click', function() {
+                activeElements.length = 0;
+            });
+            
+            toggleSoundBtn.addEventListener('click', function() {
+                isSoundEnabled = !isSoundEnabled;
+                soundStatus.textContent = isSoundEnabled ? "开启 🔊" : "关闭 🔇";
+                toggleSoundBtn.textContent = isSoundEnabled ? "关闭声音 🔇" : "开启声音 🔊";
+                
+                // 如果音频上下文处于挂起状态（用户首次交互），恢复它
+                if (isSoundEnabled && audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            });
+            
+            changeBgBtn.addEventListener('click', function() {
+                currentBgIndex = (currentBgIndex + 1) % bgColors.length;
+            });
+        }
+
+        // 显示欢迎提示
+        function showWelcomeTip() {
+            welcomeTip.classList.add('show');
+            setTimeout(() => {
+                welcomeTip.classList.remove('show');
+            }, 10000); // 10秒后自动消失
+        }
+
+        // 初始化
+        function init() {
+            initAudio();
+            setupEventListeners();
+            animate();
+            
+            // 默认不显示使用说明
+            toggleInstructions(false);
+            
+            // 显示欢迎提示
+            setTimeout(showWelcomeTip, 1000);
+            
+            // 初始显示一些元素
+            for (let i = 0; i < 8; i++) {
+                const x = Math.max(100, Math.random() * (canvas.width - 100));
+                const y = Math.max(100, Math.random() * (canvas.height - 100));
+                const elementIndex = Math.floor(Math.random() * festivalElements.length);
+                const keyIndex = Math.floor(Math.random() * 26);
+                
+                drawFestivalElement(x, y, elementIndex, keyIndex);
+            }
+            
+            console.log("中华节日音画已初始化完成！");
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

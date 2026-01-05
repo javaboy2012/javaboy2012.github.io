@@ -1,0 +1,2608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马年对联赏析 - 对联雅集</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: #fef8f0;
+            color: #333;
+            line-height: 1.6;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
+                              url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M20,20 L80,20 L80,80 L20,80 Z" fill="none" stroke="%23f0c0a0" stroke-width="1" stroke-opacity="0.2"/></svg>');
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: #c62828;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        
+        .horse-decoration {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav li {
+            margin-left: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 页面标题 */
+        .page-header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            background: linear-gradient(to right, #c62828, #e53935);
+            color: white;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-header:before {
+            content: "🐎";
+            font-size: 8rem;
+            position: absolute;
+            left: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.1;
+        }
+        
+        .page-header:after {
+            content: "🐴";
+            font-size: 8rem;
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.1;
+        }
+        
+        .page-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 筛选与搜索 */
+        .filter-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-label {
+            margin-right: 10px;
+            font-weight: bold;
+            color: #c62828;
+        }
+        
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            min-width: 150px;
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            width: 250px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .search-btn {
+            background-color: #c62828;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            padding: 0 20px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .search-btn:hover {
+            background-color: #e53935;
+        }
+        
+        /* 对联展示 */
+        .couplets-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .couplet-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 5px solid #c62828;
+        }
+        
+        .couplet-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .couplet-header {
+            background-color: #fff8e1;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #ffecb3;
+        }
+        
+        .horizontal-scroll {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.8rem;
+            color: #c62828;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .couplet-content {
+            display: flex;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .couplet-part {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.5rem;
+            line-height: 1.8;
+        }
+        
+        .couplet-part.up {
+            border-right: 1px solid #ddd;
+        }
+        
+        .couplet-explanation {
+            padding: 1.5rem;
+        }
+        
+        .explanation-title {
+            color: #c62828;
+            margin-bottom: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .explanation-title i {
+            margin-right: 8px;
+        }
+        
+        .couplet-type {
+            display: inline-block;
+            background-color: #ffd700;
+            color: #c62828;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+        
+        .pagination-list {
+            display: flex;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .pagination-item {
+            margin: 5px;
+        }
+        
+        .pagination-link {
+            display: block;
+            padding: 10px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .pagination-link:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .pagination-link.active {
+            background-color: #c62828;
+            color: white;
+            border-color: #c62828;
+        }
+        
+        /* 页脚 */
+        footer {
+            background-color: #212121;
+            color: #eee;
+            padding: 3rem 0 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-section a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: #ffd700;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav li {
+                margin: 0.5rem;
+            }
+            
+            .page-title {
+                font-size: 2.2rem;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            .couplets-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+        }
+        
+        /* 装饰元素 */
+        .horse-icon {
+            color: #c62828;
+            margin-right: 5px;
+        }
+        
+        .red-envelope {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #c62828;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 12px rgba(198, 40, 40, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+        
+        .red-envelope:hover {
+            transform: scale(1.1);
+        }
+        
+        .results-info {
+            background-color: #fff8e1;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border-left: 4px solid #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <div class="horse-decoration">🐎</div>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-scroll logo-icon"></i>
+                <span>对联雅集</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#" class="active">对联赏析</a></li>
+                    <li><a href="#">对联创作</a></li>
+                    <li><a href="#">对联知识</a></li>
+                    <li><a href="#">互动社区</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 页面标题 -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">马年对联赏析</h1>
+            <p class="page-subtitle">精选200副马年祝福对联，寓意吉祥，祝福满满。愿您马到成功，龙马精神，一马当先，万事如意！</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- 筛选与搜索 -->
+        <section class="filter-section">
+            <div class="filter-group">
+                <span class="filter-label">对联类型：</span>
+                <select class="filter-select" id="typeFilter">
+                    <option value="all">全部类型</option>
+                    <option value="spring">春节对联</option>
+                    <option value="business">商业对联</option>
+                    <option value="family">家庭对联</option>
+                    <option value="career">事业对联</option>
+                    <option value="health">健康对联</option>
+                    <option value="fortune">财运对联</option>
+                </select>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索对联关键词...">
+                <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
+            </div>
+        </section>
+
+        <!-- 结果信息 -->
+        <div id="resultsInfo" class="results-info"></div>
+
+        <!-- 对联展示区域 -->
+        <section id="coupletsDisplay">
+            <!-- 对联将通过JavaScript动态加载 -->
+        </section>
+
+        <!-- 分页 -->
+        <section class="pagination">
+            <ul class="pagination-list" id="pagination">
+                <!-- 分页将通过JavaScript动态生成 -->
+            </ul>
+        </section>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>关于我们</h3>
+                    <p>对联雅集致力于传承和推广中华对联文化，通过现代技术让传统文化焕发新活力。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul>
+                        <li><a href="#">网站地图</a></li>
+                        <li><a href="#">使用条款</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                        <li><a href="#">常见问题</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> contact@duilian.com</li>
+                        <li><i class="fas fa-phone"></i> 400-123-4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 北京市东城区文化街123号</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2023 对联雅集 版权所有 | 传承中华文化，弘扬对联艺术</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 红包装饰 -->
+    <div class="red-envelope" id="redEnvelope">
+        <i class="fas fa-gift"></i>
+    </div>
+
+    <script>
+        // 完整的马年对联数据（200副）
+        const horseYearCouplets = [
+            // 春节对联 (1-40)
+            {
+                id: 1,
+                horizontal: "马到成功",
+                up: "爆竹声声催快马",
+                down: "梅花朵朵笑春风",
+                explanation: "上联以爆竹声声比喻催马奋进，下联以梅花朵朵迎接新春，横批寓意新的一年事业顺利，马到成功。",
+                type: "spring",
+                tags: ["春节", "马年", "成功"]
+            },
+            {
+                id: 2,
+                horizontal: "一马当先",
+                up: "马步生风辞旧岁",
+                down: "羊毫挥墨写佳联",
+                explanation: "上联用马步生风形容辞旧迎新的豪迈气势，下联用羊毫挥墨描绘书写佳联的喜庆场景，横批寓意领先一步，事事顺利。",
+                type: "spring",
+                tags: ["春节", "马年", "领先"]
+            },
+            {
+                id: 3,
+                horizontal: "龙马精神",
+                up: "春返神州舒画卷",
+                down: "马腾盛世入诗篇",
+                explanation: "上联描绘春天回归神州的美丽画卷，下联表现骏马在盛世奔腾的诗意景象，横批寓意精力旺盛，充满活力。",
+                type: "spring",
+                tags: ["春节", "马年", "精神"]
+            },
+            {
+                id: 4,
+                horizontal: "马年大吉",
+                up: "骏马奔腾春色丽",
+                down: "艳阳照耀岁华新",
+                explanation: "上联写骏马奔腾与美丽春色相映成趣，下联写艳阳照耀下岁月更新，横批祝福马年吉祥如意。",
+                type: "spring",
+                tags: ["春节", "马年", "吉祥"]
+            },
+            {
+                id: 5,
+                horizontal: "马上封侯",
+                up: "马蹄捷报映晓日",
+                down: "燕语茑歌迎新年",
+                explanation: "上联以马蹄带来捷报映照朝阳，下联以燕语莺歌迎接新年，横批寓意迅速获得功名利禄。",
+                type: "spring",
+                tags: ["春节", "马年", "功名"]
+            },
+            {
+                id: 6,
+                horizontal: "万马奔腾",
+                up: "百花齐放春光好",
+                down: "万马奔腾气象新",
+                explanation: "上联写百花齐放的春日美景，下联写万马奔腾的崭新气象，横批寓意事业蓬勃发展，气势恢宏。",
+                type: "spring",
+                tags: ["春节", "马年", "气象"]
+            },
+            {
+                id: 7,
+                horizontal: "马跃人欢",
+                up: "喜鹊登枝祝福到",
+                down: "金马起舞报春来",
+                explanation: "上联以喜鹊登枝象征喜讯和祝福，下联以金马起舞报告春天到来，横批描绘欢乐祥和的场景。",
+                type: "spring",
+                tags: ["春节", "马年", "欢乐"]
+            },
+            {
+                id: 8,
+                horizontal: "马运亨通",
+                up: "春光明媚百花艳",
+                down: "骏马奔腾一路春",
+                explanation: "上联描绘春光明媚百花争艳的美景，下联写骏马奔腾一路春意盎然，横批祝福马年运势亨通。",
+                type: "spring",
+                tags: ["春节", "马年", "运势"]
+            },
+            {
+                id: 9,
+                horizontal: "立马千山",
+                up: "春风得意马蹄疾",
+                down: "政策称心干劲高",
+                explanation: '上联化用古诗"春风得意马蹄疾"，下联写政策称心工作干劲高，横批寓意立马高山，志向远大。',
+                type: "spring",
+                tags: ["春节", "马年", "志向"]
+            },
+            {
+                id: 10,
+                horizontal: "马不停蹄",
+                up: "庆盛世雄狮起舞",
+                down: "展宏图快马加鞭",
+                explanation: "上联写盛世雄狮起舞的欢庆场景，下联写为实现宏图快马加鞭的奋进精神，横批寓意持续努力，永不停歇。",
+                type: "spring",
+                tags: ["春节", "马年", "奋进"]
+            },
+            {
+                id: 11,
+                horizontal: "春风得意",
+                up: "春联对歌民安国泰",
+                down: "喜字成双花好月圆",
+                explanation: "上联写春联对歌民安国泰的和谐景象，下联写喜字成双花好月圆的美好祝愿，横批形容春风拂面心情愉悦。",
+                type: "spring",
+                tags: ["春节", "和谐", "美好"]
+            },
+            {
+                id: 12,
+                horizontal: "年年有余",
+                up: "春满人间百花吐艳",
+                down: "福临小院四季常安",
+                explanation: "上联写春天充满人间百花吐艳，下联写福气降临小院四季平安，横批祝福每年都有剩余财富。",
+                type: "spring",
+                tags: ["春节", "富裕", "平安"]
+            },
+            {
+                id: 13,
+                horizontal: "五谷丰登",
+                up: "五谷丰登农家乐",
+                down: "四季增收岁月甜",
+                explanation: "上联写五谷丰登农家欢乐，下联写四季增收岁月甜美，横批寓意农作物丰收。",
+                type: "spring",
+                tags: ["春节", "丰收", "农家"]
+            },
+            {
+                id: 14,
+                horizontal: "福满人间",
+                up: "福星高照全家福",
+                down: "春光耀辉满堂春",
+                explanation: "上联写福星高照全家幸福，下联写春光闪耀满堂春色，横批祝福福气充满人间。",
+                type: "spring",
+                tags: ["春节", "福气", "全家"]
+            },
+            {
+                id: 15,
+                horizontal: "喜气盈门",
+                up: "门迎百福福星照",
+                down: "户纳千祥祥云开",
+                explanation: "上联写门迎百福福星照耀，下联写户纳千祥祥云舒展，横批形容喜气充满门户。",
+                type: "spring",
+                tags: ["春节", "喜气", "吉祥"]
+            },
+            {
+                id: 16,
+                horizontal: "万事如意",
+                up: "万事如意展宏图",
+                down: "心想事成兴伟业",
+                explanation: "上联写万事如意展开宏伟蓝图，下联写心想事成兴起伟大事业，横批祝福所有事情都顺心如意。",
+                type: "spring",
+                tags: ["春节", "如意", "事业"]
+            },
+            {
+                id: 17,
+                horizontal: "春回大地",
+                up: "冬去山川齐秀丽",
+                down: "春来桃李共芬芳",
+                explanation: "上联写冬天过去山川一起秀丽，下联写春天到来桃李共同芬芳，横批形容春天回归大地。",
+                type: "spring",
+                tags: ["春节", "春天", "秀丽"]
+            },
+            {
+                id: 18,
+                horizontal: "吉星高照",
+                up: "一帆风顺年年好",
+                down: "万事如意步步高",
+                explanation: "上联写一帆风顺一年比一年好，下联写万事如意一步步升高，横批祝福吉祥之星照耀。",
+                type: "spring",
+                tags: ["春节", "顺利", "高升"]
+            },
+            {
+                id: 19,
+                horizontal: "欢度春节",
+                up: "占天时地利人和",
+                down: "取九州四海财宝",
+                explanation: "上联写占据天时地利人和的优势，下联写获取九州四海的财宝，横批庆祝欢度春节。",
+                type: "spring",
+                tags: ["春节", "天时地利", "财宝"]
+            },
+            {
+                id: 20,
+                horizontal: "普天同庆",
+                up: "财源滚滚随春到",
+                down: "喜气洋洋伴福来",
+                explanation: "上联写财源滚滚随着春天到来，下联写喜气洋洋伴随福气来临，横批形容天下共同庆祝。",
+                type: "spring",
+                tags: ["春节", "财源", "喜气"]
+            },
+            {
+                id: 21,
+                horizontal: "春意盎然",
+                up: "大地流金万事通",
+                down: "冬去春来万象新",
+                explanation: "上联写大地流金万事通达，下联写冬去春来万象更新，横批形容春天气息浓厚。",
+                type: "spring",
+                tags: ["春节", "通达", "更新"]
+            },
+            {
+                id: 22,
+                horizontal: "国泰民安",
+                up: "民安国泰逢盛世",
+                down: "风调雨顺颂华年",
+                explanation: "上联写民安国泰遇到盛世，下联写风调雨顺歌颂美好年华，横批祝福国家太平人民安乐。",
+                type: "spring",
+                tags: ["春节", "盛世", "风调雨顺"]
+            },
+            {
+                id: 23,
+                horizontal: "辞旧迎新",
+                up: "旧岁又添几个喜",
+                down: "新年更上一层楼",
+                explanation: "上联写旧年又增添几件喜事，下联写新年更上一层楼，横批告别旧岁迎接新年。",
+                type: "spring",
+                tags: ["春节", "喜庆", "进步"]
+            },
+            {
+                id: 24,
+                horizontal: "四季平安",
+                up: "天地和顺家添财",
+                down: "平安如意人多福",
+                explanation: "上联写天地和顺家庭增添财富，下联写平安如意人多福气，横批祝福一年四季平安。",
+                type: "spring",
+                tags: ["春节", "和顺", "福气"]
+            },
+            {
+                id: 25,
+                horizontal: "家和万事兴",
+                up: "万事平安幸福年",
+                down: "吉祥如意拜年顺",
+                explanation: "上联写万事平安幸福年景，下联写吉祥如意拜年顺利，横批寓意家庭和睦万事兴旺。",
+                type: "spring",
+                tags: ["春节", "平安", "吉祥"]
+            },
+            {
+                id: 26,
+                horizontal: "马年吉祥",
+                up: "策马扬鞭入新岁",
+                down: "闻鸡起舞庆丰年",
+                explanation: "上联写策马扬鞭进入新年，下联写闻鸡起舞庆祝丰年，横批祝福马年吉祥如意。",
+                type: "spring",
+                tags: ["春节", "马年", "丰收"]
+            },
+            {
+                id: 27,
+                horizontal: "马跃前程",
+                up: "骏马奋蹄千里路",
+                down: "大鹏舒翼九重天",
+                explanation: "上联写骏马奋蹄千里路程，下联写大鹏展翅九重天空，横批寓意马年跃向美好前程。",
+                type: "spring",
+                tags: ["春节", "马年", "前程"]
+            },
+            {
+                id: 28,
+                horizontal: "马跃春回",
+                up: "马跃康庄道",
+                down: "人迎幸福春",
+                explanation: "上联写骏马跃上康庄大道，下联写人们迎接幸福春天，横批寓意马跃春天回归。",
+                type: "spring",
+                tags: ["春节", "马年", "幸福"]
+            },
+            {
+                id: 29,
+                horizontal: "马上迎春",
+                up: "立马昆仑小",
+                down: "迎春岁月新",
+                explanation: "上联写立马昆仑山也显得小，下联写迎接春天岁月更新，横批寓意马上迎接春天。",
+                type: "spring",
+                tags: ["春节", "马年", "迎新"]
+            },
+            {
+                id: 30,
+                horizontal: "马壮人强",
+                up: "人强马壮康乐日",
+                down: "土肥地沃丰收年",
+                explanation: "上联写人强马壮康乐日子，下联写土肥地沃丰收年景，横批形容人马强壮。",
+                type: "spring",
+                tags: ["春节", "马年", "强壮"]
+            },
+            {
+                id: 31,
+                horizontal: "骏马迎春",
+                up: "骏马奔腾千里路",
+                down: "新春更上一层楼",
+                explanation: "上联写骏马奔腾千里路程，下联写新春更上一层楼，横批寓意骏马迎接春天。",
+                type: "spring",
+                tags: ["春节", "马年", "进步"]
+            },
+            {
+                id: 32,
+                horizontal: "马跃人欢",
+                up: "马蹄踏碎一穷二白",
+                down: "燕子衔来万紫千红",
+                explanation: "上联写马蹄踏碎贫穷落后，下联写燕子衔来万紫千红，横批形容马跃人欢的喜悦景象。",
+                type: "spring",
+                tags: ["春节", "马年", "繁荣"]
+            },
+            {
+                id: 33,
+                horizontal: "马到春回",
+                up: "马驰大道征途远",
+                down: "羊上奇峰景色娇",
+                explanation: "上联写马驰大道征途遥远，下联写羊上奇峰景色娇美，横批寓意马到春天回归。",
+                type: "spring",
+                tags: ["春节", "马年", "景色"]
+            },
+            {
+                id: 34,
+                horizontal: "马驰万里",
+                up: "马驰原野繁花茂",
+                down: "羊跃神州事业兴",
+                explanation: "上联写马驰原野繁花茂盛，下联写羊跃神州事业兴旺，横批寓意马驰万里。",
+                type: "spring",
+                tags: ["春节", "马年", "事业"]
+            },
+            {
+                id: 35,
+                horizontal: "马驰大道",
+                up: "马带祥云去",
+                down: "羊铺锦绣来",
+                explanation: "上联写马带着祥云离去，下联写羊铺开锦绣到来，横批寓意马驰大道。",
+                type: "spring",
+                tags: ["春节", "马年", "祥云"]
+            },
+            {
+                id: 36,
+                horizontal: "马腾盛世",
+                up: "马蹄声碎开新路",
+                down: "春酒味浓贺大年",
+                explanation: "上联写马蹄声碎开辟新路，下联写春酒味浓祝贺大年，横批寓意马腾盛世。",
+                type: "spring",
+                tags: ["春节", "马年", "新路"]
+            },
+            {
+                id: 37,
+                horizontal: "马啸春风",
+                up: "马啸风生辞旧岁",
+                down: "羊鸣角响报新春",
+                explanation: "上联写马啸风生辞别旧岁，下联写羊鸣角响报告新春，横批寓意马啸春风。",
+                type: "spring",
+                tags: ["春节", "马年", "辞旧"]
+            },
+            {
+                id: 38,
+                horizontal: "马跃祥云",
+                up: "马跃青山添秀色",
+                down: "羊奔绿野展新图",
+                explanation: "上联写马跃青山增添秀色，下联写羊奔绿野展开新图，横批寓意马跃祥云。",
+                type: "spring",
+                tags: ["春节", "马年", "秀色"]
+            },
+            {
+                id: 39,
+                horizontal: "马驰春野",
+                up: "马驰碧野凯歌壮",
+                down: "羊跃青山景色新",
+                explanation: "上联写马驰碧野凯歌雄壮，下联写羊跃青山景色新颖，横批寓意马驰春野。",
+                type: "spring",
+                tags: ["春节", "马年", "凯歌"]
+            },
+            {
+                id: 40,
+                horizontal: "马迎新春",
+                up: "马蹄得意奔新路",
+                down: "鹊舌顺心报好音",
+                explanation: "上联写马蹄得意奔向新路，下联写鹊舌顺心报告好音，横批寓意马迎新春。",
+                type: "spring",
+                tags: ["春节", "马年", "得意"]
+            },
+            // 商业对联 (41-80)
+            {
+                id: 41,
+                horizontal: "财源广进",
+                up: "生意兴隆通四海",
+                down: "财源茂盛达三江",
+                explanation: "经典商业对联，上联祝愿生意兴隆通达四方，下联祝福财源茂盛汇聚三江，横批寓意财源广进。",
+                type: "business",
+                tags: ["商业", "财运", "兴隆"]
+            },
+            {
+                id: 42,
+                horizontal: "骏业宏开",
+                up: "门迎晓日财源广",
+                down: "户纳春风吉庆多",
+                explanation: "上联写门迎朝阳财源广阔，下联写户纳春风吉祥喜庆多，横批寓意事业宏大开展。",
+                type: "business",
+                tags: ["商业", "财运", "吉祥"]
+            },
+            {
+                id: 43,
+                horizontal: "马到财来",
+                up: "宝马驮来千倍利",
+                down: "金杯斟满万家春",
+                explanation: "上联以宝马驮来丰厚利润，下联以金杯斟满万家春意，横批寓意马年财源滚滚而来。",
+                type: "business",
+                tags: ["商业", "马年", "财运"]
+            },
+            {
+                id: 44,
+                horizontal: "生意兴隆",
+                up: "金驹奔驰致富路",
+                down: "银马欢跃太平年",
+                explanation: "上联写金驹奔驰在致富道路上，下联写银马欢跃在太平年间，横批祝福生意兴旺发达。",
+                type: "business",
+                tags: ["商业", "致富", "太平"]
+            },
+            {
+                id: 45,
+                horizontal: "招财进宝",
+                up: "奔彼岸千帆竞渡",
+                down: "越坦途万马扬鞭",
+                explanation: "上联描绘千帆竞渡奔向彼岸的景象，下联写万马扬鞭越过坦途的气势，横批寓意招引财富，收纳珍宝。",
+                type: "business",
+                tags: ["商业", "竞争", "发展"]
+            },
+            {
+                id: 46,
+                horizontal: "富贵吉祥",
+                up: "宝马腾飞迎福至",
+                down: "灵羊起舞报春归",
+                explanation: "上联写宝马腾飞迎接福气到来，下联写灵羊起舞报告春天回归，横批寓意富贵又吉祥。",
+                type: "business",
+                tags: ["商业", "富贵", "吉祥"]
+            },
+            {
+                id: 47,
+                horizontal: "生意如春",
+                up: "货流四海财源广",
+                down: "客至八方生意兴",
+                explanation: "上联写货物流通四海财源广阔，下联写客人来自八方生意兴旺，横批寓意生意如春天般生机勃勃。",
+                type: "business",
+                tags: ["商业", "财源", "兴旺"]
+            },
+            {
+                id: 48,
+                horizontal: "财源茂盛",
+                up: "财如晓日腾云起",
+                down: "利似春潮带雨来",
+                explanation: "上联写财富如朝阳腾云升起，下联写利润似春潮带雨而来，横批寓意财源茂盛发达。",
+                type: "business",
+                tags: ["商业", "财富", "利润"]
+            },
+            {
+                id: 49,
+                horizontal: "鸿图大展",
+                up: "门迎春夏秋冬福",
+                down: "户纳东西南北财",
+                explanation: "上联写门迎春夏秋冬四季福气，下联写户纳东西南北四方财富，横批寓意宏伟计划大展宏图。",
+                type: "business",
+                tags: ["商业", "四季", "四方"]
+            },
+            {
+                id: 50,
+                horizontal: "繁荣昌盛",
+                up: "生意如同春意满",
+                down: "财源更比流水长",
+                explanation: "上联写生意如同春意满满，下联写财源更比流水长远，横批祝福事业繁荣昌盛。",
+                type: "business",
+                tags: ["商业", "春意", "长远"]
+            },
+            {
+                id: 51,
+                horizontal: "万事亨通",
+                up: "财源茂盛达三江",
+                down: "生意兴隆通四海",
+                explanation: "经典商业对联变体，上联写财源茂盛通达三江，下联写生意兴隆通达四海，横批祝福万事顺利通达。",
+                type: "business",
+                tags: ["商业", "通达", "四海"]
+            },
+            {
+                id: 52,
+                horizontal: "骏马载金",
+                up: "骏马驮来新气象",
+                down: "春风送暖好财源",
+                explanation: "上联写骏马驮来新的气象，下联写春风送暖带来好财源，横批寓意骏马载来财富。",
+                type: "business",
+                tags: ["商业", "马年", "新气象"]
+            },
+            {
+                id: 53,
+                horizontal: "财运亨通",
+                up: "龙马精神创大业",
+                down: "春风和气致祥财",
+                explanation: "上联写龙马精神创造大业，下联写春风和气招致祥财，横批祝福财运顺利通达。",
+                type: "business",
+                tags: ["商业", "龙马精神", "和气"]
+            },
+            {
+                id: 54,
+                horizontal: "骏业日新",
+                up: "骏业宏开年年好",
+                down: "财源广进日日新",
+                explanation: "上联写骏业宏开一年比一年好，下联写财源广进一日比一日新，横批寓意事业日益更新。",
+                type: "business",
+                tags: ["商业", "更新", "日日新"]
+            },
+            {
+                id: 55,
+                horizontal: "金马送财",
+                up: "金马奔驰财源进",
+                down: "宝驹奋蹄利润来",
+                explanation: "上联写金马奔驰财源进入，下联写宝驹奋蹄利润到来，横批寓意金马送来财富。",
+                type: "business",
+                tags: ["商业", "马年", "利润"]
+            },
+            {
+                id: 56,
+                horizontal: "财源滚滚",
+                up: "生意兴隆从兴隆起",
+                down: "财源茂盛自茂盛来",
+                explanation: "上联写生意兴隆从兴隆开始，下联写财源茂盛从茂盛而来，横批形容财源滚滚不断。",
+                type: "business",
+                tags: ["商业", "兴隆", "茂盛"]
+            },
+            {
+                id: 57,
+                horizontal: "马跃钱程",
+                up: "马跃千山传捷报",
+                down: "羊驰万里送财来",
+                explanation: "上联写马跃千山传递捷报，下联写羊驰万里送来财富，横批寓意马年跃向财富前程。",
+                type: "business",
+                tags: ["商业", "马年", "捷报"]
+            },
+            {
+                id: 58,
+                horizontal: "骏马迎财",
+                up: "骏马迎春生意旺",
+                down: "吉羊献瑞财源多",
+                explanation: "上联写骏马迎接春天生意旺盛，下联写吉羊献瑞财源众多，横批寓意骏马迎接财富。",
+                type: "business",
+                tags: ["商业", "马年", "旺盛"]
+            },
+            {
+                id: 59,
+                horizontal: "马到钱来",
+                up: "马奔大道风生响",
+                down: "春到商场利润来",
+                explanation: "上联写马奔大道风生响声，下联写春到商场利润到来，横批寓意马到财富来。",
+                type: "business",
+                tags: ["商业", "马年", "大道"]
+            },
+            {
+                id: 60,
+                horizontal: "金马载富",
+                up: "金马扬蹄奔富路",
+                down: "银羊昂首赴新程",
+                explanation: "上联写金马扬蹄奔向富裕道路，下联写银羊昂首奔赴新的前程，横批寓意金马载来富裕。",
+                type: "business",
+                tags: ["商业", "马年", "富裕"]
+            },
+            {
+                id: 61,
+                horizontal: "马上发财",
+                up: "马上迎来新岁月",
+                down: "春间获取大财源",
+                explanation: "上联写马上迎来新的岁月，下联写春天期间获取大的财源，横批寓意马上发财致富。",
+                type: "business",
+                tags: ["商业", "马年", "财源"]
+            },
+            {
+                id: 62,
+                horizontal: "马载金银",
+                up: "马载祥云招宝至",
+                down: "羊驮瑞气引财来",
+                explanation: "上联写马载祥云招来宝物，下联写羊驮瑞气引来财富，横批寓意马年载来金银财宝。",
+                type: "business",
+                tags: ["商业", "马年", "祥云"]
+            },
+            {
+                id: 63,
+                horizontal: "骏马载金",
+                up: "骏马奔驰传喜讯",
+                down: "财神来到送金银",
+                explanation: "上联写骏马奔驰传递喜讯，下联写财神来到送来金银，横批寓意骏马载来黄金。",
+                type: "business",
+                tags: ["商业", "马年", "财神"]
+            },
+            {
+                id: 64,
+                horizontal: "马跃金门",
+                up: "马跃金门生瑞气",
+                down: "羊驰玉宇带财来",
+                explanation: "上联写马跃金门产生瑞气，下联写羊驰玉宇带来财富，横批寓意马年跃向财富之门。",
+                type: "business",
+                tags: ["商业", "马年", "瑞气"]
+            },
+            {
+                id: 65,
+                horizontal: "马上赢利",
+                up: "马上成功生意好",
+                down: "途中顺利利润高",
+                explanation: "上联写马上成功生意良好，下联写途中顺利利润高涨，横批寓意马上获得利润。",
+                type: "business",
+                tags: ["商业", "马年", "成功"]
+            },
+            {
+                id: 66,
+                horizontal: "金马进宝",
+                up: "金马奔腾开富路",
+                down: "银羊欢跃上财山",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写银羊欢跃登上财富之山，横批寓意金马进入宝地。",
+                type: "business",
+                tags: ["商业", "马年", "富裕"]
+            },
+            {
+                id: 67,
+                horizontal: "马运财来",
+                up: "马运亨通生意旺",
+                down: "羊年顺利财源多",
+                explanation: "上联写马运亨通生意旺盛，下联写羊年顺利财源众多，横批寓意马年运势带来财富。",
+                type: "business",
+                tags: ["商业", "马年", "运势"]
+            },
+            {
+                id: 68,
+                horizontal: "马跃富门",
+                up: "马跃富门添喜气",
+                down: "羊驰财路送黄金",
+                explanation: "上联写马跃富门增添喜气，下联写羊驰财路送来黄金，横批寓意马年跃向富裕之门。",
+                type: "business",
+                tags: ["商业", "马年", "富门"]
+            },
+            {
+                id: 69,
+                horizontal: "马上富贵",
+                up: "马上功成开骏业",
+                down: "羊毫妙笔写财篇",
+                explanation: "上联写马上功成开创骏业，下联写羊毫妙笔书写财富篇章，横批寓意马上获得富贵。",
+                type: "business",
+                tags: ["商业", "马年", "骏业"]
+            },
+            {
+                id: 70,
+                horizontal: "金马奔腾",
+                up: "金马奔腾开富道",
+                down: "银羊欢跃上财峰",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写银羊欢跃登上财富高峰，横批寓意金马奔腾致富。",
+                type: "business",
+                tags: ["商业", "马年", "高峰"]
+            },
+            {
+                id: 71,
+                horizontal: "马到利来",
+                up: "马到成功生意顺",
+                down: "春来福至利润增",
+                explanation: "上联写马到成功生意顺利，下联写春天来到福气至利润增加，横批寓意马到利润来。",
+                type: "business",
+                tags: ["商业", "马年", "顺利"]
+            },
+            {
+                id: 72,
+                horizontal: "骏马运金",
+                up: "骏马运来千倍利",
+                down: "吉羊带进四方财",
+                explanation: "上联写骏马运来千倍利润，下联写吉羊带进四方财富，横批寓意骏马运输黄金。",
+                type: "business",
+                tags: ["商业", "马年", "四方"]
+            },
+            {
+                id: 73,
+                horizontal: "马跃金程",
+                up: "马跃金程开骏业",
+                down: "羊驰玉路创财源",
+                explanation: "上联写马跃金色前程开创骏业，下联写羊驰玉路创造财源，横批寓意马年跃向金色前程。",
+                type: "business",
+                tags: ["商业", "马年", "前程"]
+            },
+            {
+                id: 74,
+                horizontal: "金马富来",
+                up: "金马奔来增富贵",
+                down: "银羊跃起送钱财",
+                explanation: "上联写金马奔来增加富贵，下联写银羊跃起送来钱财，横批寓意金马带来富裕。",
+                type: "business",
+                tags: ["商业", "马年", "钱财"]
+            },
+            {
+                id: 75,
+                horizontal: "马上赢金",
+                up: "马上功成开富路",
+                down: "羊毫挥就创财源",
+                explanation: "上联写马上功成开辟富裕道路，下联写羊毫挥就创造财源，横批寓意马上赢得黄金。",
+                type: "business",
+                tags: ["商业", "马年", "挥毫"]
+            },
+            {
+                id: 76,
+                horizontal: "马跃钱山",
+                up: "马跃钱山传捷报",
+                down: "羊驰富路送佳音",
+                explanation: "上联写马跃钱山传递捷报，下联写羊驰富路送来佳音，横批寓意马年跃向钱山。",
+                type: "business",
+                tags: ["商业", "马年", "佳音"]
+            },
+            {
+                id: 77,
+                horizontal: "金马进财",
+                up: "金马奔来传喜讯",
+                down: "财神驾到送金银",
+                explanation: "上联写金马奔来传递喜讯，下联写财神驾到送来金银，横批寓意金马进入财富。",
+                type: "business",
+                tags: ["商业", "马年", "驾到"]
+            },
+            {
+                id: 78,
+                horizontal: "马载金元",
+                up: "马载金元开富道",
+                down: "羊驮银宝上财山",
+                explanation: "上联写马载金元开辟富裕道路，下联写羊驮银宝登上财富之山，横批寓意马年载来金元宝。",
+                type: "business",
+                tags: ["商业", "马年", "元宝"]
+            },
+            {
+                id: 79,
+                horizontal: "马上得利",
+                up: "马上功成开骏业",
+                down: "途中顺利得财源",
+                explanation: "上联写马上功成开创骏业，下联写途中顺利获得财源，横批寓意马上得到利益。",
+                type: "business",
+                tags: ["商业", "马年", "利益"]
+            },
+            {
+                id: 80,
+                horizontal: "金马奔腾",
+                up: "金马奔腾传喜讯",
+                down: "财源广进庆丰年",
+                explanation: "上联写金马奔腾传递喜讯，下联写财源广进庆祝丰年，横批寓意金马奔腾致富。",
+                type: "business",
+                tags: ["商业", "马年", "丰年"]
+            },
+            // 家庭对联 (81-120)
+            {
+                id: 81,
+                horizontal: "阖家欢乐",
+                up: "人欢马叫升平世",
+                down: "燕语莺歌锦绣春",
+                explanation: "上联写人欢马叫的升平盛世，下联写燕语莺歌的锦绣春光，横批祝福全家欢乐幸福。",
+                type: "family",
+                tags: ["家庭", "欢乐", "盛世"]
+            },
+            {
+                id: 82,
+                horizontal: "五福临门",
+                up: "春归大地千山秀",
+                down: "日照神州万业兴",
+                explanation: "上联写春天回归大地千山秀美，下联写阳光照耀神州百业兴旺，横批寓意五种福气同时降临家门。",
+                type: "family",
+                tags: ["家庭", "福气", "兴旺"]
+            },
+            {
+                id: 83,
+                horizontal: "幸福安康",
+                up: "瑞雪翩翩丰收景",
+                down: "马蹄哒哒报春声",
+                explanation: "上联写瑞雪翩翩预示丰收景象，下联写马蹄哒哒报告春天来临的声音，横批祝福家庭幸福平安健康。",
+                type: "family",
+                tags: ["家庭", "平安", "丰收"]
+            },
+            {
+                id: 84,
+                horizontal: "家和万事兴",
+                up: "马壮人强康乐日",
+                down: "仓满囤流幸福年",
+                explanation: "上联写马壮人强的康乐日子，下联写仓满囤流的幸福年景，横批寓意家庭和睦万事兴旺。",
+                type: "family",
+                tags: ["家庭", "和睦", "富裕"]
+            },
+            {
+                id: 85,
+                horizontal: "吉祥如意",
+                up: "春日寻芳骑骏马",
+                down: "国家思治用贤才",
+                explanation: "上联写春日骑骏马寻访美景，下联写国家治理需要贤能人才，横批祝福吉祥顺心如意。",
+                type: "family",
+                tags: ["家庭", "吉祥", "人才"]
+            },
+            {
+                id: 86,
+                horizontal: "四季平安",
+                up: "春到千家同致富",
+                down: "福临万户共迎祥",
+                explanation: "上联写春天到来千家共同致富，下联写福气降临万户共迎吉祥，横批祝福一年四季平安无事。",
+                type: "family",
+                tags: ["家庭", "平安", "致富"]
+            },
+            {
+                id: 87,
+                horizontal: "吉星高照",
+                up: "一帆风顺吉星到",
+                down: "万事如意福临门",
+                explanation: "上联写一帆风顺吉星降临，下联写万事如意福气临门，横批祝福吉祥之星高高照耀。",
+                type: "family",
+                tags: ["家庭", "吉祥", "如意"]
+            },
+            {
+                id: 88,
+                horizontal: "幸福美满",
+                up: "喜居宝地千年旺",
+                down: "福照家门万事兴",
+                explanation: "上联写喜居宝地千年兴旺，下联写福照家门万事兴盛，横批祝福家庭幸福美满。",
+                type: "family",
+                tags: ["家庭", "宝地", "兴旺"]
+            },
+            {
+                id: 89,
+                horizontal: "喜气盈门",
+                up: "欢声笑语贺新春",
+                down: "欢聚一堂迎新年",
+                explanation: "上联写欢声笑语祝贺新春，下联写欢聚一堂迎接新年，横批形容喜气充满门户。",
+                type: "family",
+                tags: ["家庭", "欢笑", "团聚"]
+            },
+            {
+                id: 90,
+                horizontal: "辞旧迎新",
+                up: "岁通盛世家家富",
+                down: "人遇年华个个欢",
+                explanation: "上联写岁月通达盛世家家富裕，下联写人遇年华个个欢乐，横批告别旧岁迎接新年。",
+                type: "family",
+                tags: ["家庭", "盛世", "年华"]
+            },
+            {
+                id: 91,
+                horizontal: "欢度春节",
+                up: "迎新春江山锦绣",
+                down: "辞旧岁事泰辉煌",
+                explanation: "上联写迎接新春江山锦绣，下联写辞别旧岁事业辉煌，横批庆祝欢度春节。",
+                type: "family",
+                tags: ["家庭", "锦绣", "辉煌"]
+            },
+            {
+                id: 92,
+                horizontal: "春满人间",
+                up: "福旺财旺运气旺",
+                down: "家兴人兴事业兴",
+                explanation: "上联写福旺财旺运气旺盛，下联写家兴人兴事业兴盛，横批形容春天充满人间。",
+                type: "family",
+                tags: ["家庭", "兴旺", "兴盛"]
+            },
+            {
+                id: 93,
+                horizontal: "新春大吉",
+                up: "天地和顺家添财",
+                down: "平安如意人多福",
+                explanation: "上联写天地和顺家庭增添财富，下联写平安如意人多福气，横批祝福新春大吉大利。",
+                type: "family",
+                tags: ["家庭", "和顺", "福气"]
+            },
+            {
+                id: 94,
+                horizontal: "家庭和睦",
+                up: "日日财源顺意来",
+                down: "年年福禄随春到",
+                explanation: "上联写日日财源顺意而来，下联写年年福禄随着春天到来，横批祝福家庭和睦相处。",
+                type: "family",
+                tags: ["家庭", "财源", "福禄"]
+            },
+            {
+                id: 95,
+                horizontal: "出入平安",
+                up: "迎喜迎春迎富贵",
+                down: "接财接福接平安",
+                explanation: "上联写迎接喜气迎接春天迎接富贵，下联写接收财富接收福气接收平安，横批祝福出入平安。",
+                type: "family",
+                tags: ["家庭", "富贵", "平安"]
+            },
+            {
+                id: 96,
+                horizontal: "马年安康",
+                up: "马驰原野春常在",
+                down: "人乐家园福永存",
+                explanation: "上联写马驰原野春天常在，下联写人乐家园福气永存，横批祝福马年平安健康。",
+                type: "family",
+                tags: ["家庭", "马年", "原野"]
+            },
+            {
+                id: 97,
+                horizontal: "马跃家兴",
+                up: "马跃人欢春满院",
+                down: "羊驰景丽福盈门",
+                explanation: "上联写马跃人欢春天满院，下联写羊驰景丽福气盈门，横批寓意马年家庭兴旺。",
+                type: "family",
+                tags: ["家庭", "马年", "满院"]
+            },
+            {
+                id: 98,
+                horizontal: "马壮家安",
+                up: "马壮人强家兴旺",
+                down: "羊欢景丽宅平安",
+                explanation: "上联写马壮人强家庭兴旺，下联写羊欢景丽住宅平安，横批寓意马壮家庭安康。",
+                type: "family",
+                tags: ["家庭", "马年", "兴旺"]
+            },
+            {
+                id: 99,
+                horizontal: "马跃庭欢",
+                up: "马跃庭前传喜讯",
+                down: "羊驰院内报佳音",
+                explanation: "上联写马跃庭前传递喜讯，下联写羊驰院内报告佳音，横批寓意马跃庭院欢乐。",
+                type: "family",
+                tags: ["家庭", "马年", "庭院"]
+            },
+            {
+                id: 100,
+                horizontal: "马驰家富",
+                up: "马驰大道家兴旺",
+                down: "羊跃青山宅平安",
+                explanation: "上联写马驰大道家庭兴旺，下联写羊跃青山住宅平安，横批寓意马年家庭富裕。",
+                type: "family",
+                tags: ["家庭", "马年", "大道"]
+            },
+            {
+                id: 101,
+                horizontal: "马到家和",
+                up: "马到成功家兴旺",
+                down: "春来福至宅平安",
+                explanation: "上联写马到成功家庭兴旺，下联写春天来到福气至住宅平安，横批寓意马年家庭和睦。",
+                type: "family",
+                tags: ["家庭", "马年", "成功"]
+            },
+            {
+                id: 102,
+                horizontal: "金马家兴",
+                up: "金马奔腾家业旺",
+                down: "银羊欢跃宅第安",
+                explanation: "上联写金马奔腾家业旺盛，下联写银羊欢跃宅第安宁，横批寓意金马家庭兴旺。",
+                type: "family",
+                tags: ["家庭", "马年", "家业"]
+            },
+            {
+                id: 103,
+                horizontal: "马跃庭瑞",
+                up: "马跃庭前添瑞气",
+                down: "羊驰院内报平安",
+                explanation: "上联写马跃庭前增添瑞气，下联写羊驰院内报告平安，横批寓意马年庭院祥瑞。",
+                type: "family",
+                tags: ["家庭", "马年", "瑞气"]
+            },
+            {
+                id: 104,
+                horizontal: "马壮宅安",
+                up: "马壮人强家宅旺",
+                down: "羊欢景丽院庭安",
+                explanation: "上联写马壮人强家宅旺盛，下联写羊欢景丽院庭安宁，横批寓意马壮住宅安康。",
+                type: "family",
+                tags: ["家庭", "马年", "家宅"]
+            },
+            {
+                id: 105,
+                horizontal: "马上家兴",
+                up: "马上迎来家兴旺",
+                down: "春间获取宅平安",
+                explanation: "上联写马上迎来家庭兴旺，下联写春天期间获取住宅平安，横批寓意马上家庭兴旺。",
+                type: "family",
+                tags: ["家庭", "马年", "兴旺"]
+            },
+            {
+                id: 106,
+                horizontal: "马跃庭安",
+                up: "马跃庭前传喜讯",
+                down: "羊驰院内保平安",
+                explanation: "上联写马跃庭前传递喜讯，下联写羊驰院内保障平安，横批寓意马年庭院安宁。",
+                type: "family",
+                tags: ["家庭", "马年", "保障"]
+            },
+            {
+                id: 107,
+                horizontal: "金马庭欢",
+                up: "金马奔腾家欢乐",
+                down: "银羊欢跃院平安",
+                explanation: "上联写金马奔腾家庭欢乐，下联写银羊欢跃院落平安，横批寓意金马庭院欢乐。",
+                type: "family",
+                tags: ["家庭", "马年", "欢乐"]
+            },
+            {
+                id: 108,
+                horizontal: "马驰宅旺",
+                up: "马驰大道家兴旺",
+                down: "羊跃青山宅第安",
+                explanation: "上联写马驰大道家庭兴旺，下联写羊跃青山宅第安宁，横批寓意马年住宅旺盛。",
+                type: "family",
+                tags: ["家庭", "马年", "青山"]
+            },
+            {
+                id: 109,
+                horizontal: "马到庭安",
+                up: "马到成功家宅旺",
+                down: "春来福至院庭安",
+                explanation: "上联写马到成功家宅旺盛，下联写春天来到福气至院庭安宁，横批寓意马年庭院安宁。",
+                type: "family",
+                tags: ["家庭", "马年", "家宅"]
+            },
+            {
+                id: 110,
+                horizontal: "马跃家和",
+                up: "马跃千山传喜讯",
+                down: "羊驰万里保家安",
+                explanation: "上联写马跃千山传递喜讯，下联写羊驰万里保障家庭平安，横批寓意马年家庭和睦。",
+                type: "family",
+                tags: ["家庭", "马年", "千山"]
+            },
+            {
+                id: 111,
+                horizontal: "金马宅兴",
+                up: "金马奔腾家业盛",
+                down: "银羊欢跃宅第安",
+                explanation: "上联写金马奔腾家业兴盛，下联写银羊欢跃宅第安宁，横批寓意金马住宅兴旺。",
+                type: "family",
+                tags: ["家庭", "马年", "兴盛"]
+            },
+            {
+                id: 112,
+                horizontal: "马壮庭欢",
+                up: "马壮人强庭院乐",
+                down: "羊欢景丽家宅安",
+                explanation: "上联写马壮人强庭院欢乐，下联写羊欢景丽家宅安宁，横批寓意马壮庭院欢乐。",
+                type: "family",
+                tags: ["家庭", "马年", "庭院"]
+            },
+            {
+                id: 113,
+                horizontal: "马上庭安",
+                up: "马上迎来家宅旺",
+                down: "春间获取院庭安",
+                explanation: "上联写马上迎来家宅旺盛，下联写春天期间获取院庭安宁，横批寓意马上庭院安宁。",
+                type: "family",
+                tags: ["家庭", "马年", "院庭"]
+            },
+            {
+                id: 114,
+                horizontal: "马跃宅兴",
+                up: "马跃庭前家兴旺",
+                down: "羊驰院内宅平安",
+                explanation: "上联写马跃庭前家庭兴旺，下联写羊驰院内住宅平安，横批寓意马年住宅兴旺。",
+                type: "family",
+                tags: ["家庭", "马年", "住宅"]
+            },
+            {
+                id: 115,
+                horizontal: "金马庭安",
+                up: "金马奔腾家欢乐",
+                down: "银羊欢跃院平安",
+                explanation: "上联写金马奔腾家庭欢乐，下联写银羊欢跃院落平安，横批寓意金马庭院安宁。",
+                type: "family",
+                tags: ["家庭", "马年", "院落"]
+            },
+            {
+                id: 116,
+                horizontal: "马驰家和",
+                up: "马驰大道家兴旺",
+                down: "羊跃青山宅第安",
+                explanation: "上联写马驰大道家庭兴旺，下联写羊跃青山宅第安宁，横批寓意马年家庭和睦。",
+                type: "family",
+                tags: ["家庭", "马年", "和睦"]
+            },
+            {
+                id: 117,
+                horizontal: "马到宅旺",
+                up: "马到成功家业旺",
+                down: "春来福至宅第安",
+                explanation: "上联写马到成功家业旺盛，下联写春天来到福气至宅第安宁，横批寓意马年住宅旺盛。",
+                type: "family",
+                tags: ["家庭", "马年", "家业"]
+            },
+            {
+                id: 118,
+                horizontal: "马跃庭兴",
+                up: "马跃千山传喜讯",
+                down: "羊驰万里保家兴",
+                explanation: "上联写马跃千山传递喜讯，下联写羊驰万里保障家庭兴旺，横批寓意马年庭院兴旺。",
+                type: "family",
+                tags: ["家庭", "马年", "万里"]
+            },
+            {
+                id: 119,
+                horizontal: "金马家安",
+                up: "金马奔腾家业盛",
+                down: "银羊欢跃宅第安",
+                explanation: "上联写金马奔腾家业兴盛，下联写银羊欢跃宅第安宁，横批寓意金马家庭安康。",
+                type: "family",
+                tags: ["家庭", "马年", "安康"]
+            },
+            {
+                id: 120,
+                horizontal: "马壮家和",
+                up: "马壮人强庭院乐",
+                down: "羊欢景丽家宅安",
+                explanation: "上联写马壮人强庭院欢乐，下联写羊欢景丽家宅安宁，横批寓意马壮家庭和睦。",
+                type: "family",
+                tags: ["家庭", "马年", "景丽"]
+            },
+            // 事业对联 (121-160)
+            {
+                id: 121,
+                horizontal: "前程似锦",
+                up: "鹏程万里前程远",
+                down: "鹰击长空志向高",
+                explanation: "上联以鹏程万里比喻前程远大，下联以鹰击长空比喻志向高远，横批寓意前途光明如锦绣。",
+                type: "career",
+                tags: ["事业", "前程", "志向"]
+            },
+            {
+                id: 122,
+                horizontal: "步步高升",
+                up: "跃马迎春春风扑面",
+                down: "抬头见喜喜气盈门",
+                explanation: "上联写跃马迎春春风拂面，下联写抬头见喜喜气充满家门，横批祝福职位不断上升。",
+                type: "career",
+                tags: ["事业", "晋升", "喜庆"]
+            },
+            {
+                id: 123,
+                horizontal: "大展宏图",
+                up: "好雨知时百花齐放",
+                down: "春风得意万马奔腾",
+                explanation: "上联写好雨知时节百花齐放，下联写春风得意万马奔腾，横批寓意展开宏伟的计划和蓝图。",
+                type: "career",
+                tags: ["事业", "发展", "春风"]
+            },
+            {
+                id: 124,
+                horizontal: "志在千里",
+                up: "骏马奔驰壮山河",
+                down: "雄鹰展翅翱蓝天",
+                explanation: "上联写骏马奔驰壮丽山河，下联写雄鹰展翅翱翔蓝天，横批寓意志向远大，目标在千里之外。",
+                type: "career",
+                tags: ["事业", "志向", "翱翔"]
+            },
+            {
+                id: 125,
+                horizontal: "功成名就",
+                up: "快马加鞭争朝夕",
+                down: "壮志凌云写春秋",
+                explanation: "上联写快马加鞭争取时间，下联写壮志凌云书写历史，横批祝福功业建立名声成就。",
+                type: "career",
+                tags: ["事业", "成功", "壮志"]
+            },
+            {
+                id: 126,
+                horizontal: "鹏程万里",
+                up: "海阔凭鱼跃天高任鸟飞",
+                down: "路遥知马力日久见人心",
+                explanation: '上联化用古诗"海阔凭鱼跃，天高任鸟飞"，下联引用成语"路遥知马力，日久见人心"，横批比喻前程远大。',
+                type: "career",
+                tags: ["事业", "前程", "胸怀"]
+            },
+            {
+                id: 127,
+                horizontal: "青云直上",
+                up: "志在千里马奋蹄",
+                down: "鹏飞九天云展翅",
+                explanation: "上联写志在千里的骏马奋蹄前行，下联写鹏鸟飞向九霄云层展翅高飞，横批比喻职位迅速上升。",
+                type: "career",
+                tags: ["事业", "晋升", "高飞"]
+            },
+            {
+                id: 128,
+                horizontal: "马到功成",
+                up: "骏马奔腾开富路",
+                down: "宏图大展上青云",
+                explanation: "上联写骏马奔腾开辟富裕道路，下联写宏图大展登上青云，横批寓意马年功成名就。",
+                type: "career",
+                tags: ["事业", "马年", "青云"]
+            },
+            {
+                id: 129,
+                horizontal: "骏业宏开",
+                up: "骏马奔驰开大道",
+                down: "宏图大展上高楼",
+                explanation: "上联写骏马奔驰开辟大道，下联写宏图大展登上高楼，横批寓意事业宏大开展。",
+                type: "career",
+                tags: ["事业", "马年", "大道"]
+            },
+            {
+                id: 130,
+                horizontal: "马跃前程",
+                up: "马跃千山传捷报",
+                down: "鹏飞万里送佳音",
+                explanation: "上联写马跃千山传递捷报，下联写鹏飞万里送来佳音，横批寓意马年跃向美好前程。",
+                type: "career",
+                tags: ["事业", "马年", "捷报"]
+            },
+            {
+                id: 131,
+                horizontal: "马驰万里",
+                up: "马驰万里开富路",
+                down: "鹏举九天创宏图",
+                explanation: "上联写马驰万里开辟富裕道路，下联写鹏举九天创造宏图，横批寓意马年驰骋万里。",
+                type: "career",
+                tags: ["事业", "马年", "九天"]
+            },
+            {
+                id: 132,
+                horizontal: "马跃青云",
+                up: "马跃青云开骏业",
+                down: "鹏飞碧宇展宏图",
+                explanation: "上联写马跃青云开创骏业，下联写鹏飞碧宇展开宏图，横批寓意马年跃上青云。",
+                type: "career",
+                tags: ["事业", "马年", "碧宇"]
+            },
+            {
+                id: 133,
+                horizontal: "马上成功",
+                up: "马上功成开骏业",
+                down: "途中顺利展宏图",
+                explanation: "上联写马上功成开创骏业，下联写途中顺利展开宏图，横批寓意马上获得成功。",
+                type: "career",
+                tags: ["事业", "马年", "顺利"]
+            },
+            {
+                id: 134,
+                horizontal: "金马前程",
+                up: "金马奔腾开富路",
+                down: "大鹏展翅上青云",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写大鹏展翅飞上青云，横批寓意金马奔向美好前程。",
+                type: "career",
+                tags: ["事业", "马年", "大鹏"]
+            },
+            {
+                id: 135,
+                horizontal: "马跃宏图",
+                up: "马跃千山传捷报",
+                down: "宏图大展上高楼",
+                explanation: "上联写马跃千山传递捷报，下联写宏图大展登上高楼，横批寓意马年跃向宏图。",
+                type: "career",
+                tags: ["事业", "马年", "高楼"]
+            },
+            {
+                id: 136,
+                horizontal: "马驰宏业",
+                up: "马驰万里开富路",
+                down: "宏业千秋上青云",
+                explanation: "上联写马驰万里开辟富裕道路，下联写宏业千秋飞上青云，横批寓意马年驰骋宏业。",
+                type: "career",
+                tags: ["事业", "马年", "千秋"]
+            },
+            {
+                id: 137,
+                horizontal: "马上宏图",
+                up: "马上功成开骏业",
+                down: "宏图大展上高楼",
+                explanation: "上联写马上功成开创骏业，下联写宏图大展登上高楼，横批寓意马上展开宏图。",
+                type: "career",
+                tags: ["事业", "马年", "骏业"]
+            },
+            {
+                id: 138,
+                horizontal: "金马宏业",
+                up: "金马奔腾开富路",
+                down: "宏业千秋上青云",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写宏业千秋飞上青云，横批寓意金马开创宏业。",
+                type: "career",
+                tags: ["事业", "马年", "开创"]
+            },
+            {
+                id: 139,
+                horizontal: "马跃功成",
+                up: "马跃千山传捷报",
+                down: "功成名就上高楼",
+                explanation: "上联写马跃千山传递捷报，下联写功成名就登上高楼，横批寓意马年功成名就。",
+                type: "career",
+                tags: ["事业", "马年", "名就"]
+            },
+            {
+                id: 140,
+                horizontal: "马驰功就",
+                up: "马驰万里开富路",
+                down: "功成名就上青云",
+                explanation: "上联写马驰万里开辟富裕道路，下联写功成名就飞上青云，横批寓意马年功成名就。",
+                type: "career",
+                tags: ["事业", "马年", "飞上"]
+            },
+            {
+                id: 141,
+                horizontal: "马上功就",
+                up: "马上功成开骏业",
+                down: "功成名就上高楼",
+                explanation: "上联写马上功成开创骏业，下联写功成名就登上高楼，横批寓意马上功成名就。",
+                type: "career",
+                tags: ["事业", "马年", "登上"]
+            },
+            {
+                id: 142,
+                horizontal: "金马功成",
+                up: "金马奔腾开富路",
+                down: "功成名就上青云",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写功成名就飞上青云，横批寓意金马功成名就。",
+                type: "career",
+                tags: ["事业", "马年", "奔腾"]
+            },
+            {
+                id: 143,
+                horizontal: "马跃业成",
+                up: "马跃千山传捷报",
+                down: "业成名就上高楼",
+                explanation: "上联写马跃千山传递捷报，下联写业成名就登上高楼，横批寓意马年事业成功。",
+                type: "career",
+                tags: ["事业", "马年", "业成"]
+            },
+            {
+                id: 144,
+                horizontal: "马驰业就",
+                up: "马驰万里开富路",
+                down: "业成名就上青云",
+                explanation: "上联写马驰万里开辟富裕道路，下联写业成名就飞上青云，横批寓意马年事业成就。",
+                type: "career",
+                tags: ["事业", "马年", "业就"]
+            },
+            {
+                id: 145,
+                horizontal: "马上业成",
+                up: "马上功成开骏业",
+                down: "业成名就上高楼",
+                explanation: "上联写马上功成开创骏业，下联写业成名就登上高楼，横批寓意马上事业成功。",
+                type: "career",
+                tags: ["事业", "马年", "开创"]
+            },
+            {
+                id: 146,
+                horizontal: "金马业成",
+                up: "金马奔腾开富路",
+                down: "业成名就上青云",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写业成名就飞上青云，横批寓意金马事业成功。",
+                type: "career",
+                tags: ["事业", "马年", "开辟"]
+            },
+            {
+                id: 147,
+                horizontal: "马跃名成",
+                up: "马跃千山传捷报",
+                down: "名成功就上高楼",
+                explanation: "上联写马跃千山传递捷报，下联写名成功就登上高楼，横批寓意马年名声成就。",
+                type: "career",
+                tags: ["事业", "马年", "名声"]
+            },
+            {
+                id: 148,
+                horizontal: "马驰名就",
+                up: "马驰万里开富路",
+                down: "名成功就上青云",
+                explanation: "上联写马驰万里开辟富裕道路，下联写名成功就飞上青云，横批寓意马年名声成就。",
+                type: "career",
+                tags: ["事业", "马年", "成功"]
+            },
+            {
+                id: 149,
+                horizontal: "马上名成",
+                up: "马上功成开骏业",
+                down: "名成功就上高楼",
+                explanation: "上联写马上功成开创骏业，下联写名成功就登上高楼，横批寓意马上名声成就。",
+                type: "career",
+                tags: ["事业", "马年", "名声"]
+            },
+            {
+                id: 150,
+                horizontal: "金马名成",
+                up: "金马奔腾开富路",
+                down: "名成功就上青云",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写名成功就飞上青云，横批寓意金马名声成就。",
+                type: "career",
+                tags: ["事业", "马年", "飞上"]
+            },
+            {
+                id: 151,
+                horizontal: "马跃就成",
+                up: "马跃千山传捷报",
+                down: "就成名遂上高楼",
+                explanation: "上联写马跃千山传递捷报，下联写就成名遂登上高楼，横批寓意马年成就成功。",
+                type: "career",
+                tags: ["事业", "马年", "名遂"]
+            },
+            {
+                id: 152,
+                horizontal: "马驰就遂",
+                up: "马驰万里开富路",
+                down: "就成名遂上青云",
+                explanation: "上联写马驰万里开辟富裕道路，下联写就成名遂飞上青云，横批寓意马年成就遂愿。",
+                type: "career",
+                tags: ["事业", "马年", "遂愿"]
+            },
+            {
+                id: 153,
+                horizontal: "马上就成",
+                up: "马上功成开骏业",
+                down: "就成名遂上高楼",
+                explanation: "上联写马上功成开创骏业，下联写就成名遂登上高楼，横批寓意马上成就成功。",
+                type: "career",
+                tags: ["事业", "马年", "遂愿"]
+            },
+            {
+                id: 154,
+                horizontal: "金马就成",
+                up: "金马奔腾开富路",
+                down: "就成名遂上青云",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写就成名遂飞上青云，横批寓意金马成就成功。",
+                type: "career",
+                tags: ["事业", "马年", "开辟"]
+            },
+            {
+                id: 155,
+                horizontal: "马跃遂愿",
+                up: "马跃千山传捷报",
+                down: "遂愿功成上高楼",
+                explanation: "上联写马跃千山传递捷报，下联写遂愿功成登上高楼，横批寓意马年遂愿成功。",
+                type: "career",
+                tags: ["事业", "马年", "功成"]
+            },
+            {
+                id: 156,
+                horizontal: "马驰功遂",
+                up: "马驰万里开富路",
+                down: "功成名遂上青云",
+                explanation: "上联写马驰万里开辟富裕道路，下联写功成名遂飞上青云，横批寓意马年功成名遂。",
+                type: "career",
+                tags: ["事业", "马年", "名遂"]
+            },
+            {
+                id: 157,
+                horizontal: "马上功遂",
+                up: "马上功成开骏业",
+                down: "功成名遂上高楼",
+                explanation: "上联写马上功成开创骏业，下联写功成名遂登上高楼，横批寓意马上功成名遂。",
+                type: "career",
+                tags: ["事业", "马年", "开创"]
+            },
+            {
+                id: 158,
+                horizontal: "金马功遂",
+                up: "金马奔腾开富路",
+                down: "功成名遂上青云",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写功成名遂飞上青云，横批寓意金马功成名遂。",
+                type: "career",
+                tags: ["事业", "马年", "奔腾"]
+            },
+            {
+                id: 159,
+                horizontal: "马跃名遂",
+                up: "马跃千山传捷报",
+                down: "名成功遂上高楼",
+                explanation: "上联写马跃千山传递捷报，下联写名成功遂登上高楼，横批寓意马年名声遂愿。",
+                type: "career",
+                tags: ["事业", "马年", "成功"]
+            },
+            {
+                id: 160,
+                horizontal: "马驰名遂",
+                up: "马驰万里开富路",
+                down: "名成功遂上青云",
+                explanation: "上联写马驰万里开辟富裕道路，下联写名成功遂飞上青云，横批寓意马年名声遂愿。",
+                type: "career",
+                tags: ["事业", "马年", "开辟"]
+            },
+            // 健康对联 (161-180)
+            {
+                id: 161,
+                horizontal: "身强体健",
+                up: "人强马壮康乐日",
+                down: "囤满仓流富裕年",
+                explanation: "上联写人强马壮的康乐日子，下联写囤满仓流的富裕年景，横批祝福身体强壮健康。",
+                type: "health",
+                tags: ["健康", "强壮", "富裕"]
+            },
+            {
+                id: 162,
+                horizontal: "福寿安康",
+                up: "瑞雪铺平致富路",
+                down: "春风吹开幸福门",
+                explanation: "上联写瑞雪铺平致富道路，下联写春风吹开幸福之门，横批祝福福气长寿平安健康。",
+                type: "health",
+                tags: ["健康", "福寿", "幸福"]
+            },
+            {
+                id: 163,
+                horizontal: "延年益寿",
+                up: "福如东海长流水",
+                down: "寿比南山不老松",
+                explanation: "经典寿联，上联祝福福气如东海长流水般源源不断，下联祝福寿命如南山不老松般长久，横批祝福延长寿命增加福气。",
+                type: "health",
+                tags: ["健康", "长寿", "福气"]
+            },
+            {
+                id: 164,
+                horizontal: "健康长寿",
+                up: "寿比南山松不老",
+                down: "福如东海水长流",
+                explanation: "经典寿联变体，上联写寿命比南山松树不会老，下联写福气如东海水长久流淌，横批祝福健康长寿。",
+                type: "health",
+                tags: ["健康", "长寿", "松树"]
+            },
+            {
+                id: 165,
+                horizontal: "身心康泰",
+                up: "春风化雨千山秀",
+                down: "红日增辉万木荣",
+                explanation: "上联写春风化雨千山秀美，下联写红日增辉万木繁荣，横批祝福身体心灵健康安泰。",
+                type: "health",
+                tags: ["健康", "春风", "红日"]
+            },
+            {
+                id: 166,
+                horizontal: "马壮人康",
+                up: "马壮人强康乐日",
+                down: "春和景丽幸福年",
+                explanation: "上联写马壮人强康乐日子，下联写春天和煦景色美丽幸福年景，横批寓意马壮人健康。",
+                type: "health",
+                tags: ["健康", "马年", "和煦"]
+            },
+            {
+                id: 167,
+                horizontal: "马跃康宁",
+                up: "马跃青山人康健",
+                down: "羊驰绿野家安宁",
+                explanation: "上联写马跃青山人健康，下联写羊驰绿野家安宁，横批寓意马年健康安宁。",
+                type: "health",
+                tags: ["健康", "马年", "青山"]
+            },
+            {
+                id: 168,
+                horizontal: "马驰安康",
+                up: "马驰大道人康健",
+                down: "羊跃青山家平安",
+                explanation: "上联写马驰大道人健康，下联写羊跃青山家平安，横批寓意马年平安健康。",
+                type: "health",
+                tags: ["健康", "马年", "大道"]
+            },
+            {
+                id: 169,
+                horizontal: "马上康健",
+                up: "马上迎来人康健",
+                down: "春间获取家平安",
+                explanation: "上联写马上迎来人健康，下联写春天期间获取家平安，横批寓意马上健康。",
+                type: "health",
+                tags: ["健康", "马年", "迎来"]
+            },
+            {
+                id: 170,
+                horizontal: "金马康宁",
+                up: "金马奔腾人康健",
+                down: "银羊欢跃家安宁",
+                explanation: "上联写金马奔腾人健康，下联写银羊欢跃家安宁，横批寓意金马健康安宁。",
+                type: "health",
+                tags: ["健康", "马年", "安宁"]
+            },
+            {
+                id: 171,
+                horizontal: "马壮体健",
+                up: "马壮人强体康健",
+                down: "羊欢景丽家平安",
+                explanation: "上联写马壮人强身体健康，下联写羊欢景丽家平安，横批寓意马壮身体健康。",
+                type: "health",
+                tags: ["健康", "马年", "身体"]
+            },
+            {
+                id: 172,
+                horizontal: "马跃体安",
+                up: "马跃千山人体健",
+                down: "羊驰万里家平安",
+                explanation: "上联写马跃千山人体健康，下联写羊驰万里家平安，横批寓意马年身体安康。",
+                type: "health",
+                tags: ["健康", "马年", "万里"]
+            },
+            {
+                id: 173,
+                horizontal: "马驰体康",
+                up: "马驰大道人康健",
+                down: "羊跃青山体平安",
+                explanation: "上联写马驰大道人健康，下联写羊跃青山体平安，横批寓意马年身体健康。",
+                type: "health",
+                tags: ["健康", "马年", "青山"]
+            },
+            {
+                id: 174,
+                horizontal: "马上体健",
+                up: "马上迎来人康健",
+                down: "春间获取体平安",
+                explanation: "上联写马上迎来人健康，下联写春天期间获取体平安，横批寓意马上身体健康。",
+                type: "health",
+                tags: ["健康", "马年", "获取"]
+            },
+            {
+                id: 175,
+                horizontal: "金马体康",
+                up: "金马奔腾人康健",
+                down: "银羊欢跃体平安",
+                explanation: "上联写金马奔腾人健康，下联写银羊欢跃体平安，横批寓意金马身体健康。",
+                type: "health",
+                tags: ["健康", "马年", "欢跃"]
+            },
+            {
+                id: 176,
+                horizontal: "马壮安康",
+                up: "马壮人强体康健",
+                down: "羊欢景丽家安宁",
+                explanation: "上联写马壮人强身体康健，下联写羊欢景丽家安宁，横批寓意马壮平安健康。",
+                type: "health",
+                tags: ["健康", "马年", "康健"]
+            },
+            {
+                id: 177,
+                horizontal: "马跃平安",
+                up: "马跃千山人体健",
+                down: "羊驰万里家安宁",
+                explanation: "上联写马跃千山人体健康，下联写羊驰万里家安宁，横批寓意马年平安健康。",
+                type: "health",
+                tags: ["健康", "马年", "安宁"]
+            },
+            {
+                id: 178,
+                horizontal: "马驰健康",
+                up: "马驰大道人康健",
+                down: "羊跃青山体安康",
+                explanation: "上联写马驰大道人康健，下联写羊跃青山体安康，横批寓意马年健康平安。",
+                type: "health",
+                tags: ["健康", "马年", "安康"]
+            },
+            {
+                id: 179,
+                horizontal: "马上安康",
+                up: "马上迎来人康健",
+                down: "春间获取体安康",
+                explanation: "上联写马上迎来人康健，下联写春天期间获取体安康，横批寓意马上平安健康。",
+                type: "health",
+                tags: ["健康", "马年", "获取"]
+            },
+            {
+                id: 180,
+                horizontal: "金马健康",
+                up: "金马奔腾人康健",
+                down: "银羊欢跃体安康",
+                explanation: "上联写金马奔腾人康健，下联写银羊欢跃体安康，横批寓意金马健康平安。",
+                type: "health",
+                tags: ["健康", "马年", "欢跃"]
+            },
+            // 财运对联 (181-200)
+            {
+                id: 181,
+                horizontal: "金玉满堂",
+                up: "财如旭日腾云起",
+                down: "利似春潮带雨来",
+                explanation: "上联写财富如旭日腾云升起，下联写利润似春潮带雨而来，横批寓意家中充满金银财宝。",
+                type: "fortune",
+                tags: ["财运", "富裕", "兴旺"]
+            },
+            {
+                id: 182,
+                horizontal: "日进斗金",
+                up: "生意如同春意美",
+                down: "财源更比水源长",
+                explanation: "上联写生意如同春意美好，下联写财源比水源更加长远，横批祝福每日收入丰厚如斗金。",
+                type: "fortune",
+                tags: ["财运", "生意", "财源"]
+            },
+            {
+                id: 183,
+                horizontal: "富贵花开",
+                up: "门迎百福福星照",
+                down: "户纳千祥祥云腾",
+                explanation: "上联写门迎百福福星高照，下联写户纳千祥祥云腾升，横批寓意富贵如花开般繁盛。",
+                type: "fortune",
+                tags: ["财运", "富贵", "祥瑞"]
+            },
+            {
+                id: 184,
+                horizontal: "金银满室",
+                up: "堆金积玉创富贵",
+                down: "安居乐业享荣华",
+                explanation: "上联写堆积金银玉石创造富贵，下联写安居乐业享受荣华，横批寓意金银财宝充满房间。",
+                type: "fortune",
+                tags: ["财运", "富贵", "荣华"]
+            },
+            {
+                id: 185,
+                horizontal: "财源滚滚",
+                up: "好生意天帮地助",
+                down: "大财源川流云集",
+                explanation: "上联写好生意天帮助地辅助，下联写大财源如川流云集，横批形容财源滚滚不断。",
+                type: "fortune",
+                tags: ["财运", "帮助", "云集"]
+            },
+            {
+                id: 186,
+                horizontal: "招财进宝",
+                up: "财连亨通步步高",
+                down: "日子红火腾腾起",
+                explanation: "上联写财运亨通步步高升，下联写日子红火腾腾升起，横批寓意招引财富收纳珍宝。",
+                type: "fortune",
+                tags: ["财运", "亨通", "红火"]
+            },
+            {
+                id: 187,
+                horizontal: "马到财来",
+                up: "骏马奔腾传喜讯",
+                down: "财神驾到送金银",
+                explanation: "上联写骏马奔腾传递喜讯，下联写财神驾到送来金银，横批寓意马年财源到来。",
+                type: "fortune",
+                tags: ["财运", "马年", "财神"]
+            },
+            {
+                id: 188,
+                horizontal: "马跃金门",
+                up: "马跃金门生瑞气",
+                down: "羊驰玉宇带财来",
+                explanation: "上联写马跃金门产生瑞气，下联写羊驰玉宇带来财富，横批寓意马年跃向财富之门。",
+                type: "fortune",
+                tags: ["财运", "马年", "玉宇"]
+            },
+            {
+                id: 189,
+                horizontal: "金马进宝",
+                up: "金马奔腾开富路",
+                down: "银羊欢跃上财山",
+                explanation: "上联写金马奔腾开辟富裕道路，下联写银羊欢跃登上财富之山，横批寓意金马进入宝地。",
+                type: "fortune",
+                tags: ["财运", "马年", "宝地"]
+            },
+            {
+                id: 190,
+                horizontal: "马跃钱程",
+                up: "马跃千山传捷报",
+                down: "羊驰万里送财来",
+                explanation: "上联写马跃千山传递捷报，下联写羊驰万里送来财富，横批寓意马年跃向财富前程。",
+                type: "fortune",
+                tags: ["财运", "马年", "捷报"]
+            },
+            {
+                id: 191,
+                horizontal: "马驰金路",
+                up: "马驰大道财源进",
+                down: "羊跃青山利润来",
+                explanation: "上联写马驰大道财源进入，下联写羊跃青山利润到来，横批寓意马年驰骋金色道路。",
+                type: "fortune",
+                tags: ["财运", "马年", "大道"]
+            },
+            {
+                id: 192,
+                horizontal: "马上得金",
+                up: "马上迎来财源进",
+                down: "春间获取利润来",
+                explanation: "上联写马上迎来财源进入，下联写春天期间获取利润到来，横批寓意马上得到黄金。",
+                type: "fortune",
+                tags: ["财运", "马年", "获取"]
+            },
+            {
+                id: 193,
+                horizontal: "金马载金",
+                up: "金马奔腾财源进",
+                down: "银羊欢跃利润来",
+                explanation: "上联写金马奔腾财源进入，下联写银羊欢跃利润到来，横批寓意金马载来黄金。",
+                type: "fortune",
+                tags: ["财运", "马年", "欢跃"]
+            },
+            {
+                id: 194,
+                horizontal: "马壮财旺",
+                up: "马壮人强财源进",
+                down: "羊欢景丽利润来",
+                explanation: "上联写马壮人强财源进入，下联写羊欢景丽利润到来，横批寓意马壮财富旺盛。",
+                type: "fortune",
+                tags: ["财运", "马年", "旺盛"]
+            },
+            {
+                id: 195,
+                horizontal: "马跃财进",
+                up: "马跃千山财源进",
+                down: "羊驰万里利润来",
+                explanation: "上联写马跃千山财源进入，下联写羊驰万里利润到来，横批寓意马年财源进入。",
+                type: "fortune",
+                tags: ["财运", "马年", "千山"]
+            },
+            {
+                id: 196,
+                horizontal: "马驰利来",
+                up: "马驰大道财源进",
+                down: "羊跃青山利润来",
+                explanation: "上联写马驰大道财源进入，下联写羊跃青山利润到来，横批寓意马年利润到来。",
+                type: "fortune",
+                tags: ["财运", "马年", "青山"]
+            },
+            {
+                id: 197,
+                horizontal: "马上利进",
+                up: "马上迎来财源进",
+                down: "春间获取利润来",
+                explanation: "上联写马上迎来财源进入，下联写春天期间获取利润到来，横批寓意马上利润进入。",
+                type: "fortune",
+                tags: ["财运", "马年", "获取"]
+            },
+            {
+                id: 198,
+                horizontal: "金马利来",
+                up: "金马奔腾财源进",
+                down: "银羊欢跃利润来",
+                explanation: "上联写金马奔腾财源进入，下联写银羊欢跃利润到来，横批寓意金马利润到来。",
+                type: "fortune",
+                tags: ["财运", "马年", "欢跃"]
+            },
+            {
+                id: 199,
+                horizontal: "马壮利旺",
+                up: "马壮人强财源进",
+                down: "羊欢景丽利润旺",
+                explanation: "上联写马壮人强财源进入，下联写羊欢景丽利润旺盛，横批寓意马壮利润旺盛。",
+                type: "fortune",
+                tags: ["财运", "马年", "旺盛"]
+            },
+            {
+                id: 200,
+                horizontal: "马年发财",
+                up: "骏马奔腾传喜讯",
+                down: "财源广进庆丰年",
+                explanation: "上联写骏马奔腾传递喜讯，下联写财源广进庆祝丰年，横批祝福马年发财致富。",
+                type: "fortune",
+                tags: ["财运", "马年", "发财"]
+            }
+        ];
+
+        // 页面配置
+        const config = {
+            itemsPerPage: 10,
+            currentPage: 1,
+            currentType: "all",
+            currentSearch: ""
+        };
+
+        // DOM元素
+        const coupletsDisplay = document.getElementById('coupletsDisplay');
+        const pagination = document.getElementById('pagination');
+        const typeFilter = document.getElementById('typeFilter');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const redEnvelope = document.getElementById('redEnvelope');
+        const resultsInfo = document.getElementById('resultsInfo');
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCouplets();
+            setupEventListeners();
+        });
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            typeFilter.addEventListener('change', function() {
+                config.currentType = this.value;
+                config.currentPage = 1;
+                displayCouplets();
+            });
+
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            redEnvelope.addEventListener('click', function() {
+                alert('🎉 马年大吉！恭喜您获得马年专属祝福：一马当先，马到成功，龙马精神，万事如意！');
+            });
+        }
+
+        // 执行搜索
+        function performSearch() {
+            config.currentSearch = searchInput.value.trim();
+            config.currentPage = 1;
+            displayCouplets();
+        }
+
+        // 获取过滤后的对联数据
+        function getFilteredCouplets() {
+            let filtered = horseYearCouplets;
+            
+            // 按类型过滤
+            if (config.currentType !== "all") {
+                filtered = filtered.filter(couplet => couplet.type === config.currentType);
+            }
+            
+            // 按搜索词过滤
+            if (config.currentSearch) {
+                const searchTerm = config.currentSearch.toLowerCase();
+                filtered = filtered.filter(couplet => 
+                    couplet.horizontal.toLowerCase().includes(searchTerm) ||
+                    couplet.up.toLowerCase().includes(searchTerm) ||
+                    couplet.down.toLowerCase().includes(searchTerm) ||
+                    couplet.explanation.toLowerCase().includes(searchTerm) ||
+                    couplet.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            return filtered;
+        }
+
+        // 显示对联
+        function displayCouplets() {
+            const filteredCouplets = getFilteredCouplets();
+            const totalPages = Math.ceil(filteredCouplets.length / config.itemsPerPage);
+            
+            // 确保当前页有效
+            if (config.currentPage > totalPages && totalPages > 0) {
+                config.currentPage = totalPages;
+            } else if (config.currentPage < 1) {
+                config.currentPage = 1;
+            }
+            
+            // 显示结果信息
+            updateResultsInfo(filteredCouplets.length);
+            
+            // 计算当前页的对联
+            const startIndex = (config.currentPage - 1) * config.itemsPerPage;
+            const endIndex = startIndex + config.itemsPerPage;
+            const currentCouplets = filteredCouplets.slice(startIndex, endIndex);
+            
+            // 清空显示区域
+            coupletsDisplay.innerHTML = '';
+            
+            if (currentCouplets.length === 0) {
+                coupletsDisplay.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; background-color: white; border-radius: 10px; grid-column: 1 / -1;">
+                        <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #666;">未找到相关对联</h3>
+                        <p>请尝试其他搜索词或选择其他类型</p>
+                    </div>
+                `;
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            // 创建对联卡片容器
+            const coupletsContainer = document.createElement('div');
+            coupletsContainer.className = 'couplets-container';
+            
+            currentCouplets.forEach(couplet => {
+                const coupletCard = document.createElement('div');
+                coupletCard.className = 'couplet-card';
+                
+                // 类型中文显示
+                const typeMap = {
+                    "spring": "春节对联",
+                    "business": "商业对联",
+                    "family": "家庭对联",
+                    "career": "事业对联",
+                    "health": "健康对联",
+                    "fortune": "财运对联"
+                };
+                
+                coupletCard.innerHTML = `
+                    <div class="couplet-header">
+                        <div class="horizontal-scroll">${couplet.horizontal}</div>
+                        <div><i class="fas fa-horse horse-icon"></i> 马年祝福 · <span class="couplet-type">${typeMap[couplet.type] || couplet.type}</span></div>
+                    </div>
+                    <div class="couplet-content">
+                        <div class="couplet-part up">${couplet.up}</div>
+                        <div class="couplet-part down">${couplet.down}</div>
+                    </div>
+                    <div class="couplet-explanation">
+                        <div class="explanation-title"><i class="fas fa-lightbulb"></i> 寓意解释</div>
+                        <p>${couplet.explanation}</p>
+                        <div style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                            <i class="fas fa-tags"></i> 标签: ${couplet.tags.map(tag => `<span style="background: #f0f0f0; padding: 3px 8px; border-radius: 3px; margin-right: 5px; display: inline-block; margin-bottom: 5px;">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                coupletsContainer.appendChild(coupletCard);
+            });
+            
+            coupletsDisplay.appendChild(coupletsContainer);
+            
+            // 生成分页
+            generatePagination(totalPages);
+        }
+
+        // 更新结果信息
+        function updateResultsInfo(totalCount) {
+            let infoText = `共找到 ${totalCount} 副马年对联`;
+            
+            if (config.currentType !== "all") {
+                const typeMap = {
+                    "spring": "春节对联",
+                    "business": "商业对联",
+                    "family": "家庭对联",
+                    "career": "事业对联",
+                    "health": "健康对联",
+                    "fortune": "财运对联"
+                };
+                infoText += ` (${typeMap[config.currentType]})`;
+            }
+            
+            if (config.currentSearch) {
+                infoText += `，搜索词："${config.currentSearch}"`;
+            }
+            
+            resultsInfo.innerHTML = infoText;
+        }
+
+        // 生成分页
+        function generatePagination(totalPages) {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // 上一页按钮
+            if (config.currentPage > 1) {
+                const prevItem = document.createElement('li');
+                prevItem.className = 'pagination-item';
+                prevItem.innerHTML = `<a href="#" class="pagination-link" data-page="${config.currentPage - 1}"><i class="fas fa-chevron-left"></i> 上一页</a>`;
+                pagination.appendChild(prevItem);
+            }
+            
+            // 页码按钮
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, config.currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageItem = document.createElement('li');
+                pageItem.className = 'pagination-item';
+                
+                const pageLink = document.createElement('a');
+                pageLink.href = '#';
+                pageLink.className = 'pagination-link';
+                if (i === config.currentPage) {
+                    pageLink.classList.add('active');
+                }
+                pageLink.textContent = i;
+                pageLink.dataset.page = i;
+                
+                pageItem.appendChild(pageLink);
+                pagination.appendChild(pageItem);
+            }
+            
+            // 下一页按钮
+            if (config.currentPage < totalPages) {
+                const nextItem = document.createElement('li');
+                nextItem.className = 'pagination-item';
+                nextItem.innerHTML = `<a href="#" class="pagination-link" data-page="${config.currentPage + 1}">下一页 <i class="fas fa-chevron-right"></i></a>`;
+                pagination.appendChild(nextItem);
+            }
+            
+            // 添加页面点击事件
+            pagination.querySelectorAll('.pagination-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (this.dataset.page) {
+                        config.currentPage = parseInt(this.dataset.page);
+                        displayCouplets();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

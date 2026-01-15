@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词故事学习系统 MVP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .word-count {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #toggleMode {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        #toggleMode:hover {
+            background: #2980b9;
+        }
+
+        .story-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .word-chinese {
+            color: #e74c3c;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .word-chinese:hover {
+            background: #ffeaa7;
+            transform: translateY(-2px);
+        }
+
+        .word-english {
+            color: #3498db;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .word-english:hover {
+            background: #d6eaf8;
+            transform: translateY(-2px);
+        }
+
+        .instructions {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .words-section {
+            margin-top: 30px;
+        }
+
+        .words-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .word-card {
+            background: white;
+            border: 2px solid #eaeaea;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .word-card:hover {
+            border-color: #3498db;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .word-card h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .word-card .phonetic {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .word-card .meaning {
+            font-size: 0.95em;
+            color: #34495e;
+        }
+
+        .favorite-star {
+            color: #f39c12;
+            float: right;
+            font-size: 1.2em;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #7f8c8d;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #f8f9fa;
+            color: #e74c3c;
+        }
+
+        .word-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .word-header h3 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .phonetic {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .example {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .english-example {
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .chinese-example {
+            color: #7f8c8d;
+        }
+
+        .word-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .speak-btn, .favorite-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .speak-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .speak-btn:hover {
+            background: #2980b9;
+        }
+
+        .favorite-btn {
+            background: #f1c40f;
+            color: white;
+        }
+
+        .favorite-btn:hover {
+            background: #f39c12;
+        }
+
+        .favorite-btn.favorited {
+            background: #e74c3c;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .words-list {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .word-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 单词故事学习系统 MVP</h1>
+            <p class="subtitle">通过有趣的故事学习英语单词 - 单文件演示版</p>
+        </header>
+
+        <main>
+            <section class="story-section">
+                <div class="section-header">
+                    <h2>神秘森林的冒险</h2>
+                    <div class="word-count">
+                        <span>包含单词: 10个</span>
+                        <button id="toggleMode">显示英文模式</button>
+                    </div>
+                </div>
+                
+                <div class="story-container" id="storyContainer">
+                    <!-- 故事内容将通过JS动态生成 -->
+                </div>
+                
+                <div class="instructions">
+                    <p>💡 提示：点击<span class="highlight">中文单词</span>显示英文，点击<span class="highlight">英文单词</span>查看详情</p>
+                </div>
+            </section>
+
+            <section class="words-section">
+                <h3>本故事包含的单词</h3>
+                <div class="words-list" id="wordsList">
+                    <!-- 单词列表将通过JS动态生成 -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>单词学习系统 MVP 演示版 | 点击单词开始学习 | 所有功能在一个HTML文件中</p>
+        </footer>
+    </div>
+
+    <!-- 单词详情弹窗 -->
+    <div class="modal" id="wordModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">×</button>
+            <div class="word-header">
+                <h3 id="modalEnglish"></h3>
+                <span class="phonetic" id="modalPhonetic"></span>
+            </div>
+            
+            <div class="word-details">
+                <p><strong>中文释义:</strong> <span id="modalChinese"></span></p>
+                
+                <div class="example">
+                    <p><strong>例句:</strong></p>
+                    <p class="english-example" id="modalExampleEN"></p>
+                    <p class="chinese-example" id="modalExampleCN"></p>
+                </div>
+                
+                <div class="word-actions">
+                    <button class="speak-btn" id="speakWord">
+                        🔊 朗读单词
+                    </button>
+                    <button class="favorite-btn" id="toggleFavorite">
+                        ⭐ 收藏
+                    </button>
+                    <button class="speak-btn" id="speakExample">
+                        🔊 朗读例句
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================
+        // 数据定义部分
+        // ================================
+        
+        // 单词数据
+        const demoWords = [
+            {
+                id: 1,
+                chinese: "苹果",
+                english: "apple",
+                phonetic: "/ˈæpl/",
+                chineseMeaning: "苹果；苹果公司",
+                exampleEN: "I eat an apple every day for breakfast.",
+                exampleCN: "我每天早餐都吃一个苹果。",
+                isFavorite: false
+            },
+            {
+                id: 2,
+                chinese: "冒险",
+                english: "adventure",
+                phonetic: "/ədˈventʃər/",
+                chineseMeaning: "冒险；奇遇",
+                exampleEN: "Their jungle adventure was full of surprises.",
+                exampleCN: "他们的丛林冒险充满了惊喜。",
+                isFavorite: false
+            },
+            {
+                id: 3,
+                chinese: "美味",
+                english: "delicious",
+                phonetic: "/dɪˈlɪʃəs/",
+                chineseMeaning: "美味的，可口的",
+                exampleEN: "The cake was absolutely delicious.",
+                exampleCN: "这个蛋糕绝对美味。",
+                isFavorite: false
+            },
+            {
+                id: 4,
+                chinese: "神秘",
+                english: "mysterious",
+                phonetic: "/mɪˈstɪriəs/",
+                chineseMeaning: "神秘的，难以理解的",
+                exampleEN: "There was a mysterious package at the door.",
+                exampleCN: "门口有一个神秘的包裹。",
+                isFavorite: false
+            },
+            {
+                id: 5,
+                chinese: "宝藏",
+                english: "treasure",
+                phonetic: "/ˈtreʒər/",
+                chineseMeaning: "宝藏；珍宝",
+                exampleEN: "The pirates searched for hidden treasure.",
+                exampleCN: "海盗们寻找隐藏的宝藏。",
+                isFavorite: false
+            },
+            {
+                id: 6,
+                chinese: "勇敢",
+                english: "brave",
+                phonetic: "/breɪv/",
+                chineseMeaning: "勇敢的，无畏的",
+                exampleEN: "She was brave enough to face her fears.",
+                exampleCN: "她足够勇敢去面对自己的恐惧。",
+                isFavorite: false
+            },
+            {
+                id: 7,
+                chinese: "魔法",
+                english: "magic",
+                phonetic: "/ˈmædʒɪk/",
+                chineseMeaning: "魔法；魔术",
+                exampleEN: "The magician performed amazing magic tricks.",
+                exampleCN: "魔术师表演了令人惊叹的魔法技巧。",
+                isFavorite: false
+            },
+            {
+                id: 8,
+                chinese: "旅程",
+                english: "journey",
+                phonetic: "/ˈdʒɜːrni/",
+                chineseMeaning: "旅程，旅行",
+                exampleEN: "Their journey around the world took two years.",
+                exampleCN: "他们的环球旅行花了两年时间。",
+                isFavorite: false
+            },
+            {
+                id: 9,
+                chinese: "智慧",
+                english: "wisdom",
+                phonetic: "/ˈwɪzdəm/",
+                chineseMeaning: "智慧，才智",
+                exampleEN: "Grandfather shared his wisdom with the children.",
+                exampleCN: "祖父与孩子们分享他的智慧。",
+                isFavorite: false
+            },
+            {
+                id: 10,
+                chinese: "庆祝",
+                english: "celebrate",
+                phonetic: "/ˈselɪbreɪt/",
+                chineseMeaning: "庆祝，庆贺",
+                exampleEN: "We will celebrate our victory with a party.",
+                exampleCN: "我们将举办派对庆祝胜利。",
+                isFavorite: false
+            }
+        ];
+
+        // 故事数据
+        const demoStory = `在一个神秘的森林里，小狐狸艾米开始了一场惊心动魄的冒险。她听说森林深处藏着传说中的美味金苹果，这些苹果有着神奇的魔法力量。
+
+艾米需要足够的勇敢来完成这次旅程。她穿过浓雾笼罩的峡谷，越过湍急的河流，路上遇到了各种神秘的生物。一只智慧的老猫头鹰告诉她："真正的宝藏不在于找到金苹果，而在于旅程中获得的成长。"
+
+经过三天的跋涉，艾米终于找到了那棵闪耀着金色光芒的苹果树。每一颗苹果都散发着诱人的美味香气。她小心地摘下一颗，瞬间感受到了温暖的力量流过全身。
+
+回到村庄后，所有的动物都来庆祝艾米的归来。她分享了自己的经历，并告诉大家："这次冒险让我明白，勇气和智慧才是人生最宝贵的财富。"从此，森林里流传着这个关于勇气和成长的美丽故事。`;
+
+        // 故事单词标记映射
+        const storyWordMapping = [
+            { chinese: "神秘", position: 3 },
+            { chinese: "冒险", position: 15 },
+            { chinese: "美味", position: 40 },
+            { chinese: "魔法", position: 55 },
+            { chinese: "勇敢", position: 75 },
+            { chinese: "旅程", position: 85 },
+            { chinese: "智慧", position: 115 },
+            { chinese: "宝藏", position: 125 },
+            { chinese: "苹果", position: 160 },
+            { chinese: "庆祝", position: 235 }
+        ];
+
+        // ================================
+        // 应用状态和DOM元素
+        // ================================
+        
+        // 应用状态
+        let appState = {
+            words: [...demoWords],
+            story: demoStory,
+            wordMapping: [...storyWordMapping],
+            showEnglishMode: false,
+            currentWord: null
+        };
+
+        // DOM元素
+        const storyContainer = document.getElementById('storyContainer');
+        const wordsList = document.getElementById('wordsList');
+        const wordModal = document.getElementById('wordModal');
+        const closeModal = document.getElementById('closeModal');
+        const toggleModeBtn = document.getElementById('toggleMode');
+        const speakWordBtn = document.getElementById('speakWord');
+        const speakExampleBtn = document.getElementById('speakExample');
+        const toggleFavoriteBtn = document.getElementById('toggleFavorite');
+
+        // ================================
+        // 核心功能函数
+        // ================================
+
+        // 初始化应用
+        function initApp() {
+            renderStory();
+            renderWordsList();
+            setupEventListeners();
+            loadFavorites();
+        }
+
+        // 渲染故事内容
+        function renderStory() {
+            let storyText = appState.story;
+            
+            // 根据模式显示中文或英文
+            if (appState.showEnglishMode) {
+                // 显示英文模式：将故事中的中文单词替换为英文
+                appState.wordMapping.forEach(mapping => {
+                    const word = appState.words.find(w => w.chinese === mapping.chinese);
+                    if (word) {
+                        storyText = storyText.replace(
+                            new RegExp(mapping.chinese, 'g'),
+                            `<span class="word-english" data-word-id="${word.id}">${word.english}</span>`
+                        );
+                    }
+                });
+            } else {
+                // 显示中文模式：标记中文单词
+                appState.wordMapping.forEach(mapping => {
+                    const word = appState.words.find(w => w.chinese === mapping.chinese);
+                    if (word) {
+                        storyText = storyText.replace(
+                            new RegExp(mapping.chinese, 'g'),
+                            `<span class="word-chinese" data-word-id="${word.id}">${mapping.chinese}</span>`
+                        );
+                    }
+                });
+            }
+            
+            storyContainer.innerHTML = `<p>${storyText}</p>`;
+            
+            // 为单词添加点击事件
+            document.querySelectorAll('.word-chinese, .word-english').forEach(element => {
+                element.addEventListener('click', function() {
+                    const wordId = parseInt(this.getAttribute('data-word-id'));
+                    showWordModal(wordId);
+                });
+            });
+        }
+
+        // 渲染单词列表
+        function renderWordsList() {
+            wordsList.innerHTML = '';
+            
+            appState.words.forEach(word => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'word-card';
+                wordCard.setAttribute('data-word-id', word.id);
+                
+                wordCard.innerHTML = `
+                    <div class="favorite-star">${word.isFavorite ? '★' : '☆'}</div>
+                    <h4>${word.chinese} / ${word.english}</h4>
+                    <div class="phonetic">${word.phonetic}</div>
+                    <div class="meaning">${word.chineseMeaning}</div>
+                `;
+                
+                wordCard.addEventListener('click', () => showWordModal(word.id));
+                wordsList.appendChild(wordCard);
+            });
+        }
+
+        // 显示单词详情弹窗
+        function showWordModal(wordId) {
+            const word = appState.words.find(w => w.id === wordId);
+            if (!word) return;
+            
+            appState.currentWord = word;
+            
+            // 更新弹窗内容
+            document.getElementById('modalEnglish').textContent = word.english;
+            document.getElementById('modalPhonetic').textContent = word.phonetic;
+            document.getElementById('modalChinese').textContent = word.chineseMeaning;
+            document.getElementById('modalExampleEN').textContent = word.exampleEN;
+            document.getElementById('modalExampleCN').textContent = word.exampleCN;
+            
+            // 更新收藏按钮状态
+            toggleFavoriteBtn.textContent = word.isFavorite ? '★ 取消收藏' : '☆ 收藏';
+            toggleFavoriteBtn.classList.toggle('favorited', word.isFavorite);
+            
+            // 显示弹窗
+            wordModal.style.display = 'flex';
+        }
+
+        // 朗读文本
+        function speakText(text, lang = 'en-US') {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                utterance.rate = 0.8;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('您的浏览器不支持语音朗读功能，请使用Chrome、Edge等现代浏览器');
+            }
+        }
+
+        // 切换收藏状态
+        function toggleFavorite() {
+            if (!appState.currentWord) return;
+            
+            const word = appState.currentWord;
+            word.isFavorite = !word.isFavorite;
+            
+            // 更新按钮状态
+            toggleFavoriteBtn.textContent = word.isFavorite ? '★ 取消收藏' : '☆ 收藏';
+            toggleFavoriteBtn.classList.toggle('favorited', word.isFavorite);
+            
+            // 更新列表显示
+            renderWordsList();
+            
+            // 保存到LocalStorage
+            saveFavorites();
+        }
+
+        // 保存收藏状态到LocalStorage
+        function saveFavorites() {
+            const favorites = appState.words
+                .filter(word => word.isFavorite)
+                .map(word => word.id);
+            
+            localStorage.setItem('wordFavorites', JSON.stringify(favorites));
+        }
+
+        // 从LocalStorage加载收藏状态
+        function loadFavorites() {
+            try {
+                const favorites = JSON.parse(localStorage.getItem('wordFavorites') || '[]');
+                
+                appState.words.forEach(word => {
+                    word.isFavorite = favorites.includes(word.id);
+                });
+                
+                renderWordsList();
+            } catch (error) {
+                console.log('加载收藏数据失败，使用默认数据');
+            }
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 切换显示模式
+            toggleModeBtn.addEventListener('click', () => {
+                appState.showEnglishMode = !appState.showEnglishMode;
+                toggleModeBtn.textContent = appState.showEnglishMode ? '显示中文模式' : '显示英文模式';
+                renderStory();
+            });
+            
+            // 关闭弹窗
+            closeModal.addEventListener('click', () => {
+                wordModal.style.display = 'none';
+            });
+            
+            // 点击弹窗外部关闭
+            wordModal.addEventListener('click', (e) => {
+                if (e.target === wordModal) {
+                    wordModal.style.display = 'none';
+                }
+            });
+            
+            // 语音功能
+            speakWordBtn.addEventListener('click', () => {
+                if (appState.currentWord) {
+                    speakText(appState.currentWord.english);
+                }
+            });
+            
+            speakExampleBtn.addEventListener('click', () => {
+                if (appState.currentWord) {
+                    speakText(appState.currentWord.exampleEN);
+                }
+            });
+            
+            // 收藏功能
+            toggleFavoriteBtn.addEventListener('click', toggleFavorite);
+            
+            // ESC键关闭弹窗
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && wordModal.style.display === 'flex') {
+                    wordModal.style.display = 'none';
+                }
+            });
+        }
+
+        // ================================
+        // 页面加载完成后初始化应用
+        // ================================
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        // ================================
+        // 测试功能（控制台可用）
+        // ================================
+        window.testFunctions = {
+            // 显示所有单词
+            showAllWords: function() {
+                console.log('所有单词:', appState.words);
+                return appState.words;
+            },
+            
+            // 显示收藏的单词
+            showFavorites: function() {
+                const favorites = appState.words.filter(word => word.isFavorite);
+                console.log('收藏的单词:', favorites);
+                return favorites;
+            },
+            
+            // 清除所有收藏
+            clearFavorites: function() {
+                appState.words.forEach(word => word.isFavorite = false);
+                localStorage.removeItem('wordFavorites');
+                renderWordsList();
+                console.log('已清除所有收藏');
+            },
+            
+            // 添加测试单词
+            addTestWord: function() {
+                const newWord = {
+                    id: appState.words.length + 1,
+                    chinese: "测试",
+                    english: "test",
+                    phonetic: "/test/",
+                    chineseMeaning: "测试，试验",
+                    exampleEN: "This is a test sentence.",
+                    exampleCN: "这是一个测试句子。",
+                    isFavorite: false
+                };
+                appState.words.push(newWord);
+                renderWordsList();
+                console.log('已添加测试单词:', newWord);
+            }
+        };
+
+        // 在控制台提示可用测试函数
+        console.log('🎮 测试功能可用:');
+        console.log('  - testFunctions.showAllWords() - 显示所有单词');
+        console.log('  - testFunctions.showFavorites() - 显示收藏的单词');
+        console.log('  - testFunctions.clearFavorites() - 清除所有收藏');
+        console.log('  - testFunctions.addTestWord() - 添加测试单词');
+    </script>
+</body>
+</html>

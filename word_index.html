@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词故事学习系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary-color: #10b981;
+            --secondary-light: #34d399;
+            --secondary-dark: #059669;
+            --accent-color: #f59e0b;
+            --accent-light: #fbbf24;
+            --accent-dark: #d97706;
+            --danger-color: #ef4444;
+            --danger-light: #f87171;
+            --danger-dark: #dc2626;
+            --background-light: #f8fafc;
+            --background-white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: var(--background-white);
+            padding: 15px 40px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: var(--radius-md);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* 首页英雄区域 */
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(16, 185, 129, 0.1));
+            border-radius: var(--radius-xl);
+            margin-bottom: 50px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* 功能卡片区域 */
+        .features-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 6px;
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: var(--background-white);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-normal);
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* 故事列表区域 */
+        .stories-section {
+            margin-bottom: 60px;
+        }
+
+        .stories-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stories-tabs {
+            display: flex;
+            gap: 10px;
+            background: var(--background-light);
+            padding: 5px;
+            border-radius: var(--radius-md);
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition-normal);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .story-card {
+            background: var(--background-white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-normal);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .story-image {
+            height: 160px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .story-content {
+            padding: 25px;
+        }
+
+        .story-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .story-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .story-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .story-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .story-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-light), var(--secondary-color));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .story-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .story-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .story-btn.primary {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            color: white;
+        }
+
+        .story-btn.primary:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            transform: translateY(-2px);
+        }
+
+        .story-btn.secondary {
+            background: var(--background-light);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .story-btn.secondary:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .completed-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--secondary-light), var(--secondary-color));
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 学习手册区域 */
+        .guide-section {
+            background: var(--background-white);
+            padding: 40px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 60px;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .guide-step {
+            text-align: center;
+            padding: 25px;
+            background: var(--background-light);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-normal);
+        }
+
+        .guide-step:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color var(--transition-normal);
+        }
+
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .nav-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .features-grid, .stories-grid, .guide-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stories-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stories-tabs {
+                justify-content: center;
+            }
+
+            .story-actions {
+                flex-direction: column;
+            }
+
+            .main-container {
+                padding: 20px 15px;
+            }
+
+            .guide-section {
+                padding: 25px 20px;
+            }
+        }
+
+        /* 装饰元素 */
+        .decoration {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .decoration-1 {
+            top: 10%;
+            left: 5%;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .decoration-2 {
+            bottom: 10%;
+            right: 5%;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        /* 学习页面链接按钮样式 */
+        .learning-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* 无学习页面时的提示 */
+        .no-learning-page {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .no-learning-page i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰元素 -->
+    <div class="decoration decoration-1"></div>
+    <div class="decoration decoration-2"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <a href="#" class="navbar-brand" onclick="showPage('home')">
+            <i class="fas fa-book-open"></i>
+            <span>单词故事学习系统</span>
+        </a>
+        <div class="nav-links">
+            <a href="#" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </a>
+            <a href="word_story.html" class="nav-link learning-link" target="_blank">
+                <i class="fas fa-graduation-cap"></i>
+                <span>学习中心</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-book"></i>
+                <span>推荐故事</span>
+            </a>
+            <div class="user-profile">
+                <div class="user-avatar">李</div>
+                <div>
+                    <div class="user-name">李明</div>
+                    <div class="user-level">初级学习者</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 首页内容 -->
+    <div id="home-page" class="page">
+        <div class="main-container">
+            <!-- 英雄区域 -->
+            <section class="hero-section">
+                <h1 class="hero-title">通过故事轻松学单词</h1>
+                <p class="hero-subtitle">将枯燥的单词记忆融入有趣的故事中，让学习英语变得生动有趣。每天一个故事，轻松掌握10个新单词。</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-stories">6</div>
+                        <div class="stat-label">个精选故事</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-words">70</div>
+                        <div class="stat-label">个核心单词</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="learned-words">25</div>
+                        <div class="stat-label">已掌握单词</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 功能特色 -->
+            <section class="features-section">
+                <h2 class="section-title">系统特色</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <h3 class="feature-title">故事化学习</h3>
+                        <p class="feature-desc">将单词融入有趣的故事中，通过上下文理解单词含义，记忆更深刻持久。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                        <h3 class="feature-title">语音朗读</h3>
+                        <p class="feature-desc">每个单词和例句都有标准发音，帮助纠正发音，提升听说能力。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">进度追踪</h3>
+                        <p class="feature-desc">详细记录学习进度，可视化掌握情况，激励持续学习。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 学习手册 -->
+            <section class="guide-section">
+                <h2 class="section-title">学习指南</h2>
+                <div class="guide-grid">
+                    <div class="guide-step">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">选择故事</h3>
+                        <p class="step-desc">从故事库中选择感兴趣的主题故事开始学习</p>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">阅读故事</h3>
+                        <p class="step-desc">通读故事，点击标记的单词查看详细信息</p>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">学习单词</h3>
+                        <p class="step-desc">学习单词发音、释义和例句，标记已掌握的单词</p>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title">复习巩固</h3>
+                        <p class="step-desc">定期回顾已学故事和单词，巩固记忆效果</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 故事列表 -->
+            <section class="stories-section">
+                <div class="stories-header">
+                    <h2 class="section-title">推荐故事</h2>
+                    <div class="stories-tabs">
+                        <button class="tab-btn active" onclick="filterStories('all')">全部</button>
+                        <button class="tab-btn" onclick="filterStories('learning')">学习中</button>
+                        <button class="tab-btn" onclick="filterStories('completed')">已完成</button>
+                    </div>
+                </div>
+                <div class="stories-grid" id="stories-grid">
+                    <!-- 故事卡片将通过JS动态生成 -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>
+                <i class="fas fa-code"></i>
+                <span>单词故事学习系统 © 2023 | 让单词学习变得有趣</span>
+                <i class="fas fa-heart" style="color: #ef4444;"></i>
+            </p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">首页</a>
+                <a href="https://javaboy2012.github.io/word3.html" class="footer-link learning-link" target="_blank">学习中心</a>
+                <a href="#" class="footer-link">故事库</a>
+                <a href="#" class="footer-link">关于我们</a>
+                <a href="#" class="footer-link">帮助中心</a>
+            </div>
+            <p>本系统为MVP演示版本，所有功能在一个HTML文件中实现</p>
+        </div>
+    </footer>
+
+    <script>
+        // ================================
+        // 数据定义部分
+        // ================================
+        
+        // 故事库数据
+        const storiesData = [
+            {
+                id: 1,
+                title: "神秘森林的冒险",
+                description: "小狐狸艾米在神秘森林中寻找金苹果的冒险故事",
+                category: "冒险",
+                difficulty: "初级",
+                wordCount: 10,
+                progress: 60,
+                completed: false,
+                imageIcon: "fas fa-mountain",
+                learningLink: "https://javaboy2012.github.io/word3.html"
+            },
+            {
+                id: 2,
+                title: "太空探索之旅",
+                description: "跟随宇航员一起探索神秘的外太空，学习科技相关词汇",
+                category: "科幻",
+                difficulty: "中级",
+                wordCount: 12,
+                progress: 30,
+                completed: false,
+                imageIcon: "fas fa-rocket",
+                learningLink: "https://javaboy2012.github.io/word3.html"
+            },
+            {
+                id: 3,
+                title: "海底世界奇遇",
+                description: "潜入深海，探索神秘的海底世界和海洋生物",
+                category: "自然",
+                difficulty: "初级",
+                wordCount: 8,
+                progress: 100,
+                completed: true,
+                imageIcon: "fas fa-fish",
+                learningLink: "https://javaboy2012.github.io/word3.html"
+            },
+            {
+                id: 4,
+                title: "古代文明探秘",
+                description: "穿越时空，探索古埃及金字塔的神秘故事",
+                category: "历史",
+                difficulty: "中级",
+                wordCount: 15,
+                progress: 20,
+                completed: false,
+                imageIcon: "fas fa-landmark",
+                learningLink: "https://javaboy2012.github.io/word3.html"
+            },
+            {
+                id: 5,
+                title: "城市生活日记",
+                description: "现代都市生活中的日常故事和实用词汇",
+                category: "生活",
+                difficulty: "初级",
+                wordCount: 10,
+                progress: 0,
+                completed: false,
+                imageIcon: "fas fa-city",
+                learningLink: "https://javaboy2012.github.io/word3.html"
+            },
+            {
+                id: 6,
+                title: "奇幻魔法学校",
+                description: "在魔法学校学习魔法咒语和奇幻词汇",
+                category: "奇幻",
+                difficulty: "高级",
+                wordCount: 15,
+                progress: 80,
+                completed: false,
+                imageIcon: "fas fa-hat-wizard",
+                learningLink: "https://javaboy2012.github.io/word3.html"
+            }
+        ];
+
+        // ================================
+        // 应用状态
+        // ================================
+        let appState = {
+            stories: [...storiesData],
+            filterType: 'all'
+        };
+
+        // ================================
+        // 首页功能
+        // ================================
+        function updateHomeStats() {
+            const totalStories = appState.stories.length;
+            const totalWords = appState.stories.reduce((sum, story) => sum + story.wordCount, 0);
+            
+            // 计算已掌握单词数（简化处理，假设每个故事的进度代表掌握比例）
+            const learnedWords = appState.stories.reduce((sum, story) => {
+                return sum + Math.round(story.wordCount * (story.progress / 100));
+            }, 0);
+            
+            document.getElementById('total-stories').textContent = totalStories;
+            document.getElementById('total-words').textContent = totalWords;
+            document.getElementById('learned-words').textContent = learnedWords;
+        }
+
+        function filterStories(type) {
+            appState.filterType = type;
+            
+            // 更新标签按钮状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderStoriesList();
+        }
+
+        function renderStoriesList() {
+            const storiesGrid = document.getElementById('stories-grid');
+            storiesGrid.innerHTML = '';
+            
+            let filteredStories = appState.stories;
+            
+            // 根据筛选类型过滤故事
+            if (appState.filterType === 'learning') {
+                filteredStories = appState.stories.filter(story => 
+                    story.progress > 0 && story.progress < 100
+                );
+            } else if (appState.filterType === 'completed') {
+                filteredStories = appState.stories.filter(story => story.completed);
+            }
+            
+            // 渲染故事卡片
+            filteredStories.forEach(story => {
+                const storyCard = document.createElement('div');
+                storyCard.className = 'story-card';
+                
+                storyCard.innerHTML = `
+                    ${story.completed ? 
+                        '<div class="completed-badge"><i class="fas fa-check"></i> 已完成</div>' : ''}
+                    <div class="story-image">
+                        <i class="${story.imageIcon}"></i>
+                    </div>
+                    <div class="story-content">
+                        <span class="story-category">${story.category} · ${story.difficulty}</span>
+                        <h3 class="story-title">${story.title}</h3>
+                        <p class="story-desc">${story.description}</p>
+                        <div class="story-meta">
+                            <span><i class="fas fa-book"></i> ${story.wordCount}个单词</span>
+                            <span>${Math.round(story.wordCount * (story.progress / 100))}已掌握</span>
+                        </div>
+                        <div class="story-progress">
+                            <span>学习进度</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${story.progress}%"></div>
+                            </div>
+                            <span>${story.progress}%</span>
+                        </div>
+                        <div class="story-actions">
+                            <button class="story-btn secondary" onclick="viewStoryDetails(${story.id})">
+                                <i class="fas fa-info-circle"></i>
+                                <span>详情</span>
+                            </button>
+                            <a href="${story.learningLink}" class="story-btn primary" target="_blank">
+                                <i class="fas fa-play"></i>
+                                <span>${story.progress > 0 ? '继续学习' : '开始学习'}</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                storiesGrid.appendChild(storyCard);
+            });
+            
+            // 如果没有故事，显示提示
+            if (filteredStories.length === 0) {
+                storiesGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                        <h3>暂无故事</h3>
+                        <p>${appState.filterType === 'all' ? '还没有添加故事' : 
+                           appState.filterType === 'learning' ? '没有正在学习的故事' : 
+                           '没有已完成的故事'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ================================
+        // 故事详情功能
+        // ================================
+        function viewStoryDetails(storyId) {
+            const story = appState.stories.find(s => s.id === storyId);
+            if (!story) return;
+            
+            alert(`故事详情：\n\n标题：${story.title}\n类别：${story.category}\n难度：${story.difficulty}\n单词数：${story.wordCount}个\n描述：${story.description}\n\n学习链接：${story.learningLink}`);
+        }
+
+        // ================================
+        // 初始化应用
+        // ================================
+        function initApp() {
+            // 渲染故事列表
+            renderStoriesList();
+            
+            // 更新统计数据
+            updateHomeStats();
+            
+            // 设置导航栏点击事件
+            setupNavEvents();
+        }
+
+        function setupNavEvents() {
+            // 首页链接
+            document.querySelectorAll('.nav-link')[0].addEventListener('click', function(e) {
+                e.preventDefault();
+                // 首页已经在当前页面，无需操作
+            });
+            
+            // 故事库链接
+            document.querySelectorAll('.nav-link')[2].addEventListener('click', function(e) {
+                e.preventDefault();
+                // 滚动到故事库区域
+                document.querySelector('.stories-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+
+        // 页面加载完成后初始化应用
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        // ================================
+        // 测试功能
+        // ================================
+        window.testFunctions = {
+            showAllStories: function() {
+                console.log('所有故事:', appState.stories);
+                return appState.stories;
+            },
+            
+            resetProgress: function(storyId) {
+                const story = appState.stories.find(s => s.id === storyId);
+                if (story) {
+                    story.progress = 0;
+                    story.completed = false;
+                    renderStoriesList();
+                    updateHomeStats();
+                    console.log(`已重置故事 ${story.title} 的进度`);
+                }
+            },
+            
+            markStoryCompleted: function(storyId) {
+                const story = appState.stories.find(s => s.id === storyId);
+                if (story) {
+                    story.completed = true;
+                    story.progress = 100;
+                    renderStoriesList();
+                    updateHomeStats();
+                    console.log(`已标记故事 ${story.title} 为已完成`);
+                }
+            },
+            
+            updateStoryProgress: function(storyId, progress) {
+                const story = appState.stories.find(s => s.id === storyId);
+                if (story) {
+                    story.progress = progress;
+                    if (progress === 100) {
+                        story.completed = true;
+                    }
+                    renderStoriesList();
+                    updateHomeStats();
+                    console.log(`已更新故事 ${story.title} 的进度为 ${progress}%`);
+                }
+            }
+        };
+
+        console.log('%c🎮 测试功能可用:', 'color: #4f46e5; font-weight: bold; font-size: 14px;');
+        console.log('%c  - testFunctions.showAllStories() - 显示所有故事', 'color: #64748b;');
+        console.log('%c  - testFunctions.resetProgress(storyId) - 重置故事进度', 'color: #64748b;');
+        console.log('%c  - testFunctions.markStoryCompleted(storyId) - 标记故事为已完成', 'color: #64748b;');
+        console.log('%c  - testFunctions.updateStoryProgress(storyId, progress) - 更新故事进度', 'color: #64748b;');
+        console.log('%c💡 提示: 所有"开始学习"按钮都会链接到已设计好的学习页面', 'color: #10b981; font-weight: bold;');
+    </script>
+</body>
+</html>

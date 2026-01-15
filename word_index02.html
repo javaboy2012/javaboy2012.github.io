@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordStory - 狗血剧情阅读器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #f43f5e;
+            --primary-grad: linear-gradient(135deg, #f43f5e, #fb7185);
+            --bg: #fff1f2;
+            --tag-green-bg: #dcfce7; --tag-green-text: #166534;
+            --tag-red-bg: #fee2e2; --tag-red-text: #991b1b;
+        }
+
+        body { font-family: 'PingFang SC', system-ui, sans-serif; margin: 0; background: var(--bg); color: #1e293b; }
+        
+        .navbar { background: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .nav-links span { margin-left: 2rem; cursor: pointer; font-weight: 500; color: #64748b; }
+        .nav-links span.active { color: var(--primary); position: relative; }
+        .nav-links span.active::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 3px; background: var(--primary); border-radius: 2px; }
+
+        .view { display: none; padding: 2rem 5%; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hero { background: var(--primary-grad); color: white; padding: 3rem; border-radius: 2rem; text-align: center; margin-bottom: 2rem; }
+        .stat-banner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+        .stat-item { background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 1rem; backdrop-filter: blur(10px); }
+
+        /* 新增：系统特色介绍样式 */
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+        .feature-card { background: white; padding: 1.5rem; border-radius: 1.2rem; text-align: center; border: 1px dashed #fecdd3; }
+        .feature-card i { font-size: 2rem; color: var(--primary); margin-bottom: 1rem; }
+        .feature-card h4 { margin: 10px 0; color: #1e293b; }
+        .feature-card p { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+
+        .controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center; background: white; padding: 1rem; border-radius: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; padding: 1.5rem; border-radius: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; border: 1px solid transparent; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+        .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; }
+        .page-btn { padding: 8px 16px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .study-controls { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 1.5rem; }
+        .mode-selector { display: flex; gap: 8px; background: #e2e8f0; padding: 4px; border-radius: 10px; width: fit-content; }
+        .mode-btn { border: none; padding: 6px 16px; border-radius: 8px; cursor: pointer; background: transparent; transition: 0.2s; }
+        .mode-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .story-layout { display: grid; grid-template-columns: 1fr 350px; gap: 2rem; }
+        .story-paper { background: white; padding: 2.5rem; border-radius: 1.5rem; line-height: 2.3; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .word-tag { display: inline-block; padding: 0 6px; border-radius: 4px; margin: 0 2px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .tag-a { background: var(--tag-green-bg); color: var(--tag-green-text); }
+        .tag-b { background: var(--tag-red-bg); color: var(--tag-red-text); }
+        .word-tag.mastered { opacity: 0.3; text-decoration: line-through; }
+
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .cal-day { aspect-ratio: 1; background: #e2e8f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #94a3b8; }
+        .cal-day.active { background: #10b981; color: white; }
+
+        .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .done-list { margin-top: 1.5rem; list-style: none; padding: 0; }
+        .done-item { background: white; padding: 1rem; border-radius: 10px; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">WordStory ❤️</div>
+        <div class="nav-links">
+            <span id="nav-home" class="active" onclick="switchView('home')">首页</span>
+            <span id="nav-lib" onclick="switchView('lib')">故事库</span>
+            <span id="nav-stats" onclick="switchView('stats')">学习记录</span>
+        </div>
+    </nav>
+
+    <div id="view-home" class="view active">
+        <div class="hero">
+            <h1>霸总带你背单词</h1>
+            <p>拒绝枯燥，在狗血剧情中不知不觉掌握生词</p>
+            <div class="stat-banner">
+                <div class="stat-item">掌握单词<h2 id="h-words">0</h2></div>
+                <div class="stat-item">完成故事<h2 id="h-stories">0</h2></div>
+                <div class="stat-item">学习天数<h2 id="h-days">0</h2></div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-book-heart"></i>
+                <h4>沉浸剧情</h4>
+                <p>精选言情、玄幻、重生等趣味题材，让阅读像追剧一样上瘾。</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-language"></i>
+                <h4>三种模式</h4>
+                <p>中文标签、英文、中英对照，根据你的水平灵活切换阅读方式。</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h4>实时反馈</h4>
+                <p>数据看板与打卡日历记录点滴进步，让成就感可视化。</p>
+            </div>
+        </div>
+
+        <h2><i class="fas fa-fire" style="color:var(--primary)"></i> 热门连载推荐</h2>
+        <div class="grid" id="home-rec-grid"></div>
+    </div>
+
+    <div id="view-lib" class="view">
+        <div class="controls">
+            <input type="text" id="libSearch" placeholder="搜索狗血剧情..." style="flex:1; border:none; outline:none;" oninput="renderLib(1)">
+            <button class="btn" style="background:#fff; border:1px solid #ddd;" onclick="toggleListView()"><i class="fas fa-list"></i></button>
+        </div>
+        <div id="lib-grid" class="grid"></div>
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <div id="view-study" class="view">
+        <div class="study-controls">
+            <div class="mode-selector">
+                <button class="mode-btn active" id="m-cn" onclick="setStudyMode('cn')">显示中文</button>
+                <button class="mode-btn" id="m-en" onclick="setStudyMode('en')">显示英文</button>
+                <button class="mode-btn" id="m-mix" onclick="setStudyMode('mix')">中英对照</button>
+            </div>
+        </div>
+        <div class="story-layout">
+            <div class="story-paper">
+                <h2 id="s-title" style="margin-top:0"></h2>
+                <div id="s-body"></div>
+                <button class="btn btn-primary" style="margin-top:2rem; width:100%; justify-content: center;" onclick="finishStory()">标记本篇追完</button>
+            </div>
+            <div id="s-detail" class="card" style="position:sticky; top:100px; text-align:center; height: fit-content; min-height: 200px;">
+                <p style="color:#94a3b8">点击彩色标签查看详情</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-stats" class="view">
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:2rem;">
+            <div>
+                <div class="card">
+                    <h3>学习趋势</h3>
+                    <canvas id="statChart" height="150"></canvas>
+                </div>
+                <div style="margin-top:2rem">
+                    <h3>📖 已追完的故事列表</h3>
+                    <div id="done-list-container" class="done-list"></div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>打卡日历 (2026年1月)</h3>
+                <div id="cal-grid" class="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wordsPool = {
+            arrogant: {en:"arrogant", cn:"傲慢", type:"a", p:"/ˈærəɡənt/", e:"The CEO is so arrogant."},
+            dominate: {en:"dominate", cn:"霸占", type:"a", p:"/ˈdɒmɪneɪt/", e:"He wants to dominate the market."},
+            fragile: {en:"fragile", cn:"脆弱", type:"b", p:"/ˈfrædʒaɪl/", e:"Her heart is so fragile."},
+            destiny: {en:"destiny", cn:"命运", type:"b", p:"/ˈdestɪni/", e:"It is our destiny to meet."},
+            immortal: {en:"immortal", cn:"长生不老", type:"a", p:"/ɪˈmɔːtl/", e:"The cultivator sought immortal life."},
+            betray: {en:"betray", cn:"背叛", type:"b", p:"/bɪˈtreɪ/", e:"Never betray my trust."},
+            gorgeous: {en:"gorgeous", cn:"华丽/极美", type:"a", p:"/ˈɡɔːdʒəs/", e:"She looks gorgeous tonight."},
+            revenge: {en:"revenge", cn:"复仇", type:"b", p:"/rɪˈvendʒ/", e:"Revenge is a dish best served cold."},
+            mystic: {en:"mystic", cn:"神秘的", type:"a", p:"/ˈmɪstɪk/", e:"A mystic sword appeared."},
+            obsessed: {en:"obsessed", cn:"执迷的", type:"b", p:"/əbˈsest/", e:"He is obsessed with her."}
+        };
+
+        const storyDB = [
+            { id: 1, title: "霸总：女人你在惹火", icon: "💎", template: "那个 {arrogant} 的男人一把将她按在墙上，试图 {dominate} 她的全部生活。他不知道，她看似 {fragile} 的外表下藏着一颗坚定的心。难道这就是冥冥之中的 {destiny} 吗？", words: { arrogant: wordsPool.arrogant, dominate: wordsPool.dominate, fragile: wordsPool.fragile, destiny: wordsPool.destiny } },
+            { id: 2, title: "修仙：一剑断万古", icon: "⚔️", template: "作为寻找 {immortal} 之路的修行者，他从未想过会被最亲近的人 {betray}。在这个 {mystic} 的世界里，唯有手中的长剑能帮他完成这场 {revenge}。", words: { immortal: wordsPool.immortal, betray: wordsPool.betray, mystic: wordsPool.mystic, revenge: wordsPool.revenge } },
+            { id: 3, title: "豪门：重生之我是阔太", icon: "🍾", template: "重回二十岁，她穿着那件 {gorgeous} 的晚礼服再次惊艳全场。曾经对他 {obsessed} 的前任，现在只能跪在地上求饶。这一世，她要主宰自己的 {destiny}。", words: { gorgeous: wordsPool.gorgeous, obsessed: wordsPool.obsessed, destiny: wordsPool.destiny } }
+        ];
+
+        for(let i=4; i<=20; i++) {
+            storyDB.push({ id: i, title: `狗血系列 第${i}话`, icon: "🔥", template: "生活充满了 {mystic} 的转折。不要因为一时的 {betray} 就感到 {fragile}，你要变得更加 {arrogant} 去面对那些伤害你的人。", words: { mystic: wordsPool.mystic, betray: wordsPool.betray, fragile: wordsPool.fragile, arrogant: wordsPool.arrogant } });
+        }
+
+        let APP = {
+            mastered: JSON.parse(localStorage.getItem('ws_m') || '[]'),
+            completed: JSON.parse(localStorage.getItem('ws_f') || '[]'),
+            days: JSON.parse(localStorage.getItem('ws_d') || []),
+            mode: 'cn', isListView: false, currentPage: 1, currentStory: null
+        };
+
+        function switchView(v) {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-links span').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${v}`).classList.add('active');
+            document.getElementById(`nav-${v}`).classList.add('active');
+            if(v === 'home') renderHome();
+            if(v === 'lib') renderLib(1);
+            if(v === 'stats') renderStats();
+            window.scrollTo(0,0);
+        }
+
+        function renderHome() {
+            const grid = document.getElementById('home-rec-grid');
+            grid.innerHTML = storyDB.slice(0, 3).map(s => `
+                <div class="card" onclick="openStudy(${s.id})">
+                    <span style="font-size:2.5rem">${s.icon}</span>
+                    <h3 style="margin:10px 0">${s.title}</h3>
+                </div>
+            `).join('');
+            updateStatsUI();
+        }
+
+        function renderLib(page) {
+            APP.currentPage = page;
+            const search = document.getElementById('libSearch').value.toLowerCase();
+            const filtered = storyDB.filter(s => s.title.toLowerCase().includes(search));
+            const perPage = 6;
+            const start = (page - 1) * perPage;
+            const paginated = filtered.slice(start, start + perPage);
+            const grid = document.getElementById('lib-grid');
+            grid.innerHTML = paginated.map(s => `
+                <div class="card" onclick="openStudy(${s.id})">
+                    <span style="font-size:2rem">${s.icon}</span>
+                    <div style="flex:1">
+                        <h3 style="margin:5px 0">${s.title} ${APP.completed.includes(s.id)?'✅':''}</h3>
+                    </div>
+                </div>
+            `).join('');
+            renderPagination(filtered.length, perPage, page);
+        }
+
+        function renderPagination(total, perPage, current) {
+            const totalPages = Math.ceil(total / perPage);
+            const container = document.getElementById('pagination');
+            container.innerHTML = '';
+            for(let i=1; i<=totalPages; i++) {
+                container.innerHTML += `<button class="page-btn ${i===current?'active':''}" onclick="renderLib(${i})">${i}</button>`;
+            }
+        }
+
+        function toggleListView() { APP.isListView = !APP.isListView; renderLib(APP.currentPage); }
+
+        function openStudy(id) {
+            const story = storyDB.find(s => s.id === id);
+            if(story) {
+                APP.currentStory = story;
+                APP.mode = 'cn';
+                document.getElementById('s-detail').innerHTML = `<p style="color:#94a3b8">点击彩色标签查看详情</p>`;
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('m-cn').classList.add('active');
+                renderStudyContent();
+                switchView('study');
+            }
+        }
+
+        function setStudyMode(m) {
+            APP.mode = m;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`m-${m}`).classList.add('active');
+            renderStudyContent();
+        }
+
+        function renderStudyContent() {
+            if(!APP.currentStory) return;
+            document.getElementById('s-title').innerText = APP.currentStory.title;
+            let html = APP.currentStory.template;
+            Object.keys(APP.currentStory.words).forEach(key => {
+                const info = APP.currentStory.words[key];
+                let display = (APP.mode === 'cn') ? info.cn : (APP.mode === 'en' ? info.en : `${info.en}(${info.cn})`);
+                const isM = APP.mastered.includes(key) ? 'mastered' : '';
+                const tagClass = info.type === 'a' ? 'tag-a' : 'tag-b';
+                const regex = new RegExp(`\\{${key}\\}`, 'g');
+                html = html.replace(regex, `<span class="word-tag ${tagClass} ${isM}" onclick="handleTagClick('${key}')">${display}</span>`);
+            });
+            document.getElementById('s-body').innerHTML = html;
+        }
+
+        function handleTagClick(key) { showDetail(key); speak(key); }
+
+        function showDetail(key) {
+            const info = APP.currentStory.words[key];
+            const isM = APP.mastered.includes(key);
+            document.getElementById('s-detail').innerHTML = `
+                <h2 style="color:var(--primary);margin:0">${key}</h2>
+                <p style="color:#94a3b8">${info.p}</p>
+                <div style="text-align:left; background:#fdf2f2; padding:1rem; border-radius:10px; margin:1rem 0;">
+                    <p><b>释义：</b>${info.cn}</p>
+                    <p><b>例句：</b><br><small>${info.e}</small></p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="flex:1; background:#fff; border:1px solid #ddd;" onclick="speak('${key}')"><i class="fas fa-volume-up"></i></button>
+                    <button class="btn" style="flex:3; background:${isM?'#10b981':'#f43f5e'}; color:white;" onclick="toggleWord('${key}')">
+                        ${isM?'已掌握':'标记掌握'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'en-US';
+            window.speechSynthesis.speak(msg);
+        }
+
+        function toggleWord(key) {
+            if(APP.mastered.includes(key)) APP.mastered = APP.mastered.filter(k => k !== key);
+            else { 
+                APP.mastered.push(key);
+                const today = new Date().toDateString();
+                if(!APP.days.includes(today)) APP.days.push(today);
+            }
+            save(); renderStudyContent(); showDetail(key);
+        }
+
+        function finishStory() {
+            if(!APP.completed.includes(APP.currentStory.id)) APP.completed.push(APP.currentStory.id);
+            save(); alert("本话追完，已加入完成列表！"); switchView('lib');
+        }
+
+        function renderStats() {
+            const grid = document.getElementById('cal-grid');
+            grid.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                const d = new Date(2026, 0, i).toDateString();
+                grid.innerHTML += `<div class="cal-day ${APP.days.includes(d)?'active':''}">${i}</div>`;
+            }
+            const ctx = document.getElementById('statChart').getContext('2d');
+            new Chart(ctx, { type: 'line', data: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets: [{ label: '心动词数', data: [5, 12, 8, 15, 10, 20, APP.mastered.length], borderColor: '#f43f5e', tension: 0.4 }] } });
+            
+            const listContainer = document.getElementById('done-list-container');
+            if (APP.completed.length === 0) {
+                listContainer.innerHTML = '<p style="color:#94a3b8">还没有追完的故事，快去书库看看吧~</p>';
+            } else {
+                const completedStories = storyDB.filter(s => APP.completed.includes(s.id));
+                listContainer.innerHTML = completedStories.map(s => `
+                    <div class="done-item" onclick="openStudy(${s.id})">
+                        <span style="font-size:1.5rem">${s.icon}</span>
+                        <div style="flex:1">
+                            <div style="font-weight:600">${s.title}</div>
+                            <div style="font-size:0.8rem; color:#94a3b8">阅读状态：已追完 ✅</div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color:#e2e8f0"></i>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function save() {
+            localStorage.setItem('ws_m', JSON.stringify(APP.mastered));
+            localStorage.setItem('ws_f', JSON.stringify(APP.completed));
+            localStorage.setItem('ws_d', JSON.stringify(APP.days));
+            updateStatsUI();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('h-words').innerText = APP.mastered.length;
+            document.getElementById('h-stories').innerText = APP.completed.length;
+            document.getElementById('h-days').innerText = APP.days.length;
+        }
+
+        window.onload = () => { renderHome(); updateStatsUI(); };
+    </script>
+</body>
+</html>

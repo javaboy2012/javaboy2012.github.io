@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词场大冒险 - Word Quest</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #5C6BC0; --secondary: #FFCA28; --success: #66BB6A;
+            --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        body { font-family: 'Comic Sans MS', cursive, sans-serif; background: var(--bg-gradient); margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+        
+        /* 顶部状态栏 */
+        .header { width: 90%; max-width: 500px; padding: 25px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        #unit-title { background: white; padding: 8px 15px; border-radius: 50px; font-weight: bold; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .score-container { font-size: 24px; font-weight: bold; color: #d35400; background: white; padding: 8px 20px; border-radius: 50px; display: flex; align-items: center; gap: 8px; }
+
+        /* 闪卡系统 */
+        .card-container { width: 340px; height: 520px; perspective: 1000px; margin-top: 10px; position: relative; }
+        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 30px; background: rgba(255, 255, 255, 0.95); box-shadow: var(--card-shadow); border: 8px solid white; padding: 20px; box-sizing: border-box; }
+        .card-back { transform: rotateY(180deg); background: #f9fbe7; }
+
+        /* 统一提示灯泡 */
+        .hint-btn { position: absolute; top: 15px; right: 15px; background: #FFF9C4; border: 2px solid #FBC02D; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 22px; z-index: 20; box-shadow: 0 4px 0 #F9A825; transition: transform 0.1s; }
+        .hint-btn:active { transform: translateY(2px); box-shadow: 0 0px 0 #F9A825; }
+
+        /* 单词元素 */
+        .word-image { font-size: 80px; margin-bottom: 5px; }
+        .audio-btn { background: #E8EAF6; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; margin-bottom: 10px; font-size: 20px; }
+        .word-meaning { font-size: 1.6rem; font-weight: bold; color: #444; margin-bottom: 20px; }
+
+        /* 槽位与字母 */
+        .slots { display: flex; gap: 8px; margin-bottom: 25px; min-height: 45px;}
+        .slot { width: 35px; height: 45px; border-bottom: 4px solid #BDBDBD; text-align: center; font-size: 28px; font-weight: bold; color: var(--primary); }
+        .slot.filled { border-bottom-color: var(--success); }
+
+        .letters-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .letter-btn { background: white; border: none; box-shadow: 0 4px 0 #ddd; color: var(--primary); width: 48px; height: 48px; border-radius: 12px; font-size: 22px; font-weight: bold; cursor: pointer; border: 2px solid transparent; }
+        .letter-btn.used { opacity: 0; pointer-events: none; transform: scale(0); transition: all 0.3s; }
+
+        /* 回看模式专用按钮 */
+        .back-to-quiz-btn { display: none; margin-top: 10px; padding: 12px 25px; background: var(--success); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(102,187,106,0.4); }
+
+        /* 输入区 */
+        .input-area { width: 80%; padding: 15px; border: 3px solid var(--secondary); border-radius: 15px; font-size: 24px; text-align: center; font-weight: bold; outline: none; }
+        #error-tip { color: #e74c3c; font-size: 14px; margin-top: 10px; opacity: 0; }
+
+        /* 成功浮层 */
+        #success-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+
+        /* 动画库 */
+        @keyframes hint-shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); border-color: var(--secondary); background: #FFF9C4; } }
+        .hint-highlight { animation: hint-shake 0.5s ease 3; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        @keyframes pulse-hint { from { color: var(--primary); } to { color: var(--secondary); transform: scale(1.1); } }
+        .pulse-text { animation: pulse-hint 0.5s infinite alternate; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div id="unit-title">加载中...</div>
+        <div class="score-container">🪙<span id="score">0</span></div>
+    </div>
+
+    <div class="card-container">
+        <button class="hint-btn" id="hint-master" onclick="handleMasterHint()" title="求助">💡</button>
+        
+        <div class="card" id="main-card">
+            <div class="card-face card-front">
+                <div class="word-image" id="word-icon">🍎</div>
+                <button class="audio-btn" onclick="playAudio(event)">🔊</button>
+                <div class="word-meaning" id="word-desc">苹果</div>
+                <div class="slots" id="letter-slots"></div>
+                <div class="letters-pool" id="jumbled-pool"></div>
+                <button id="back-to-quiz" class="back-to-quiz-btn" onclick="flipBackToQuiz()">我记住了，去拼写！🚀</button>
+            </div>
+
+            <div class="card-face card-back">
+                <div class="word-image">❓</div>
+                <h3 style="color:var(--primary)">还记得这个单词吗？</h3>
+                <input type="text" class="input-area" id="word-input" placeholder="输入单词..." autocomplete="off">
+                <p id="error-tip">拼错咯，点灯泡可以回看！</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-overlay">
+        <h1 style="font-size: 48px; color: var(--success);">太棒了！🔥</h1>
+        <h2 id="point-gain">+20 POINTS</h2>
+    </div>
+
+    <script>
+        const lessonData = {
+            unit: "Unit 1: 森林词汇",
+            words: [
+                { text: "apple", emoji: "🍎", translation: "苹果" },
+                { text: "bear", emoji: "🐻", translation: "小熊" },
+                { text: "cake", emoji: "🍰", translation: "蛋糕" },
+                { text: "duck", emoji: "🦆", translation: "小鸭" }
+            ]
+        };
+
+        let currentIdx = 0, score = 0, currentGuess = [], errorCount = 0, hasLookedBack = false;
+
+        function initWord() {
+            const word = lessonData.words[currentIdx];
+            document.getElementById('word-icon').innerText = word.emoji;
+            document.getElementById('word-desc').innerText = word.translation;
+            document.getElementById('unit-title').innerText = lessonData.unit;
+            
+            const slots = document.getElementById('letter-slots');
+            slots.innerHTML = '';
+            word.text.split('').forEach(() => slots.innerHTML += '<div class="slot"></div>');
+
+            currentGuess = []; errorCount = 0; hasLookedBack = false;
+            
+            // 恢复 UI 状态
+            document.getElementById('jumbled-pool').style.display = 'flex';
+            document.getElementById('back-to-quiz').style.display = 'none';
+            document.getElementById('main-card').classList.remove('is-flipped');
+            document.getElementById('word-input').value = '';
+            document.getElementById('error-tip').style.opacity = '0';
+
+            const jumbled = word.text.split('').sort(() => Math.random() - 0.5);
+            const pool = document.getElementById('jumbled-pool');
+            pool.innerHTML = '';
+            jumbled.forEach(char => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-btn';
+                btn.innerText = char;
+                btn.onclick = (e) => handleLetterSelect(char, e.target);
+                pool.appendChild(btn);
+            });
+            
+            setTimeout(() => speak(word.text), 600);
+        }
+
+        // 提示总控
+        function handleMasterHint() {
+            const card = document.getElementById('main-card');
+            const isFlipped = card.classList.contains('is-flipped');
+            
+            if (!isFlipped) {
+                // 正面：抖动下一个正确字母
+                if (score < 2) { alert("金币不足(需2个)"); return; }
+                const word = lessonData.words[currentIdx];
+                const nextChar = word.text[currentGuess.length];
+                const buttons = document.querySelectorAll('.letter-btn:not(.used)');
+                for (let btn of buttons) {
+                    if (btn.innerText === nextChar) {
+                        score -= 2; updateScore();
+                        btn.classList.add('hint-highlight');
+                        setTimeout(() => btn.classList.remove('hint-highlight'), 1500);
+                        break;
+                    }
+                }
+            } else {
+                // 背面：触发回看模式
+                hasLookedBack = true;
+                card.classList.remove('is-flipped');
+                document.getElementById('jumbled-pool').style.display = 'none';
+                document.getElementById('back-to-quiz').style.display = 'block';
+                
+                const slots = document.querySelectorAll('.slot');
+                slots.forEach(s => s.classList.add('pulse-text'));
+                speak("Look and remember!");
+            }
+        }
+
+        // 回看完毕：翻回背面拼写
+        function flipBackToQuiz() {
+            const card = document.getElementById('main-card');
+            card.classList.add('is-flipped');
+            
+            // 恢复正面原始布局以便下次使用
+            setTimeout(() => {
+                document.getElementById('jumbled-pool').style.display = 'flex';
+                document.getElementById('back-to-quiz').style.display = 'none';
+                document.querySelectorAll('.slot').forEach(s => s.classList.remove('pulse-text'));
+                document.getElementById('word-input').focus();
+            }, 600);
+        }
+
+        function handleLetterSelect(char, btn) {
+            const word = lessonData.words[currentIdx];
+            if (char === word.text[currentGuess.length]) {
+                const slot = document.getElementById('letter-slots').children[currentGuess.length];
+                slot.innerText = char;
+                slot.classList.add('filled');
+                currentGuess.push(char);
+                btn.classList.add('used');
+                speak(char);
+                if (currentGuess.length === word.text.length) {
+                    setTimeout(() => {
+                        document.getElementById('main-card').classList.add('is-flipped');
+                        document.getElementById('word-input').focus();
+                        score += 10; updateScore();
+                    }, 600);
+                }
+            } else {
+                btn.style.animation = 'shake 0.3s';
+                setTimeout(() => btn.style.animation = '', 300);
+            }
+        }
+
+        document.getElementById('word-input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                const word = lessonData.words[currentIdx];
+                if (document.getElementById('word-input').value.toLowerCase() === word.text.toLowerCase()) {
+                    showSuccess();
+                } else {
+                    errorCount++;
+                    document.getElementById('error-tip').style.opacity = '1';
+                    document.getElementById('main-card').style.animation = 'shake 0.4s';
+                    setTimeout(() => document.getElementById('main-card').style.animation = '', 400);
+                    if (errorCount >= 3) {
+                        setTimeout(handleMasterHint, 500); 
+                    }
+                }
+            }
+        });
+
+        function showSuccess() {
+            const overlay = document.getElementById('success-overlay');
+            const bonus = hasLookedBack ? 10 : 20; 
+            document.getElementById('point-gain').innerText = `+${bonus} POINTS`;
+            overlay.style.display = 'flex';
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            score += bonus; updateScore();
+            speak(lessonData.words[currentIdx].text + ". Excellent!");
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                currentIdx = (currentIdx + 1) % lessonData.words.length;
+                initWord();
+            }, 2000);
+        }
+
+        function updateScore() { document.getElementById('score').innerText = score; }
+        function playAudio(e) { e.stopPropagation(); speak(lessonData.words[currentIdx].text); }
+        function speak(t) {
+            const m = new SpeechSynthesisUtterance(t);
+            m.lang = 'en-US'; m.rate = 0.8;
+            window.speechSynthesis.speak(m);
+        }
+        initWord();
+    </script>
+</body>
+</html>

@@ -2,75 +2,152 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>词场大冒险 - Word Quest</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>词场大冒险 - Word Quest Mobile</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --primary: #5C6BC0; --secondary: #FFCA28; --success: #66BB6A;
             --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            --card-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            --card-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
-        body { font-family: 'Comic Sans MS', cursive, sans-serif; background: var(--bg-gradient); margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
-        
-        /* 顶部状态栏 */
-        .header { width: 90%; max-width: 500px; padding: 25px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-        #unit-title { background: white; padding: 8px 15px; border-radius: 50px; font-weight: bold; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .score-container { font-size: 24px; font-weight: bold; color: #d35400; background: white; padding: 8px 20px; border-radius: 50px; display: flex; align-items: center; gap: 8px; }
 
-        /* 闪卡系统 */
-        .card-container { width: 340px; height: 520px; perspective: 1000px; margin-top: 10px; position: relative; }
-        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮蓝框 */
+            touch-action: manipulation; /* 提高触控响应速度 */
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: var(--bg-gradient);
+            margin: 0;
+            height: 100svh; /* 适配移动端动态视口高度 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden; /* 防止移动端滚动条干扰 */
+        }
+
+        /* 响应式顶部状态栏 */
+        .header {
+            width: 100%;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #unit-title {
+            background: rgba(255,255,255,0.9);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .score-container {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d35400;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+        }
+
+        /* 响应式卡片系统 */
+        .card-container {
+            width: 90%;
+            max-width: 350px;
+            height: 65svh; /* 根据视口高度自动伸缩 */
+            perspective: 1000px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .card.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 30px; background: rgba(255, 255, 255, 0.95); box-shadow: var(--card-shadow); border: 8px solid white; padding: 20px; box-sizing: border-box; }
+
+        .card-face {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly; /* 自动分配纵向空间 */
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: var(--card-shadow);
+            border: 6px solid white;
+            padding: 15px;
+        }
+
         .card-back { transform: rotateY(180deg); background: #f9fbe7; }
 
-        /* 统一提示灯泡 */
-        .hint-btn { position: absolute; top: 15px; right: 15px; background: #FFF9C4; border: 2px solid #FBC02D; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 22px; z-index: 20; box-shadow: 0 4px 0 #F9A825; transition: transform 0.1s; }
-        .hint-btn:active { transform: translateY(2px); box-shadow: 0 0px 0 #F9A825; }
+        .hint-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: #FFF9C4; border: 2px solid #FBC02D;
+            border-radius: 50%; width: 42px; height: 42px;
+            font-size: 20px; z-index: 30;
+            box-shadow: 0 3px 0 #F9A825;
+        }
 
-        /* 单词元素 */
-        .word-image { font-size: 80px; margin-bottom: 5px; }
-        .audio-btn { background: #E8EAF6; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; margin-bottom: 10px; font-size: 20px; }
-        .word-meaning { font-size: 1.6rem; font-weight: bold; color: #444; margin-bottom: 20px; }
+        /* 元素缩放适配 */
+        .word-image { font-size: 70px; margin: 0; }
+        .audio-btn { background: #E8EAF6; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 18px; }
+        .word-meaning { font-size: 1.4rem; font-weight: bold; color: #444; }
 
-        /* 槽位与字母 */
-        .slots { display: flex; gap: 8px; margin-bottom: 25px; min-height: 45px;}
-        .slot { width: 35px; height: 45px; border-bottom: 4px solid #BDBDBD; text-align: center; font-size: 28px; font-weight: bold; color: var(--primary); }
+        /* 字母槽位：小屏自动换行或缩小 */
+        .slots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; min-height: 40px; width: 100%; }
+        .slot {
+            width: 28px; height: 35px;
+            border-bottom: 3px solid #BDBDBD;
+            text-align: center; font-size: 24px; font-weight: bold; color: var(--primary);
+        }
         .slot.filled { border-bottom-color: var(--success); }
 
-        .letters-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .letter-btn { background: white; border: none; box-shadow: 0 4px 0 #ddd; color: var(--primary); width: 48px; height: 48px; border-radius: 12px; font-size: 22px; font-weight: bold; cursor: pointer; border: 2px solid transparent; }
-        .letter-btn.used { opacity: 0; pointer-events: none; transform: scale(0); transition: all 0.3s; }
+        /* 字母按钮池：移动端大按钮点击更准 */
+        .letters-pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; }
+        .letter-btn {
+            background: white; border: none; box-shadow: 0 4px 0 #ddd;
+            color: var(--primary); width: 45px; height: 45px;
+            border-radius: 10px; font-size: 20px; font-weight: bold;
+        }
+        .letter-btn.used { opacity: 0; transform: scale(0); }
 
-        /* 回看模式专用按钮 */
-        .back-to-quiz-btn { display: none; margin-top: 10px; padding: 12px 25px; background: var(--success); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(102,187,106,0.4); }
+        .back-to-quiz-btn {
+            display: none; padding: 12px 20px;
+            background: var(--success); color: white; border: none;
+            border-radius: 50px; font-size: 16px; font-weight: bold;
+        }
 
-        /* 输入区 */
-        .input-area { width: 80%; padding: 15px; border: 3px solid var(--secondary); border-radius: 15px; font-size: 24px; text-align: center; font-weight: bold; outline: none; }
-        #error-tip { color: #e74c3c; font-size: 14px; margin-top: 10px; opacity: 0; }
+        /* 输入区适配：防止移动端键盘弹出时遮挡 */
+        .input-area {
+            width: 90%; padding: 12px;
+            border: 3px solid var(--secondary); border-radius: 12px;
+            font-size: 20px; text-align: center; font-weight: bold;
+        }
 
-        /* 成功浮层 */
-        #success-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        #success-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
 
-        /* 动画库 */
-        @keyframes hint-shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); border-color: var(--secondary); background: #FFF9C4; } }
-        .hint-highlight { animation: hint-shake 0.5s ease 3; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-        @keyframes pulse-hint { from { color: var(--primary); } to { color: var(--secondary); transform: scale(1.1); } }
+        @keyframes hint-shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); border-color: var(--secondary); } }
+        .hint-highlight { animation: hint-shake 0.4s ease 3; }
+        @keyframes pulse-hint { from { color: var(--primary); } to { color: var(--secondary); } }
         .pulse-text { animation: pulse-hint 0.5s infinite alternate; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="unit-title">加载中...</div>
-        <div class="score-container">🪙<span id="score">0</span></div>
+        <div id="unit-title">Loading...</div>
+        <div class="score-container">🪙 <span id="score">0</span></div>
     </div>
 
     <div class="card-container">
-        <button class="hint-btn" id="hint-master" onclick="handleMasterHint()" title="求助">💡</button>
-        
+        <button class="hint-btn" onclick="handleMasterHint()">💡</button>
         <div class="card" id="main-card">
             <div class="card-face card-front">
                 <div class="word-image" id="word-icon">🍎</div>
@@ -83,16 +160,16 @@
 
             <div class="card-face card-back">
                 <div class="word-image">❓</div>
-                <h3 style="color:var(--primary)">还记得这个单词吗？</h3>
-                <input type="text" class="input-area" id="word-input" placeholder="输入单词..." autocomplete="off">
-                <p id="error-tip">拼错咯，点灯泡可以回看！</p>
+                <h3 style="color:var(--primary); margin: 10px 0;">拼出刚才的单词</h3>
+                <input type="text" class="input-area" id="word-input" placeholder="点击输入..." autocomplete="off" enterkeyhint="done">
+                <p id="error-tip" style="color: #e74c3c; font-size: 13px; margin: 5px 0; opacity: 0;">点灯泡可以回看哦！</p>
             </div>
         </div>
     </div>
 
     <div id="success-overlay">
-        <h1 style="font-size: 48px; color: var(--success);">太棒了！🔥</h1>
-        <h2 id="point-gain">+20 POINTS</h2>
+        <h1 style="font-size: 32px; color: var(--success); margin-bottom: 10px;">太棒了！🔥</h1>
+        <h2 id="point-gain" style="margin: 0;">+20 POINTS</h2>
     </div>
 
     <script>
@@ -120,7 +197,6 @@
 
             currentGuess = []; errorCount = 0; hasLookedBack = false;
             
-            // 恢复 UI 状态
             document.getElementById('jumbled-pool').style.display = 'flex';
             document.getElementById('back-to-quiz').style.display = 'none';
             document.getElementById('main-card').classList.remove('is-flipped');
@@ -134,6 +210,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'letter-btn';
                 btn.innerText = char;
+                // 适配触控和点击
                 btn.onclick = (e) => handleLetterSelect(char, e.target);
                 pool.appendChild(btn);
             });
@@ -141,14 +218,12 @@
             setTimeout(() => speak(word.text), 600);
         }
 
-        // 提示总控
         function handleMasterHint() {
             const card = document.getElementById('main-card');
             const isFlipped = card.classList.contains('is-flipped');
             
             if (!isFlipped) {
-                // 正面：抖动下一个正确字母
-                if (score < 2) { alert("金币不足(需2个)"); return; }
+                if (score < 2) { alert("金币不足"); return; }
                 const word = lessonData.words[currentIdx];
                 const nextChar = word.text[currentGuess.length];
                 const buttons = document.querySelectorAll('.letter-btn:not(.used)');
@@ -156,29 +231,21 @@
                     if (btn.innerText === nextChar) {
                         score -= 2; updateScore();
                         btn.classList.add('hint-highlight');
-                        setTimeout(() => btn.classList.remove('hint-highlight'), 1500);
+                        setTimeout(() => btn.classList.remove('hint-highlight'), 1200);
                         break;
                     }
                 }
             } else {
-                // 背面：触发回看模式
                 hasLookedBack = true;
                 card.classList.remove('is-flipped');
                 document.getElementById('jumbled-pool').style.display = 'none';
                 document.getElementById('back-to-quiz').style.display = 'block';
-                
-                const slots = document.querySelectorAll('.slot');
-                slots.forEach(s => s.classList.add('pulse-text'));
-                speak("Look and remember!");
+                document.querySelectorAll('.slot').forEach(s => s.classList.add('pulse-text'));
             }
         }
 
-        // 回看完毕：翻回背面拼写
         function flipBackToQuiz() {
-            const card = document.getElementById('main-card');
-            card.classList.add('is-flipped');
-            
-            // 恢复正面原始布局以便下次使用
+            document.getElementById('main-card').classList.add('is-flipped');
             setTimeout(() => {
                 document.getElementById('jumbled-pool').style.display = 'flex';
                 document.getElementById('back-to-quiz').style.display = 'none';
@@ -203,13 +270,10 @@
                         score += 10; updateScore();
                     }, 600);
                 }
-            } else {
-                btn.style.animation = 'shake 0.3s';
-                setTimeout(() => btn.style.animation = '', 300);
             }
         }
 
-        document.getElementById('word-input').addEventListener('keyup', (e) => {
+        document.getElementById('word-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const word = lessonData.words[currentIdx];
                 if (document.getElementById('word-input').value.toLowerCase() === word.text.toLowerCase()) {
@@ -217,11 +281,7 @@
                 } else {
                     errorCount++;
                     document.getElementById('error-tip').style.opacity = '1';
-                    document.getElementById('main-card').style.animation = 'shake 0.4s';
-                    setTimeout(() => document.getElementById('main-card').style.animation = '', 400);
-                    if (errorCount >= 3) {
-                        setTimeout(handleMasterHint, 500); 
-                    }
+                    if (errorCount >= 3) setTimeout(handleMasterHint, 500);
                 }
             }
         });
@@ -231,21 +291,21 @@
             const bonus = hasLookedBack ? 10 : 20; 
             document.getElementById('point-gain').innerText = `+${bonus} POINTS`;
             overlay.style.display = 'flex';
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            confetti({ particleCount: 100, spread: 60, origin: { y: 0.7 } });
             score += bonus; updateScore();
-            speak(lessonData.words[currentIdx].text + ". Excellent!");
+            speak(lessonData.words[currentIdx].text);
             setTimeout(() => {
                 overlay.style.display = 'none';
                 currentIdx = (currentIdx + 1) % lessonData.words.length;
                 initWord();
-            }, 2000);
+            }, 1800);
         }
 
         function updateScore() { document.getElementById('score').innerText = score; }
         function playAudio(e) { e.stopPropagation(); speak(lessonData.words[currentIdx].text); }
         function speak(t) {
             const m = new SpeechSynthesisUtterance(t);
-            m.lang = 'en-US'; m.rate = 0.8;
+            m.lang = 'en-US'; m.rate = 0.9;
             window.speechSynthesis.speak(m);
         }
         initWord();

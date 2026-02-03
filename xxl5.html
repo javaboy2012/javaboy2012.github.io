@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>单词消消乐双人PK - 终极特效版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #ffe4e1; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        h1 { color: #ff6b6b; text-shadow: 2px 2px white; margin-bottom: 10px; }
+        .controls { margin-bottom: 20px; background: white; padding: 15px 30px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; gap: 20px; align-items: center; }
+        
+        .game-container { display: flex; gap: 40px; justify-content: center; width: 100%; max-width: 1000px; }
+        .player-section { background: rgba(255,255,255,0.7); padding: 25px; border-radius: 30px; border: 5px solid #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05); flex: 1; }
+        .player-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.2em; font-weight: bold; color: #ff7675; }
+        
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .card { height: 80px; background: #fff; border-radius: 12px; display: flex; align-items: center; 
+                justify-content: center; cursor: pointer; font-size: 16px; font-weight: bold; text-align: center; 
+                padding: 10px; box-sizing: border-box; border: none; box-shadow: 0 5px #eee; transition: all 0.2s; position: relative; }
+        
+        .card.selected { background: #fdcb6e !important; transform: scale(1.05); box-shadow: 0 0 15px #fdcb6e; z-index: 10; }
+        .card.matched { animation: zoomOutUp 0.6s forwards; pointer-events: none; }
+        .card.shake-error { animation: headShake 0.5s; background: #ff7675 !important; color: white; }
+
+        .color-1 { background: #81ecec; } .color-2 { background: #74b9ff; }
+        .color-3 { background: #ffeaa7; } .color-4 { background: #fab1a0; }
+        .color-5 { background: #a29bfe; }
+
+        button.main-btn { background: #ff7675; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>单词消消乐 双人PK</h1>
+
+    <div class="controls">
+        <button class="main-btn" onclick="initGame()">重新开始</button>
+        <span id="timer">用时: 0秒</span>
+        <span style="font-size: 0.8em; color: #999;">匹配成功会有惊喜粒子哦！</span>
+    </div>
+
+    <div class="game-container">
+        <div class="player-section" id="p1-area">
+            <div class="player-header"><span>玩家 1</span> <span id="p1-score">得分: 0</span></div>
+            <div class="grid" id="p1-grid"></div>
+        </div>
+
+        <div class="player-section" id="p2-area">
+            <div class="player-header"><span>玩家 2</span> <span id="p2-score">得分: 0</span></div>
+            <div class="grid" id="p2-grid"></div>
+        </div>
+    </div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // 1. 粒子特效函数
+    function fireConfetti(x, y) {
+        // 在点击位置周围发射彩色粒子
+        confetti({
+            particleCount: 40,
+            spread: 70,
+            origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+            colors: ['#ff7675', '#fdcb6e', '#55efc4', '#74b9ff', '#a29bfe']
+        });
+    }
+
+    // 2. 语音功能
+    function speakWord(pairIndex) {
+        const pair = wordBank[pairIndex];
+        const msgEn = new SpeechSynthesisUtterance(pair.en);
+        msgEn.lang = 'en-US';
+        msgEn.rate = 0.9;
+        const msgCn = new SpeechSynthesisUtterance(pair.cn);
+        msgCn.lang = 'zh-CN';
+        window.speechSynthesis.speak(msgEn);
+        window.speechSynthesis.speak(msgCn);
+    }
+
+    // 3. 基础音效
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (type === 'success') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+    }
+
+    const wordBank = [
+        {en: 'apple', cn: '苹果'}, {en: 'book', cn: '书'}, {en: 'water', cn: '水'},
+        {en: 'music', cn: '音乐'}, {en: 'game', cn: '游戏'}, {en: 'open', cn: '打开'},
+        {en: 'kite', cn: '风筝'}, {en: 'queen', cn: '女王'}, {en: 'island', cn: '岛屿'},
+        {en: 'question', cn: '问题'}
+    ];
+
+    let gameState = { p1: { selected: null, score: 0 }, p2: { selected: null, score: 0 } };
+    let startTime;
+
+    function initGame() {
+        renderGrid('p1'); renderGrid('p2');
+        gameState.p1.score = 0; gameState.p2.score = 0;
+        gameState.p1.selected = null; gameState.p2.selected = null;
+        document.getElementById('p1-score').innerText = `得分: 0`;
+        document.getElementById('p2-score').innerText = `得分: 0`;
+        startTime = Date.now();
+    }
+
+    function renderGrid(playerId) {
+        const grid = document.getElementById(`${playerId}-grid`);
+        grid.innerHTML = '';
+        let cards = [];
+        wordBank.forEach((pair, index) => {
+            cards.push({ text: pair.en, matchId: index, type: 'en' });
+            cards.push({ text: pair.cn, matchId: index, type: 'cn' });
+        });
+        cards.sort(() => Math.random() - 0.5);
+        cards.forEach(cardData => {
+            const card = document.createElement('div');
+            card.className = `card color-${(cardData.matchId % 5) + 1} animate__animated`;
+            card.innerText = cardData.text;
+            card.onclick = (e) => handleMove(playerId, card, cardData, e);
+            grid.appendChild(card);
+        });
+    }
+
+    function handleMove(playerId, cardElement, cardData, event) {
+        if (cardElement.classList.contains('matched')) return;
+        const player = gameState[playerId];
+        
+        if (player.selected && player.selected.element === cardElement) {
+            cardElement.classList.remove('selected');
+            player.selected = null;
+            return;
+        }
+
+        if (!player.selected) {
+            player.selected = { element: cardElement, data: cardData };
+            cardElement.classList.add('selected', 'animate__pulse');
+        } else {
+            const prev = player.selected;
+            if (prev.data.matchId === cardData.matchId && prev.data.type !== cardData.type) {
+                // --- 成功逻辑 ---
+                playSound('success');
+                speakWord(cardData.matchId);
+                // 触发粒子：在当前点击的坐标位置发射
+                fireConfetti(event.clientX, event.clientY);
+                
+                prev.element.classList.remove('selected', 'animate__pulse');
+                prev.element.classList.add('matched');
+                cardElement.classList.add('matched');
+                player.score++;
+                document.getElementById(`${playerId}-score`).innerText = `得分: ${player.score}`;
+                checkWin(playerId);
+            } else {
+                // --- 失败逻辑 ---
+                playSound('fail');
+                cardElement.classList.add('shake-error');
+                prev.element.classList.add('shake-error');
+                setTimeout(() => {
+                    cardElement.classList.remove('shake-error', 'selected');
+                    prev.element.classList.remove('shake-error', 'selected');
+                }, 500);
+            }
+            player.selected = null;
+        }
+    }
+
+    function checkWin(playerId) {
+        if (gameState[playerId].score === wordBank.length) {
+            // 获胜时全屏撒花
+            confetti({ particleCount: 150, spread: 180, origin: { y: 0.6 } });
+            setTimeout(() => {
+                alert(`恭喜${playerId === 'p1' ? '玩家 1' : '玩家 2'}获胜！`);
+            }, 1000);
+        }
+    }
+
+    setInterval(() => {
+        if (startTime) {
+            const seconds = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById('timer').innerText = `用时: ${seconds}秒`;
+        }
+    }, 1000);
+
+    initGame();
+</script>
+</body>
+</html>

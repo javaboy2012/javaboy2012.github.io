@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文学常识消消乐 - 随机题库版</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f4f1ea;
+            --primary-color: #63523d;
+            --accent-color: #a67c52;
+            --tile-bg: #ffffff;
+        }
+
+        body {
+            font-family: "PingFang SC", "STKaiti", "楷体", serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            color: var(--primary-color);
+        }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { margin-bottom: 5px; letter-spacing: 4px; }
+        .sub-title { font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px; }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            background: rgba(255,255,255,0.5);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .tile {
+            aspect-ratio: 1.6 / 1;
+            background: var(--tile-bg);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #d1ccc0;
+            border: 1px solid #d1ccc0;
+            text-align: center;
+            padding: 8px;
+            overflow: hidden;
+        }
+
+        .tile:active { transform: translateY(2px); box-shadow: 0 2px 0 #d1ccc0; }
+        
+        .tile.selected {
+            background-color: #fff9db;
+            border-color: var(--accent-color);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 0 var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .tile.matched { transform: scale(0); opacity: 0; pointer-events: none; }
+        .tile.wrong { background-color: #ffc9c9; animation: shake 0.3s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .controls { margin-top: 30px; }
+        .btn {
+            padding: 12px 40px;
+            background: var(--primary-color);
+            color: #f4f1ea;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: #4a3d2d; }
+
+        @media (max-width: 500px) {
+            .game-board { grid-template-columns: repeat(2, 1fr); }
+            .tile { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>消消乐 · 文学常识</h1>
+        <p class="sub-title">随机抽取 10 组经典词条，匹配成功即触发语音</p>
+        <div class="status-bar">
+            <span>⏱ 时间: <span id="timer">0</span>s</span>
+            <span>📈 进度: <span id="progress">0</span>%</span>
+        </div>
+    </div>
+
+    <div id="gameBoard" class="game-board"></div>
+
+    <div class="controls">
+        <button class="btn" onclick="initGame()">换一批题目</button>
+    </div>
+
+    <script>
+        // --- 1. 文学常识数据库 (可随时在此扩展至 200+ ) ---
+        const LITERATURE_DATABASE = [
+            { a: "李白", b: "诗仙" }, { a: "杜甫", b: "诗圣" }, { a: "白居易", b: "诗魔" },
+            { a: "王维", b: "诗佛" }, { a: "刘禹锡", b: "诗豪" }, { a: "李贺", b: "诗鬼" },
+            { a: "苏轼", b: "东坡居士" }, { a: "陶渊明", b: "五柳先生" }, { a: "李清照", b: "易安居士" },
+            { a: "贺知章", b: "四明狂客" }, { a: "王勃", b: "滕王阁序" }, { a: "屈原", b: "离骚" },
+            { a: "孔子", b: "论语" }, { a: "司马迁", b: "史记" }, { a: "曹雪芹", b: "红楼梦" },
+            { a: "罗贯中", b: "三国演义" }, { a: "施耐庵", b: "水浒传" }, { a: "吴承恩", b: "西游记" },
+            { a: "蒲松龄", b: "聊斋志异" }, { a: "兰陵笑笑生", b: "金瓶梅" }, { a: "左丘明", b: "左传" },
+            { a: "欧阳修", b: "醉翁亭记" }, { a: "柳宗元", b: "小石潭记" }, { a: "范仲淹", b: "岳阳楼记" },
+            { a: "陆游", b: "示儿" }, { a: "辛弃疾", b: "稼轩长短句" }, { a: "柳永", b: "雨霖铃" },
+            { a: "马致远", b: "天净沙·秋思" }, { a: "元曲四大家", b: "关马郑白" }, { a: "初唐四杰", b: "王杨卢骆" },
+            { a: "三苏", b: "苏洵苏轼苏辙" }, { a: "建安七子", b: "孔融等" }, { a: "唐宋八大家", b: "韩柳欧三苏曾王" },
+            { a: "婉约派", b: "李清照柳永" }, { a: "豪放派", b: "苏轼辛弃疾" }, { a: "山水田园派", b: "王维孟浩然" },
+            { a: "边塞诗人", b: "岑参高适" }, { a: "乐府双璧", b: "木兰辞孔雀东南飞" }, { a: "史家之绝唱", b: "史记" },
+            { a: "元杂剧之冠", b: "窦娥冤" }, { a: "诗经", b: "风雅颂" }, { a: "四书", b: "大学中庸论语孟子" },
+            { a: "五经", b: "诗书礼易春秋" }, { a: "第一部诗歌总集", b: "诗经" }, { a: "第一部纪传体通史", b: "史记" },
+            { a: "第一部编年体史书", b: "春秋" }, { a: "第一部语录体专著", b: "论语" }, { a: "文圣", b: "孔子" },
+            { a: "亚圣", b: "孟子" }, { a: "书圣", b: "王羲之" }
+        ];
+
+        // --- 2. 辅助引擎 (语音 & 音效) ---
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'zh-CN'; u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(f, d) {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.frequency.setValueAtTime(f, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+            o.start(); o.stop(audioCtx.currentTime + d);
+        }
+
+        // --- 3. 游戏核心逻辑 ---
+        let selectedTiles = [];
+        let matchedCount = 0;
+        let timer = 0;
+        let interval;
+        const GAME_SIZE = 10; // 每次抽取的组数
+
+        function initGame() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            selectedTiles = [];
+            matchedCount = 0;
+            timer = 0;
+            document.getElementById('timer').innerText = '0';
+            document.getElementById('progress').innerText = '0';
+            clearInterval(interval);
+            
+            // 从数据库随机抽取 N 组
+            const shuffledDB = [...LITERATURE_DATABASE].sort(() => Math.random() - 0.5);
+            const selectedPairs = shuffledDB.slice(0, GAME_SIZE);
+
+            // 拆分为单体词条并打乱
+            let items = [];
+            selectedPairs.forEach((p, i) => {
+                items.push({ text: p.a, id: i, voice: `${p.a}，${p.b}` });
+                items.push({ text: p.b, id: i, voice: `${p.a}，${p.b}` });
+            });
+            items.sort(() => Math.random() - 0.5);
+
+            // 创建 DOM
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'tile';
+                el.innerText = item.text;
+                el.dataset.id = item.id;
+                el.dataset.voice = item.voice;
+                el.onclick = () => handleTileClick(el);
+                board.appendChild(el);
+            });
+
+            interval = setInterval(() => {
+                timer++;
+                document.getElementById('timer').innerText = timer;
+            }, 1000);
+        }
+
+        function handleTileClick(el) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (el.classList.contains('selected') || el.classList.contains('matched') || selectedTiles.length >= 2) return;
+
+            playTone(440, 0.1);
+            el.classList.add('selected');
+            selectedTiles.push(el);
+
+            if (selectedTiles.length === 2) {
+                const [t1, t2] = selectedTiles;
+                if (t1.dataset.id === t2.dataset.id) {
+                    setTimeout(() => {
+                        t1.classList.replace('selected', 'matched');
+                        t2.classList.replace('selected', 'matched');
+                        playTone(660, 0.3);
+                        speak(t1.dataset.voice);
+                        confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
+                        
+                        matchedCount++;
+                        document.getElementById('progress').innerText = Math.floor((matchedCount/GAME_SIZE)*100);
+                        selectedTiles = [];
+                        
+                        if (matchedCount === GAME_SIZE) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                alert(`🎉 满腹经纶！耗时 ${timer} 秒。`);
+                                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+                            }, 500);
+                        }
+                    }, 300);
+                } else {
+                    setTimeout(() => {
+                        playTone(220, 0.2);
+                        t1.classList.add('wrong');
+                        t2.classList.add('wrong');
+                        setTimeout(() => {
+                            t1.classList.remove('selected', 'wrong');
+                            t2.classList.remove('selected', 'wrong');
+                            selectedTiles = [];
+                        }, 400);
+                    }, 300);
+                }
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

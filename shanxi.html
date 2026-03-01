@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山西三晋名人 · 全产业链谱系（数据修正版）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Serif SC', 'Times New Roman', '宋体', serif;
+        }
+
+        body {
+            background: #f5efe7;
+            color: #2c3e4f;
+            padding: 2rem 1.5rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            background: rgba(255, 253, 250, 0.8);
+            backdrop-filter: blur(2px);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(45, 62, 80, 0.25);
+            padding: 2.5rem 2rem;
+            border: 1px solid #e9dccc;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 2px dashed #c5b9a6;
+            padding-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 600;
+            letter-spacing: 6px;
+            color: #4f3e2e;
+            text-shadow: 2px 2px 0 #e9dccc;
+            margin-bottom: 0.5rem;
+        }
+
+        .header h1 small {
+            font-size: 1rem;
+            letter-spacing: 2px;
+            background: #b88b4a22;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            color: #7a5c3a;
+            margin-left: 1rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6a5f54;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .subtitle span {
+            background: #dac9b7;
+            color: #2f3e46;
+            padding: 0.2rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            background: #ede3d6;
+            padding: 1rem 2rem;
+            border-radius: 60px;
+        }
+
+        .search-box {
+            flex: 2 1 260px;
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 40px;
+            padding: 0.3rem 0.3rem 0.3rem 1.5rem;
+            border: 1px solid #d4b99b;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            padding: 0.6rem 0.2rem;
+            font-size: 1rem;
+            background: transparent;
+            outline: none;
+            color: #2c3e4f;
+        }
+
+        .search-box input::placeholder {
+            color: #a7917c;
+            font-style: italic;
+        }
+
+        .search-box button {
+            background: #9b7e62;
+            border: none;
+            color: white;
+            padding: 0.6rem 1.8rem;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .search-box button:hover {
+            background: #7d6044;
+        }
+
+        .filter-tabs {
+            flex: 3 1 500px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 0.4rem;
+            justify-content: flex-end;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #c7b3a0;
+            color: #4f3e2e;
+            padding: 0.45rem 1.1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            white-space: nowrap;
+        }
+
+        .filter-btn.active {
+            background: #4f3e2e;
+            border-color: #4f3e2e;
+            color: #f5efe7;
+            box-shadow: 0 6px 10px rgba(79,62,46,0.2);
+        }
+
+        .filter-btn:hover {
+            background: #ddd0c2;
+        }
+
+        .quick-bar {
+            margin: 0 0 1.2rem 0;
+            padding: 0.8rem 1rem;
+            background: #f3ede5;
+            border-radius: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.6rem 0.8rem;
+        }
+
+        .quick-bar label {
+            font-weight: 600;
+            color: #6b4f36;
+            font-size: 0.9rem;
+            background: #e2d3c4;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+        }
+
+        .quick-btn {
+            background: white;
+            border: 1px solid #bb9d82;
+            color: #4f3e2e;
+            padding: 0.3rem 1.1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 2px 4px #00000010;
+        }
+
+        .quick-btn:hover {
+            background: #cfbcaa;
+            color: #2c1f15;
+            border-color: #8c6f54;
+        }
+
+        .quick-btn.clear-btn {
+            background: #d2b094;
+            color: #2b1b0f;
+            border-color: #8f6d51;
+            font-weight: 500;
+        }
+
+        .stats {
+            margin: 1rem 0 1.5rem 0;
+            font-size: 0.95rem;
+            color: #766b5e;
+            display: flex;
+            gap: 20px;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+
+        .stats .count {
+            font-weight: 700;
+            color: #3f2f1f;
+            font-size: 1.2rem;
+            margin-right: 0.2rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            background: #cdb39b;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.3rem 1.2rem 1.5rem 1.2rem;
+            box-shadow: 0 10px 18px -8px rgba(90, 70, 50, 0.15);
+            border: 1px solid #eadbcd;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(2px);
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 28px -14px #705d4e55;
+            border-color: #bb9d82;
+        }
+
+        .card-avatar {
+            width: 50px;
+            height: 50px;
+            background: #b29172;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 6px 12px #b2917240;
+        }
+
+        .card-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #241f1a;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-name .dynasty {
+            font-size: 0.8rem;
+            background: #e7d9cd;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-weight: 400;
+            color: #4f3e2e;
+        }
+
+        .card-loc {
+            font-size: 0.9rem;
+            color: #846f5a;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-loc i {
+            font-style: normal;
+            background: #f0e3d8;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem 0.3rem;
+            margin: 0.7rem 0 0.8rem;
+        }
+
+        .tag {
+            background: #dccfc2;
+            color: #2b3a47;
+            font-size: 0.68rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 50px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            border: 1px solid #c8b3a0;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: #3f3730;
+            line-height: 1.5;
+            margin-top: 0.2rem;
+            border-left: 3px solid #d1b8a2;
+            padding-left: 0.8rem;
+            background: #faf7f3;
+            border-radius: 0 8px 8px 0;
+            padding: 0.5rem 0.7rem;
+        }
+
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #f3ede7;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            color: #826e5b;
+        }
+
+        footer {
+            margin-top: 3.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #94897e;
+            border-top: 1px dashed #d4bdaa;
+            padding-top: 2rem;
+        }
+
+        footer a {
+            color: #6b4f36;
+            text-decoration: none;
+            border-bottom: 1px dotted;
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 1rem; }
+            .container { padding: 1.5rem 1rem; }
+            .header h1 { font-size: 2rem; }
+            .toolbar { border-radius: 30px; padding: 1rem; }
+            .filter-tabs { justify-content: flex-start; }
+            .quick-bar { border-radius: 30px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>三晋·人物谱 <small>全产业链总表</small></h1>
+        <div class="subtitle">
+            <span>🏛️ 政治·军事</span>
+            <span>📜 文学·思想</span>
+            <span>🎨 艺术·科学</span>
+            <span>🧪 医学·宗教</span>
+            <span>💰 晋商·实业</span>
+            <span>⚔️ 传说·革命</span>
+        </div>
+        <p style="margin-top: 1rem; color: #5f5346;">正史·冷门·艺术·近现代·传说 · 91位山西名人 · 点击地名/朝代直接检索</p>
+    </div>
+
+    <div class="toolbar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索姓名、朝代、地区、简介...">
+            <button id="searchBtn">🔍 检索</button>
+        </div>
+        <div class="filter-tabs" id="filterContainer">
+            <button class="filter-btn active" data-category="all">✨ 全部</button>
+            <button class="filter-btn" data-category="政治">🏛️ 政治</button>
+            <button class="filter-btn" data-category="军事">⚔️ 军事</button>
+            <button class="filter-btn" data-category="文学">📖 文学</button>
+            <button class="filter-btn" data-category="艺术">🎭 艺术</button>
+            <button class="filter-btn" data-category="科学">🔬 科学</button>
+            <button class="filter-btn" data-category="医学">🌿 医学</button>
+            <button class="filter-btn" data-category="思想">🧠 思想</button>
+            <button class="filter-btn" data-category="宗教">🕊️ 宗教</button>
+            <button class="filter-btn" data-category="传说">📜 传说</button>
+            <button class="filter-btn" data-category="革命">🔥 革命</button>
+            <button class="filter-btn" data-category="晋商">💰 晋商</button>
+        </div>
+    </div>
+
+    <!-- 地区快速筛选栏 -->
+    <div class="quick-bar" id="regionBar">
+        <label>📍 按地名筛选：</label>
+        <!-- 动态生成的地名按钮 -->
+        <button class="quick-btn clear-btn" id="clearRegionBtn">🌄 全部</button>
+    </div>
+
+    <!-- 朝代快速筛选栏 -->
+    <div class="quick-bar" id="dynastyBar">
+        <label>📅 按朝代筛选：</label>
+        <!-- 动态生成的朝代按钮 -->
+        <button class="quick-btn clear-btn" id="clearDynastyBtn">📜 全部</button>
+    </div>
+
+    <div class="stats">
+        <div><span class="count" id="displayCount">91</span> 位人物</div>
+        <div class="legend">
+            <div class="legend-item"><span class="legend-color" style="background:#b29172;"></span> 领域混合</div>
+            <div class="legend-item"><span class="legend-color" style="background:#dccfc2;"></span> 可做AI词条</div>
+        </div>
+    </div>
+
+    <div id="cardsGrid" class="grid">
+        <!-- JS动态渲染 -->
+    </div>
+
+    <footer>
+        ⛰️ 山西三晋名人 · 全量总表 — 可直接用于数据库、视频脚本、AI绘图、游戏设定<br>
+        基于历史文献、传说及近现代史料整理 · 共91位 · 含正史/冷门/艺术/革命 · 支持地名、朝代一键检索
+    </footer>
+</div>
+
+<script>
+(function() {
+    // --------------------------------------------------------------
+    // 数据源：91位山西名人（根据原表逐条核对，确保完整）
+    // --------------------------------------------------------------
+    const rawData = [
+        { name:"武则天", dynasty:"唐", region:"文水", tags:"政治", desc:"中国历史上唯一的女皇帝，开创贞观遗风。" },
+        { name:"狄仁杰", dynasty:"唐", region:"太原", tags:"政治", desc:"武周名相，断案如神，刚正不阿的“神探”。" },
+        { name:"霍光", dynasty:"西汉", region:"临汾", tags:"政治", desc:"西汉权臣，“废立皇帝”，辅佐汉室中兴。" },
+        { name:"陈廷敬", dynasty:"清", region:"晋城", tags:"政治", desc:"清代大学士，主持编撰《康熙字典》。" },
+        { name:"重耳（晋文公）", dynasty:"春秋", region:"临汾", tags:"政治", desc:"春秋五霸之一，流亡十九年归国称霸，奠定晋国霸业。" },
+        { name:"赵襄子", dynasty:"战国", region:"太原", tags:"政治", desc:"三家分晋关键人物，赵国奠基者，展现卓越政治手腕。" },
+        { name:"李悝", dynasty:"战国", region:"运城", tags:"政治", desc:"法家始祖，著《法经》，开战国变法先河。" },
+        { name:"石勒", dynasty:"十六国", region:"武乡", tags:"政治", desc:"后赵开国皇帝，奴隶出身的皇帝，善于纳谏。" },
+        { name:"冯太后", dynasty:"北魏", region:"大同", tags:"政治", desc:"北魏杰出女政治家，主持太和改制，孝文帝改革幕后推手。" },
+        { name:"拓跋珪", dynasty:"北魏", region:"大同", tags:"政治", desc:"北魏开国皇帝，道武帝，定都大同，奠定北方基业。" },
+        { name:"独孤信", dynasty:"西魏", region:"忻州", tags:"政治/外戚", desc:"史上第一“老丈人”，北周、隋、唐三代皇室外祖父。" },
+        { name:"阎锡山", dynasty:"近代", region:"五台", tags:"近代政治", desc:"民国山西统治者，推行“村本政治”，大规模乡村建设。" },
+        { name:"彭真", dynasty:"近代", region:"曲沃", tags:"革命/法治", desc:"无产阶级革命家，新中国法治建设重要奠基人。" },
+        { name:"关羽", dynasty:"三国", region:"运城", tags:"军事", desc:"蜀汉“武圣”，忠义化身，襄樊之战威震华夏。" },
+        { name:"卫青", dynasty:"西汉", region:"临汾", tags:"军事", desc:"西汉名将，七战七捷，北击匈奴，封狼居胥。" },
+        { name:"霍去病", dynasty:"西汉", region:"临汾", tags:"军事", desc:"天才战神，封狼居胥，打得匈奴“漠南无王庭”。" },
+        { name:"张辽", dynasty:"三国", region:"太原", tags:"军事", desc:"曹魏名将，逍遥津之战以八百破十万，威震江东。" },
+        { name:"薛仁贵", dynasty:"唐", region:"河津", tags:"军事", desc:"大唐猛将，三箭定天山，传奇将军。" },
+        { name:"杨业", dynasty:"北宋", region:"太原", tags:"军事", desc:"杨家将始祖，抗辽名将，被誉为“杨无敌”。" },
+        { name:"杨延昭", dynasty:"北宋", region:"太原", tags:"军事", desc:"杨家将核心，镇守边关威震辽邦，被视为“星宿下凡”。" },
+        { name:"斛律光", dynasty:"北齐", region:"朔州", tags:"军事", desc:"“落雕都督”，北齐长城，百战百胜却遭冤杀。" },
+        { name:"周德威", dynasty:"五代十国", region:"朔州", tags:"军事", desc:"李克用、李存勖的头号猛将，独眼龙将军，神威赫赫。" },
+        { name:"孟珙", dynasty:"南宋", region:"新绛", tags:"军事", desc:"灭金抗蒙双料名将，南宋国防支柱，“机动防御大师”。" },
+        { name:"廉颇", dynasty:"战国", region:"朔州", tags:"军事", desc:"战国四大名将之一，“负荆请罪”主角，文武双全老将。" },
+        { name:"徐继畬", dynasty:"清", region:"五台", tags:"近代思想", desc:"近代开眼看世界先驱，著《瀛寰志略》。" },
+        { name:"杨深秀", dynasty:"清", region:"闻喜", tags:"近代革命", desc:"戊戌六君子之一，维新变法志士。" },
+        { name:"荀子", dynasty:"战国", region:"运城", tags:"思想/学术", desc:"儒家集大成者，朴素唯物主义思想家，著《荀子》。" },
+        { name:"列子", dynasty:"战国", region:"太原", tags:"思想/哲学", desc:"道家高人，著《列子》，脑洞极大，寓有“愚公移山”。" },
+        { name:"郭象", dynasty:"西晋", region:"太原", tags:"思想/玄学", desc:"魏晋玄学集大成者，独化论哲学，解释万物存在。" },
+        { name:"孙绰", dynasty:"东晋", region:"平遥", tags:"思想/文学", desc:"玄学家，文笔雄拔，魏晋风度典型代表。" },
+        { name:"慧远", dynasty:"东晋", region:"忻州", tags:"宗教/哲学", desc:"净土宗祖师，在庐山结莲社，佛教早期重要传播者。" },
+        { name:"法显", dynasty:"东晋", region:"临汾", tags:"宗教/探险", desc:"比玄奘早200年西行求法高僧，著《佛国记》。" },
+        { name:"岐伯", dynasty:"上古", region:"运城", tags:"医学/始祖", desc:"与黄帝论医，构建中医理论体系根基，尊为“中医始祖”。" },
+        { name:"王叔和", dynasty:"西晋", region:"高平", tags:"医学/整理", desc:"整理《伤寒杂病论》，著《脉经》，确立中医脉学体系。" },
+        { name:"王清任", dynasty:"清", region:"榆次", tags:"医学/改革", desc:"医学改革家，冒着风险解剖，著《医林改错》纠谬误。" },
+        { name:"郑钦安", dynasty:"清", region:"临汾", tags:"医学/火神派", desc:"火神派代表，提倡“阳主阴从”，善用附子。" },
+        { name:"孙思邈", dynasty:"唐", region:"铜川", tags:"医学/药王", desc:"长期在山西行医，著《千金方》，影响深远。" },
+        { name:"王勃", dynasty:"唐", region:"河津", tags:"文学", desc:"初唐四杰之首，《滕王阁序》惊为天人。" },
+        { name:"王维", dynasty:"唐", region:"永济", tags:"文学/艺术", desc:"诗佛，诗画交融，山水田园派宗师。" },
+        { name:"王之涣", dynasty:"唐", region:"太原", tags:"文学", desc:"边塞诗人，《登鹳雀楼》《凉州词》气象雄浑。" },
+        { name:"白居易", dynasty:"唐", region:"太原", tags:"文学", desc:"新乐府运动领袖，《长恨歌》《琵琶行》流传千古。" },
+        { name:"柳宗元", dynasty:"唐", region:"运城", tags:"文学", desc:"唐宋八大家之一，古文运动核心旗手。" },
+        { name:"卢纶", dynasty:"唐", region:"运城", tags:"文学", desc:"“大历十才子”之一，《塞下曲》写尽边塞豪情。" },
+        { name:"元好问", dynasty:"金元", region:"忻州", tags:"文学", desc:"文坛盟主，被誉为“一代宗工”。" },
+        { name:"关汉卿", dynasty:"元", region:"运城", tags:"文学/戏剧", desc:"元曲四大家之首，“东方莎士比亚”，著《窦娥冤》。" },
+        { name:"白朴", dynasty:"元", region:"河津", tags:"文学/戏剧", desc:"元曲四大家之一，著《梧桐雨》，构建元代戏剧审美。" },
+        { name:"郑光祖", dynasty:"元", region:"襄汾", tags:"文学/戏剧", desc:"元曲四大家之一，著《倩女离魂》，浪漫主义戏剧高峰。" },
+        { name:"萨都剌", dynasty:"元", region:"雁北", tags:"文学", desc:"元代顶级回族诗人，词作豪放，风格天马行空。" },
+        { name:"罗贯中", dynasty:"元末明初", region:"太原", tags:"文学/小说", desc:"章回体小说鼻祖，著《三国演义》，构建宏大三国叙事。" },
+        { name:"赵树理", dynasty:"近现代", region:"沁水", tags:"文学/作家", desc:"山药蛋派作家，《小二黑结婚》，记录农村变革。" },
+        { name:"石评梅", dynasty:"近现代", region:"平定", tags:"文学/才女", desc:"民国四大才女之一，热血女作家，记录时代青年觉醒。" },
+        { name:"司马光", dynasty:"北宋", region:"夏县", tags:"史学", desc:"主编《资治通鉴》，中国史学编年体通史里程碑。" },
+        { name:"裴秀", dynasty:"西晋", region:"闻喜", tags:"科学/地图学", desc:"地图学鼻祖，创立“制图六体”，开创地图制图学。" },
+        { name:"郦道元", dynasty:"北魏", region:"涿州（属地）", tags:"科学/地理学", desc:"著《水经注》，以水道为纲记录古代地理古迹。" },
+        { name:"毕昇", dynasty:"北宋", region:"运城（一说）", tags:"科学/发明", desc:"活字印刷术创造者，人类文明传播的技术革命先驱。" },
+        { name:"李春", dynasty:"隋", region:"运城", tags:"科学/工程", desc:"赵州桥（安济桥）设计者，世界最早敞肩石拱桥建筑师。" },
+        { name:"预浩", dynasty:"五代/宋", region:"大同", tags:"科学/建筑", desc:"木工专家，著《木经》，《营造法式》问世前的建筑圣经。" },
+        { name:"计成", dynasty:"明", region:"运城", tags:"科学/造园", desc:"造园学家，著《园冶》，中国古代造园艺术集大成者。" },
+        { name:"张穆", dynasty:"清", region:"平定", tags:"科学/舆地学", desc:"清代西北舆地学奠基人，精于边疆史地，精修山西地图。" },
+        { name:"祁韵士", dynasty:"清", region:"寿阳", tags:"科学/史学", desc:"史学家，首创“蒙古史表”体例，研究北方民族史专家。" },
+        { name:"赵九章", dynasty:"近现代", region:"开封（生长）", tags:"科学/气象", desc:"中国气象学之父，空间科学先驱，两弹一星元勋。" },
+        { name:"邢其毅", dynasty:"近现代", region:"太原", tags:"科学/化学", desc:"有机化学大师，参与合成结晶牛胰岛素。" },
+        { name:"任之恭", dynasty:"近现代", region:"沁源", tags:"科学/物理", desc:"中国电子学先驱，物理学家。" },
+        { name:"兰锡纯", dynasty:"近现代", region:"河津", tags:"科学/医学", desc:"心脏外科开拓者，中国外科医学奠基人。" },
+        { name:"汪堃仁", dynasty:"近现代", region:"希尧", tags:"科学/生理", desc:"中国生理学科奠基人，中科院院士。" },
+        { name:"武衡", dynasty:"近现代", region:"山西", tags:"科学/管理", desc:"新中国科技事业组织者，曾任国家科委副主任。" },
+        { name:"师旷", dynasty:"春秋", region:"临汾", tags:"艺术/音乐", desc:"晋国乐师，“盲眼琴圣”，能听出琴声中的吉凶。" },
+        { name:"傅山", dynasty:"明末清初", region:"太原", tags:"艺术/全才", desc:"神医、书法家、拳学大家，百科全书式学者。" },
+        { name:"阎立本", dynasty:"唐", region:"榆林", tags:"艺术/绘画", desc:"唐代顶级画家，《步辇图》作者，现存最早帝王肖像画。" },
+        { name:"荆浩", dynasty:"五代", region:"沁水", tags:"艺术/绘画", desc:"五代山水画宗师，北方山水画派鼻祖，创“全景山水”。" },
+        { name:"关全", dynasty:"五代", region:"西安（寓居）", tags:"艺术/绘画", desc:"荆浩弟子，“关家山水”，善画秋山寒林，极具苍凉感。" },
+        { name:"徐显秀", dynasty:"北齐", region:"太原", tags:"艺术/壁画", desc:"名将，其墓葬壁画是北齐绘画巅峰，色彩艳丽仪仗盛大。" },
+        { name:"乔宇", dynasty:"明", region:"平定", tags:"艺术/建筑", desc:"擅书法，参与规划明皇陵等建筑规制，建筑美学参与者。" },
+        { name:"丁果仙", dynasty:"近现代", region:"太原", tags:"艺术/戏曲", desc:"晋剧“大王”，创造“丁派”唱腔，山西戏曲泰斗。" },
+        { name:"雷履泰", dynasty:"清", region:"平遥", tags:"实业/晋商", desc:"日升昌票号创始人，中国银行业的先驱。" },
+        { name:"乔致庸", dynasty:"清", region:"祁县", tags:"实业/晋商", desc:"晋商乔家领袖，秉持“诚、信、义”，实现汇通天下。" },
+        { name:"王相卿", dynasty:"清", region:"太谷", tags:"实业/晋商", desc:"旅蒙商鼻祖，创办“大盛魁”，横跨中俄的商业帝国。" },
+        { name:"常万达", dynasty:"清", region:"榆次", tags:"实业/晋商", desc:"常家大院主人，中俄茶叶之路核心经营者，“万里茶路”传奇。" },
+        { name:"渠本翘", dynasty:"清", region:"祁县", tags:"实业/革命", desc:"晋商领袖，“保晋运动”发起人，以商业力量守护山西矿产。" },
+        { name:"王现", dynasty:"清", region:"平遥", tags:"实业/晋商", desc:"日升昌早期奠基人，注重信誉与制度创新的晋商先驱。" },
+        { name:"介子推", dynasty:"春秋", region:"介休", tags:"传说/忠义", desc:"“割股奉君”的忠义之士，清明节（寒食节）起源人物。" },
+        { name:"公孙杵臼", dynasty:"春秋", region:"襄汾", tags:"传说/侠义", desc:"赵氏孤儿义士，与程婴舍身取义，践行士为知己者死。" },
+        { name:"程婴", dynasty:"春秋", region:"襄汾", tags:"传说/侠义", desc:"抚育赵氏孤儿十五年，忍辱负重的大忠之人。" },
+        { name:"貂蝉", dynasty:"东汉", region:"忻州", tags:"传说/美女", desc:"四大美女之一，连环计核心人物，演绎吕布与董卓情仇。" },
+        { name:"杨玉环", dynasty:"唐", region:"运城", tags:"传说/美女", desc:"四大美女之一，“霓裳羽衣舞”主角，盛唐兴衰的见证者。" },
+        { name:"王宝钏", dynasty:"传说", region:"太原", tags:"传说/爱情", desc:"戏曲人物，寒窑苦守十八天，山西民间爱情经典IP。" },
+        { name:"豫让", dynasty:"战国", region:"晋中", tags:"传说/刺客", desc:"“士为知己者死”极致践行者，漆身吞炭刺赵襄子。" },
+        { name:"高君宇", dynasty:"近现代", region:"静乐", tags:"革命/先驱", desc:"山西早期共产党领导人，热血革命者，与石评梅有动人爱情。" },
+        { name:"傅作义", dynasty:"近现代", region:"荣河", tags:"革命/名将", desc:"抗日名将，涿州守城战成名，促成北平和平解放。" },
+        { name:"刘胡兰", dynasty:"近现代", region:"文水", tags:"革命/英烈", desc:"革命烈士，年仅15岁英勇就义，精神永存。" },
+        { name:"马明方", dynasty:"近现代", region:"克虎", tags:"革命/教育", desc:"陕甘宁边区政府副主席，重视教育与人才培养。" }
+    ];
+
+    // 补充分类主领域
+    const data = rawData.map(item => {
+        let mainCat = '其他';
+        const t = item.tags.toLowerCase();
+        if (t.includes('政治') || item.tags.includes('近代政治')) mainCat = '政治';
+        else if (t.includes('军事')) mainCat = '军事';
+        else if (t.includes('文学') || item.tags.includes('文学') || item.tags.includes('史学')) mainCat = '文学';
+        else if (t.includes('艺术') || item.tags.includes('壁画') || item.tags.includes('音乐') || item.tags.includes('绘画')|| item.tags.includes('戏曲')) mainCat = '艺术';
+        else if (t.includes('科学') || t.includes('地图') || t.includes('发明') || t.includes('工程') || t.includes('建筑')|| t.includes('气象')|| t.includes('化学')|| t.includes('物理')|| t.includes('生理')) mainCat = '科学';
+        else if (t.includes('医学') || item.tags.includes('药王')|| item.tags.includes('火神')) mainCat = '医学';
+        else if (t.includes('思想') || t.includes('哲学')|| t.includes('玄学')) mainCat = '思想';
+        else if (t.includes('宗教') || t.includes('净土')|| t.includes('佛')) mainCat = '宗教';
+        else if (t.includes('传说') || t.includes('美女')|| t.includes('刺客')|| t.includes('忠义')) mainCat = '传说';
+        else if (t.includes('革命') || t.includes('英烈')|| t.includes('法治')|| t.includes('教育')|| t.includes('先驱')) mainCat = '革命';
+        else if (t.includes('晋商') || t.includes('实业')) mainCat = '晋商';
+        else mainCat = '其他';
+        return { ...item, mainCat };
+    });
+
+    // 提取热门地区（前15）
+    const regionCount = new Map();
+    data.forEach(p => regionCount.set(p.region, (regionCount.get(p.region) || 0) + 1));
+    const topRegions = Array.from(regionCount.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(entry => entry[0])
+        .slice(0, 15);
+
+    const regionBar = document.getElementById('regionBar');
+    topRegions.forEach(region => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-btn';
+        btn.textContent = region;
+        btn.setAttribute('data-region', region);
+        btn.addEventListener('click', () => {
+            searchInput.value = region;
+            searchBtn.click();
+        });
+        regionBar.appendChild(btn);
+    });
+    document.getElementById('clearRegionBtn').addEventListener('click', () => {
+        searchInput.value = '';
+        searchBtn.click();
+    });
+
+    // 提取热门朝代（前15）
+    const dynastyCount = new Map();
+    data.forEach(p => dynastyCount.set(p.dynasty, (dynastyCount.get(p.dynasty) || 0) + 1));
+    const topDynasties = Array.from(dynastyCount.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(entry => entry[0])
+        .slice(0, 15);
+
+    const dynastyBar = document.getElementById('dynastyBar');
+    topDynasties.forEach(dynasty => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-btn';
+        btn.textContent = dynasty;
+        btn.setAttribute('data-dynasty', dynasty);
+        btn.addEventListener('click', () => {
+            searchInput.value = dynasty;
+            searchBtn.click();
+        });
+        dynastyBar.appendChild(btn);
+    });
+    document.getElementById('clearDynastyBtn').addEventListener('click', () => {
+        searchInput.value = '';
+        searchBtn.click();
+    });
+
+    // 原有筛选逻辑
+    const grid = document.getElementById('cardsGrid');
+    const displaySpan = document.getElementById('displayCount');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+
+    let currentCategory = 'all';
+    let searchText = '';
+
+    function filterCards() {
+        let filtered = data.filter(person => {
+            if (currentCategory !== 'all' && person.mainCat !== currentCategory) return false;
+            if (searchText.trim() !== '') {
+                const haystack = (person.name + person.dynasty + person.region + person.desc + person.tags).toLowerCase();
+                return haystack.includes(searchText.toLowerCase().trim());
+            }
+            return true;
+        });
+        displaySpan.innerText = filtered.length;
+        renderGrid(filtered);
+    }
+
+    function renderGrid(items) {
+        if (items.length === 0) {
+            grid.innerHTML = `<div class="empty-message">🏜️ 没有匹配的名人，试试其他关键词或分类</div>`;
+            return;
+        }
+        let html = '';
+        items.forEach(p => {
+            const avatarChar = p.name.charAt(0);
+            const tagArr = p.tags.split('/').map(s => s.trim());
+            const allTags = [p.mainCat, ...tagArr.filter(t => t !== p.mainCat)].slice(0, 3);
+            html += `
+            <div class="card">
+                <div class="card-avatar">${avatarChar}</div>
+                <div class="card-name">
+                    ${p.name}
+                    <span class="dynasty">${p.dynasty}</span>
+                </div>
+                <div class="card-loc">
+                    <span>📍 ${p.region}</span>
+                    <i>${p.mainCat}</i>
+                </div>
+                <div class="card-tags">
+                    ${allTags.map(t => `<span class="tag">${t}</span>`).join('')}
+                </div>
+                <div class="card-desc">${p.desc}</div>
+            </div>
+            `;
+        });
+        grid.innerHTML = html;
+    }
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentCategory = btn.dataset.category;
+            filterCards();
+        });
+    });
+
+    searchBtn.addEventListener('click', () => {
+        searchText = searchInput.value;
+        filterCards();
+    });
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            searchText = searchInput.value;
+            filterCards();
+        }
+    });
+
+    // 初始渲染
+    renderGrid(data);
+    displaySpan.innerText = data.length;
+})();
+</script>
+</body>
+</html>

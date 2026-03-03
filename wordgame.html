@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍎 单词学习小游戏 · SmartSchool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 背景装饰 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .bg-circle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            bottom: -200px;
+            left: -200px;
+            background: linear-gradient(225deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* 粒子画布 */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .game-card {
+            max-width: 560px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 60px 60px 50px 50px;
+            box-shadow: 0 40px 60px -20px rgba(0, 0, 0, 0.4),
+                        0 20px 30px -10px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+            padding: 32px 28px 36px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            z-index: 10;
+            animation: cardAppear 0.6s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 60px 60px 50% 50%;
+            z-index: -1;
+        }
+
+        /* 进度条区域 */
+        .progress-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 16px;
+        }
+
+        .progress-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #4a5568;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 18px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .progress-bar-bg {
+            flex: 1;
+            height: 12px;
+            background: rgba(226, 232, 240, 0.6);
+            border-radius: 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* 自动跳转提示 */
+        .auto-next-hint {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #38a169;
+            margin: -10px 0 15px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, rgba(56, 161, 105, 0.1), rgba(56, 161, 105, 0.05));
+            border-radius: 40px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(56, 161, 105, 0.3);
+            backdrop-filter: blur(4px);
+            animation: slideDown 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(56, 161, 105, 0.1);
+        }
+
+        .auto-next-hint svg {
+            width: 18px;
+            height: 18px;
+            fill: #38a169;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 单词大标题 */
+        .word-display {
+            text-align: center;
+            margin: 20px 0 35px;
+            position: relative;
+        }
+
+        .word-main {
+            font-size: 72px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 15px;
+            text-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+            animation: wordPop 0.5s ease;
+        }
+
+        @keyframes wordPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .sound-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 500;
+            color: white;
+            border: none;
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+
+        .sound-badge:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 30px -5px rgba(102, 126, 234, 0.6);
+        }
+
+        .sound-badge:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        .sound-badge svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+            transition: transform 0.3s ease;
+        }
+
+        .sound-badge:hover svg {
+            transform: scale(1.2);
+        }
+
+        /* 选项卡片 */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 30px 0 25px;
+        }
+
+        .option-item {
+            background: white;
+            border-radius: 40px;
+            padding: 20px 30px;
+            font-size: 22px;
+            font-weight: 500;
+            color: #2d3748;
+            box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.1),
+                        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .option-item:hover::before {
+            opacity: 1;
+        }
+
+        .option-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 30px -10px rgba(102, 126, 234, 0.4);
+            border-color: transparent;
+        }
+
+        .option-item:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .option-item.selected-correct {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            border-left: 12px solid #38a169;
+            box-shadow: 0 10px 20px -8px rgba(56, 161, 105, 0.4);
+            color: #22543d;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option-item.selected-wrong {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            border-left: 12px solid #e53e3e;
+            box-shadow: 0 10px 20px -8px rgba(229, 62, 62, 0.4);
+            color: #742a2a;
+            text-decoration: line-through 2px #c53030;
+            animation: wrongShake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .option-prefix {
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            margin-right: 25px;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px 15px -5px rgba(102, 126, 234, 0.4);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .option-item:hover .option-prefix {
+            transform: rotate(360deg);
+            background: linear-gradient(135deg, #764ba2, #667eea);
+        }
+
+        .option-item.selected-correct .option-prefix {
+            background: #38a169;
+            box-shadow: 0 8px 15px -5px rgba(56, 161, 105, 0.4);
+        }
+
+        .option-item.selected-wrong .option-prefix {
+            background: #e53e3e;
+            box-shadow: 0 8px 15px -5px rgba(229, 62, 62, 0.4);
+        }
+
+        /* 底部按钮区域 */
+        .footer-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            background: white;
+            border: none;
+            padding: 18px 0;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #4a5568;
+            box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 15px 30px -8px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn.primary:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: none;
+            pointer-events: none;
+            background: linear-gradient(135deg, #a0aec0, #718096);
+        }
+
+        /* 结束页面样式 */
+        .finish-message {
+            text-align: center;
+            padding: 35px 25px 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 70px 70px 50px 50px;
+            margin: 10px 0 20px;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.5s ease;
+            position: relative;
+            z-index: 20;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .score-large {
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            margin: 10px 0 5px;
+            animation: scorePop 1s ease;
+        }
+
+        @keyframes scorePop {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .score-detail {
+            font-size: 20px;
+            color: #718096;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .time-spent {
+            font-size: 18px;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            padding: 15px 25px;
+            border-radius: 50px;
+            margin: 0 20px 30px;
+            color: #2d3748;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+        }
+
+        .time-spent svg {
+            width: 22px;
+            height: 22px;
+            fill: #667eea;
+            animation: tick 2s infinite;
+        }
+
+        @keyframes tick {
+            0%, 100% { transform: rotate(0deg); }
+            10% { transform: rotate(30deg); }
+            20% { transform: rotate(-30deg); }
+            30% { transform: rotate(20deg); }
+            40% { transform: rotate(-20deg); }
+            50% { transform: rotate(10deg); }
+            60% { transform: rotate(-10deg); }
+        }
+
+        /* 鼓励信息样式 */
+        .encouragement-message {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e53e3e;
+            margin: 15px 0 20px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #fff5f5, #fed7d7);
+            border-radius: 50px;
+            display: inline-block;
+            border: 2px solid #fc8181;
+            box-shadow: 0 10px 20px -5px rgba(229, 62, 62, 0.3);
+            animation: encouragePulse 2s infinite;
+        }
+
+        @keyframes encouragePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .wrong-words-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e53e3e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(229, 62, 62, 0.1);
+            padding: 10px 20px;
+            border-radius: 40px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .wrong-words-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 5px 15px 15px;
+            margin-bottom: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f7fafc;
+        }
+
+        .wrong-words-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .wrong-words-grid::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .wrong-words-grid::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+
+        .wrong-word-item {
+            background: white;
+            border-radius: 25px;
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 8px 15px -5px rgba(229, 62, 62, 0.2);
+            border-left: 8px solid #e53e3e;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .wrong-word-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 12px 20px -8px rgba(229, 62, 62, 0.3);
+        }
+
+        .wrong-word-english {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            min-width: 110px;
+            text-align: left;
+        }
+
+        .wrong-word-detail {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .wrong-answer {
+            font-size: 14px;
+            color: #e53e3e;
+            background: #fff5f5;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-weight: 500;
+            border: 1px solid #feb2b2;
+        }
+
+        .correct-answer {
+            font-size: 14px;
+            color: #38a169;
+            background: #f0fff4;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-weight: 500;
+            border: 1px solid #9ae6b4;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 25px;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 20px 30px -10px rgba(102, 126, 234, 0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restart-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .restart-btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 30px 40px -15px rgba(102, 126, 234, 0.6);
+        }
+
+        .restart-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .icon-sound {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-decoration">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+
+    <!-- 粒子画布 -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="game-card" id="gameApp">
+        <!-- 进度显示 -->
+        <div class="progress-section">
+            <span class="progress-text" id="progressLabel">📊 0/9</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- 自动跳转提示（正确时显示） -->
+        <div class="auto-next-hint" id="autoNextHint" style="display: none;">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            太棒了！1.5秒后继续...
+        </div>
+
+        <!-- 核心题目区域（动态渲染） -->
+        <div id="questionArea">
+            <!-- 由JavaScript动态填充 -->
+        </div>
+
+        <!-- 底部固定按钮（游戏过程中显示） -->
+        <div class="footer-buttons" id="footerButtons">
+            <button class="btn" id="dontKnowBtn">🤔 跳过</button>
+            <button class="btn primary" id="nextBtn" disabled>▶ 下一题</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 你提供的API数据 ----------
+            const gameData = {
+                "status": 200,
+                "message": {
+                    "id": 14597,
+                    "created_at": "2026-03-03 09:33:16",
+                    "game_name": "apple",
+                    "game_id": 833245893,
+                    "game_log": null,
+                    "types": 1,
+                    "words": null,
+                    "words_json": [
+                        {"A": "香蕉,弯果", "B": "橙子,柑橘", "C": "苹果", "word": "apple", "correct": "C", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/apple-us-a8cb6fc6.mp3"},
+                        {"A": "香蕉,黄皮", "B": "橙子,橙色", "C": "苹果,红果", "word": "orange", "correct": "B", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/orange-us-0ea93d8c.mp3"},
+                        {"A": "香蕉", "B": "苹果,圆果", "C": "梨子,绿果", "word": "banana", "correct": "A", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/banana-us-88c0240b.mp3"},
+                        {"A": "鼠,老鼠", "B": "狗,小狗", "C": "猫,小猫", "word": "cat", "correct": "C", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/cat-us-ba6fbe9d.mp3"},
+                        {"A": "猪,小猪", "B": "猫,小猫", "C": "狗,小狗", "word": "dog", "correct": "C", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/dog-us-be8bff61.mp3"},
+                        {"A": "书,书籍", "B": "电脑,计算机", "C": "苹果,水果", "word": "computer", "correct": "B", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/computer-us-5ca1be9c.mp3"},
+                        {"A": "小猫,猫咪", "B": "狗,小狗", "C": "鼠标,电脑鼠", "word": "pussy", "correct": "A", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/pussy-us-931c46fd.mp3"},
+                        {"A": "马,大马", "B": "驴,屁股", "C": "牛,大牛", "word": "ass", "correct": "B", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/ass-us-eb367769.mp3"},
+                        {"A": "书,书籍", "B": "电脑,机器", "C": "笔,钢笔", "word": "book", "correct": "A", "text_mp3": "https://data2.smartschool.chat/media/word_pd_ld/book-us-0adef7bb.mp3"}
+                    ],
+                    "user": 48009,
+                    "tilte": "SmartSchool--老师们们的AI工作平台",
+                    "notes": "",
+                    "pdf_url": null,
+                    "permission": 0
+                }
+            };
+
+            // ---------- 音效资源 ----------
+            const SOUNDS = {
+                right: 'https://app.smartschool.chat/assets/media/right.abafb2fb.mp3',
+                wrong: 'https://app.smartschool.chat/assets/media/wrong.bb445656.mp3',
+                win: 'https://app.smartschool.chat/assets/media/win.88ffcea8.mp3'
+            };
+
+            // 播放音效辅助函数
+            function playSound(type) {
+                const url = SOUNDS[type];
+                if (!url) return;
+                try {
+                    const audio = new Audio(url);
+                    audio.play().catch(e => console.warn('音效播放失败:', e));
+                } catch (e) {
+                    console.warn('音效错误:', e);
+                }
+            }
+
+            const questions = gameData.message.words_json;
+            let currentIndex = 0;
+            let userAnswers = new Array(questions.length).fill(null);
+            let answerStatus = new Array(questions.length).fill(false);
+            
+            // 时间记录
+            let gameStartTime = Date.now();
+            
+            let autoNextTimer = null; // 自动跳转计时器
+
+            // DOM 元素
+            const questionArea = document.getElementById('questionArea');
+            const progressLabel = document.getElementById('progressLabel');
+            const progressFill = document.getElementById('progressFill');
+            const footerButtons = document.getElementById('footerButtons');
+            const dontKnowBtn = document.getElementById('dontKnowBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const autoNextHint = document.getElementById('autoNextHint');
+
+            // 粒子效果相关
+            const canvas = document.getElementById('confetti-canvas');
+            let ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+            let animationFrame = null;
+            let particleColors = [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', 
+                '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71',
+                '#F1C40F', '#E74C3C', '#1ABC9C', '#9B59B6', '#34495E',
+                '#FF8C42', '#A8E6CF', '#FFD3B6', '#FFAAA5', '#D0F0FD'
+            ];
+
+            // 调整画布大小
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // 粒子类
+            class Particle {
+                constructor(x, y, isBurst = false) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = Math.random() * 12 + (isBurst ? 8 : 4);
+                    this.speedX = (Math.random() - 0.5) * (isBurst ? 12 : 8);
+                    this.speedY = (Math.random() - 0.5) * (isBurst ? 12 : 8) - (isBurst ? 2 : 5);
+                    this.color = particleColors[Math.floor(Math.random() * particleColors.length)];
+                    this.rotation = Math.random() * 360;
+                    this.rotationSpeed = (Math.random() - 0.5) * 20;
+                    this.shape = Math.random() > 0.5 ? 'square' : 'circle';
+                    this.opacity = 1;
+                    this.fadeRate = 0.005 + Math.random() * 0.01;
+                    this.gravity = 0.2;
+                }
+                
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.speedY += this.gravity;
+                    this.speedX *= 0.99;
+                    this.speedY *= 0.99;
+                    this.rotation += this.rotationSpeed;
+                    this.opacity -= this.fadeRate;
+                    
+                    if (this.x < 0 || this.x > width) {
+                        this.speedX *= -0.5;
+                    }
+                    
+                    return this.opacity > 0 && this.y < height + 100;
+                }
+                
+                draw(ctx) {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation * Math.PI / 180);
+                    ctx.globalAlpha = this.opacity;
+                    ctx.fillStyle = this.color;
+                    
+                    if (this.shape === 'circle') {
+                        ctx.beginPath();
+                        ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                    }
+                    
+                    ctx.globalAlpha = this.opacity * 0.3;
+                    ctx.fillStyle = 'white';
+                    if (this.shape === 'circle') {
+                        ctx.beginPath();
+                        ctx.arc(-this.size/4, -this.size/4, this.size/4, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(-this.size/2, -this.size/2, this.size/4, this.size/4);
+                    }
+                    
+                    ctx.restore();
+                }
+            }
+
+            // 启动粒子效果
+            function startConfetti() {
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                }
+                
+                particles = [];
+                
+                const centerX = width / 2;
+                const centerY = height / 3;
+                
+                for (let i = 0; i < 300; i++) {
+                    particles.push(new Particle(centerX, centerY, true));
+                }
+                
+                for (let i = 0; i < 100; i++) {
+                    particles.push(new Particle(
+                        Math.random() * width,
+                        -50,
+                        false
+                    ));
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = 'rgba(255,255,255,0.5)';
+                    
+                    particles = particles.filter(p => p.update());
+                    particles.forEach(p => p.draw(ctx));
+                    
+                    if (particles.length > 0) {
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        ctx.clearRect(0, 0, width, height);
+                        animationFrame = null;
+                    }
+                }
+                animate();
+
+                setTimeout(() => {
+                    if (animationFrame) {
+                        cancelAnimationFrame(animationFrame);
+                        ctx.clearRect(0, 0, width, height);
+                        animationFrame = null;
+                    }
+                }, 6000);
+            }
+
+            // 清除自动跳转计时器
+            function clearAutoNextTimer() {
+                if (autoNextTimer) {
+                    clearTimeout(autoNextTimer);
+                    autoNextTimer = null;
+                }
+                autoNextHint.style.display = 'none';
+            }
+
+            // 更新进度显示
+            function updateProgress() {
+                const answeredCount = userAnswers.filter(a => a !== null).length;
+                progressLabel.innerText = `📊 ${answeredCount}/${questions.length}`;
+                const percent = (answeredCount / questions.length) * 100;
+                progressFill.style.width = `${percent}%`;
+            }
+
+            // 播放单词发音
+            function playAudio(mp3Url) {
+                if (!mp3Url) return;
+                const audio = new Audio(mp3Url);
+                audio.play().catch(e => console.warn('音频播放失败:', e));
+            }
+
+            // 获取选项文本
+            function getOptionText(q, optionKey) {
+                if (!optionKey) return '未作答';
+                switch(optionKey) {
+                    case 'A': return q.A;
+                    case 'B': return q.B;
+                    case 'C': return q.C;
+                    default: return '';
+                }
+            }
+
+            // 【修复】自动进入下一题
+            function autoNextQuestion() {
+                console.log('自动跳转执行', currentIndex, questions.length);
+                
+                // 清除计时器引用
+                if (autoNextTimer) {
+                    clearTimeout(autoNextTimer);
+                    autoNextTimer = null;
+                }
+                autoNextHint.style.display = 'none';
+                
+                // 判断是否是最后一题
+                if (currentIndex < questions.length - 1) {
+                    // 还有下一题：移动到下一题
+                    currentIndex++;
+                    renderQuestion();
+                    updateProgress();
+                } else {
+                    // 已经是最后一题：直接显示完成页面
+                    if (userAnswers.every(a => a !== null)) {
+                        showFinishScreen();
+                    } else {
+                        renderQuestion();
+                    }
+                }
+            }
+
+            // 处理答案选择
+            function handleAnswer(chosen, q) {
+                console.log('答案选择', chosen, q.correct);
+                
+                if (answerStatus[currentIndex]) return;
+
+                // 记录答案
+                userAnswers[currentIndex] = chosen;
+                answerStatus[currentIndex] = true;
+                
+                // 更新进度
+                updateProgress();
+
+                // 重新渲染题目以显示正确/错误样式
+                renderQuestion();
+
+                // 启用“下一题”按钮
+                nextBtn.disabled = false;
+                
+                // 播放音效
+                if (chosen === q.correct) {
+                    playSound('right');
+                    
+                    // 正确：显示自动跳转提示并设置计时器
+                    autoNextHint.style.display = 'flex';
+                    
+                    // 先清除可能存在的旧计时器
+                    if (autoNextTimer) {
+                        clearTimeout(autoNextTimer);
+                    }
+                    // 设置新计时器
+                    autoNextTimer = setTimeout(autoNextQuestion, 1500);
+                } else {
+                    playSound('wrong');
+                    // 错误：不自动跳转
+                }
+            }
+
+            // 渲染当前题目
+            function renderQuestion() {
+                console.log('渲染题目', currentIndex);
+                
+                clearAutoNextTimer();
+
+                const q = questions[currentIndex];
+                const selected = userAnswers[currentIndex];
+                const isAnswered = answerStatus[currentIndex];
+
+                function getOptionClass(optKey) {
+                    if (!isAnswered) return '';
+                    if (optKey === q.correct) return 'selected-correct';
+                    if (optKey === selected && selected !== q.correct) return 'selected-wrong';
+                    if (optKey === q.correct) return 'selected-correct';
+                    return '';
+                }
+
+                const optionA = `<div class="option-item ${getOptionClass('A')}" data-option="A">` +
+                    `<span class="option-prefix">A</span> ${q.A}</div>`;
+                const optionB = `<div class="option-item ${getOptionClass('B')}" data-option="B">` +
+                    `<span class="option-prefix">B</span> ${q.B}</div>`;
+                const optionC = `<div class="option-item ${getOptionClass('C')}" data-option="C">` +
+                    `<span class="option-prefix">C</span> ${q.C}</div>`;
+
+                const soundSvg = `<svg class="icon-sound" viewBox="0 0 1024 1024"><path d="M408.770999 812.773145a52.165337 52.165337 0 0 1-53.020506-51.310167V263.754356A51.737752 51.737752 0 0 1 408.770999 214.154528a53.875676 53.875676 0 0 1 35.489532 13.255126l292.040368 248.426726a50.027413 50.027413 0 0 1 0 75.682497l-292.467953 248.854311a52.592921 52.592921 0 0 1-35.061947 12.399957z" fill="currentColor"></path><path d="M513.101672 1024A513.101672 513.101672 0 0 1 150.082239 150.016819 510.108579 510.108579 0 0 1 312.564435 40.127544 513.101672 513.101672 0 0 1 873.983181 150.016819 513.101672 513.101672 0 0 1 711.073401 983.807036a507.543071 507.543071 0 0 1-197.971729 40.192964z" fill="currentColor"></path></svg>`;
+
+                const soundButton = q.text_mp3 ? 
+                    `<div class="sound-badge" id="playSoundBtn">${soundSvg} 听发音</div>` : 
+                    `<div class="sound-badge" style="opacity:0.4; pointer-events:none;">${soundSvg} 暂无音频</div>`;
+
+                questionArea.innerHTML = `
+                    <div class="word-display">
+                        <div class="word-main">${q.word}</div>
+                        ${soundButton}
+                    </div>
+                    <div class="options-grid" id="optionsContainer">
+                        ${optionA}
+                        ${optionB}
+                        ${optionC}
+                    </div>
+                `;
+
+                // 绑定声音按钮
+                if (q.text_mp3) {
+                    const soundBtn = document.getElementById('playSoundBtn');
+                    if (soundBtn) {
+                        soundBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            playAudio(q.text_mp3);
+                        });
+                    }
+                }
+
+                // 绑定选项点击事件
+                document.querySelectorAll('.option-item').forEach(optDiv => {
+                    optDiv.addEventListener('click', (e) => {
+                        const chosen = optDiv.dataset.option;
+                        if (!chosen) return;
+                        handleAnswer(chosen, q);
+                    });
+                });
+
+                nextBtn.disabled = !answerStatus[currentIndex];
+                footerButtons.style.display = 'flex';
+            }
+
+            // 处理“跳过”点击
+            function handleDontKnow() {
+                console.log('跳过');
+                clearAutoNextTimer();
+                
+                if (currentIndex < questions.length - 1) {
+                    currentIndex++;
+                    renderQuestion();
+                    updateProgress();
+                } else {
+                    if (currentIndex === questions.length - 1) {
+                        if (userAnswers.every(a => a !== null)) {
+                            showFinishScreen();
+                        } else {
+                            alert('这是最后一题，请选择答案～');
+                        }
+                    }
+                }
+            }
+
+            // 处理“下一题”点击
+            function handleNext() {
+                console.log('下一题');
+                clearAutoNextTimer();
+                
+                if (!answerStatus[currentIndex]) return;
+                
+                if (currentIndex < questions.length - 1) {
+                    currentIndex++;
+                    renderQuestion();
+                    updateProgress();
+                } else {
+                    if (currentIndex === questions.length - 1 && answerStatus[currentIndex]) {
+                        showFinishScreen();
+                    }
+                }
+            }
+
+            // 完成页面
+            function showFinishScreen() {
+                console.log('完成页面');
+                
+                const totalTime = (Date.now() - gameStartTime) / 1000;
+                const avgTime = (totalTime / questions.length).toFixed(1);
+                
+                const correctAnswers = questions.filter((q, idx) => userAnswers[idx] === q.correct).length;
+                const wrongCount = questions.length - correctAnswers;
+                const isAllCorrect = wrongCount === 0;
+                
+                if (isAllCorrect) {
+                    startConfetti();
+                    playSound('win');
+                } else {
+                    playSound('win');
+                }
+
+                const wrongWords = [];
+                questions.forEach((q, idx) => {
+                    const userChoice = userAnswers[idx];
+                    if (userChoice !== q.correct) {
+                        wrongWords.push({
+                            word: q.word,
+                            userChoice: userChoice,
+                            userAnswerText: getOptionText(q, userChoice),
+                            correctAnswer: q.correct,
+                            correctAnswerText: getOptionText(q, q.correct)
+                        });
+                    }
+                });
+
+                const encouragementHtml = isAllCorrect 
+                    ? ''
+                    : `<div class="encouragement-message">
+                        💪 继续努力！还有 ${wrongCount} 个单词要复习
+                       </div>`;
+
+                let wrongWordsHtml = '';
+                if (wrongWords.length > 0) {
+                    wrongWordsHtml = wrongWords.map(item => `
+                        <div class="wrong-word-item">
+                            <span class="wrong-word-english">${item.word}</span>
+                            <div class="wrong-word-detail">
+                                <span class="wrong-answer">❌ ${item.userAnswerText}</span>
+                                <span class="correct-answer">✅ ${item.correctAnswerText}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    wrongWordsHtml = '<div style="padding: 20px; color: #38a169; background: #f0fff4; border-radius: 40px; margin: 10px;">🎉 太棒了！全部答对！</div>';
+                }
+
+                questionArea.innerHTML = `
+                    <div class="finish-message">
+                        <div class="score-large">${correctAnswers}/${questions.length}</div>
+                        <div class="score-detail">答对 ${correctAnswers} · 答错 ${wrongCount}</div>
+                        
+                        ${encouragementHtml}
+                        
+                        <div class="time-spent">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+                            </svg>
+                            总用时 ${totalTime.toFixed(1)}秒 · 平均 ${avgTime}秒/题
+                        </div>
+                        
+                        <div class="wrong-words-title">
+                            <span>📝 错词本 (${wrongCount})</span>
+                        </div>
+                        <div class="wrong-words-grid">
+                            ${wrongWordsHtml}
+                        </div>
+                        
+                        <button class="restart-btn" id="restartGameBtn">
+                            🔄 重新挑战
+                        </button>
+                    </div>
+                `;
+
+                footerButtons.style.display = 'none';
+                autoNextHint.style.display = 'none';
+
+                document.getElementById('restartGameBtn').addEventListener('click', () => {
+                    currentIndex = 0;
+                    userAnswers = new Array(questions.length).fill(null);
+                    answerStatus = new Array(questions.length).fill(false);
+                    gameStartTime = Date.now();
+                    
+                    renderQuestion();
+                    updateProgress();
+                    footerButtons.style.display = 'flex';
+                });
+            }
+
+            // 初始化监听
+            dontKnowBtn.addEventListener('click', handleDontKnow);
+            nextBtn.addEventListener('click', handleNext);
+
+            // 初始渲染
+            renderQuestion();
+            updateProgress();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>信·念 | 滚动之流 · 心中的起点</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      background: radial-gradient(circle at 40% 50%, #1a1a1a 0%, #020202 100%);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      color: #e2dac5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      overflow: hidden;        /* 隐藏body滚动条，我们用内部容器滚动 */
+      position: relative;
+    }
+
+    /* 主容器 – 使标题区固定，底部留白，滚动区填满 */
+    .app {
+      width: 100%;
+      max-width: 1300px;
+      height: 100vh;           /* 撑满视口 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* 垂直居中整体 */
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* 固定头部 —— 信是起点，始终可见 */
+    .title-section {
+      text-align: center;
+      padding: 1.5rem 0 1rem 0;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(200, 180, 120, 0.25);
+      flex-shrink: 0;
+      background: transparent;
+      position: relative;
+      z-index: 10;
+    }
+
+    .title-section h1 {
+      font-size: clamp(2.5rem, 8vw, 4.8rem);
+      font-weight: 400;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: #ecdbaa;
+      text-shadow: 0 0 12px #b89e6b60, 0 2px 10px #000000;
+      margin-bottom: 0.25rem;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .title-section .sub {
+      font-size: 1rem;
+      color: #a08f70;
+      letter-spacing: 4px;
+      font-style: italic;
+      border-top: 1px dashed #4a4130;
+      display: inline-block;
+      padding-top: 0.6rem;
+    }
+
+    /* 滚动容器 —— 高度自适应，隐藏溢出 */
+    .scroll-container {
+      flex: 1 1 0;             /* 占据剩余所有高度 */
+      min-height: 0;           /* flex限制溢出 */
+      width: 100%;
+      overflow: hidden;        /* 隐藏溢出的滚动条，我们使用内部滚动条不可见？但需要滚动内容自下而上滚动，故用内部滚动+隐藏滚动条 */
+      position: relative;
+      mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
+      margin: 0.5rem 0 1rem;
+    }
+
+    /* 滚动的网格轨道 —— 采用column布局，通过transform实现无缝滚动 */
+    .scroll-track {
+      display: flex;
+      flex-direction: column;
+      animation: scrollUp 80s linear infinite;
+      /* 宽度100% */
+      width: 100%;
+    }
+
+    /* 双倍内容容器：为了无缝衔接，我们会用js克隆一份，但css方式也可以手动克隆。最稳妥：把同样的grid放两遍 */
+    .grid-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.8rem;
+      padding: 0 0.5rem 1.8rem 0.5rem;  /* 底部留空隙，保证视觉间隔 */
+      width: 100%;
+      pointer-events: none;     /* 允许点击穿透？但不需要点击，为了滚动平滑，让鼠标事件无碍；如果需要可以选择性禁用，但保留可读性 */
+    }
+
+    /* 为了让悬停效果仍可触发，保留事件，但注意动画容器内悬停会有些失调，但符合风格 */
+    .grid-group {
+      pointer-events: auto;
+    }
+
+    /* 卡片样式（与之前类似，微调） */
+    .quote-card {
+      background: rgba(8, 8, 8, 0.75);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(190, 160, 100, 0.2);
+      padding: 2rem 1.2rem;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 18px 24px -18px black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      word-break: break-word;
+      position: relative;
+      min-height: 150px;
+    }
+
+    .quote-card:hover {
+      border-color: rgba(220, 180, 110, 0.8);
+      box-shadow: 0 0 20px rgba(180, 140, 70, 0.3);
+      background: rgba(20, 20, 20, 0.95);
+      transform: scale(1.01) translateY(-2px);
+    }
+
+    .quote-card::before {
+      content: attr(data-index);
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      font-size: 0.75rem;
+      color: #635a46;
+      font-weight: 300;
+      opacity: 0.7;
+    }
+
+    .quote-text {
+      font-size: 1.1rem;
+      font-weight: 350;
+      color: #e3d9c0;
+      max-width: 92%;
+      margin: 0 auto;
+      line-height: 1.5;
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    .quote-text::before {
+      content: "“";
+      font-size: 1.6rem;
+      color: #b3925a;
+      opacity: 0.35;
+      margin-right: 2px;
+    }
+
+    .quote-text::after {
+      content: "”";
+      font-size: 1.6rem;
+      color: #b3925a;
+      opacity: 0.35;
+      margin-left: 2px;
+    }
+
+    .long-text .quote-text {
+      font-size: 1rem;
+    }
+
+    /* 底部固定装饰 */
+    .footer-note {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 1.2rem 0 2rem;
+      border-top: 1px solid rgba(150, 130, 90, 0.2);
+      font-size: 0.95rem;
+      color: #7f735a;
+      font-style: italic;
+      letter-spacing: 1.5px;
+      margin-top: 0.2rem;
+    }
+
+    .footer-note strong {
+      color: #c9af7c;
+      font-weight: 400;
+    }
+
+    /* 动画：自下而上滚动 */
+    @keyframes scrollUp {
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        transform: translateY(-50%);  /* 因为有两组grid-group，每组高度不等，但translateY(-50%)刚好把第二组推到原来第一组位置 */
+      }
+    }
+
+    /* 为了让滚动更平顺，加一个遮罩渐隐，已在外层mask实现，也可以保留 */
+    /* 但是为了避免边缘生硬，已经做了mask */
+
+    /* 点缀字符，小装饰不滚动，固定在底部上方一点 */
+    .stone-row {
+      position: absolute;
+      bottom: 70px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .stone-char {
+      font-size: 2rem;
+      color: #4f4534;
+      border: 1px solid #4a3f2e;
+      padding: 0.1rem 1.2rem;
+      border-radius: 40px;
+      background: #0d0b07cc;
+      backdrop-filter: blur(3px);
+      font-family: serif;
+      opacity: 0.5;
+    }
+
+    /* 响应式 */
+    @media (max-width: 700px) {
+      .grid-group {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+      }
+      .quote-card {
+        padding: 1.5rem 1rem;
+        min-height: 130px;
+      }
+      .stone-row {
+        bottom: 60px;
+        gap: 0.8rem;
+      }
+      .stone-char {
+        font-size: 1.4rem;
+        padding: 0 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 固定头部：信念起点 -->
+    <div class="title-section">
+      <h1>信·念</h1>
+      <div class="sub">—— 信，是一切的起点</div>
+    </div>
+
+    <!-- 滚动区域容器（隐藏滚动条，仅靠动画移动） -->
+    <div class="scroll-container">
+      <!-- 滚动轨道：包含两遍格言组，实现无缝循环 -->
+      <div class="scroll-track" id="scrollTrack">
+        <!-- 第一组50条 (由js动态生成) -->
+        <div class="grid-group" id="group1"></div>
+        <!-- 第二组50条 (克隆，用于无缝衔接) -->
+        <div class="grid-group" id="group2"></div>
+      </div>
+    </div>
+
+    <!-- 底部固定文字 (但不绝对定位，跟随flex) -->
+    <div class="footer-note">
+      <strong>因为相信，所以看见。</strong>  ·  五十粒火种  ·  干到底，老天自有安排
+    </div>
+
+    <!-- 静态装饰字符（不参与滚动，悬浮在底部） -->
+    <div class="stone-row">
+      <span class="stone-char">心</span>
+      <span class="stone-char">敢</span>
+      <span class="stone-char">韧</span>
+      <span class="stone-char">光</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // 50条信念格言（与题目完全一致）
+      const quotes = [
+        "信，是一切的起点。",
+        "目标够大，才不会在山腰处认命。",
+        "破山中贼易，破心中贼难。",
+        "此心不动，随机而动。",
+        "我心光明，夫复何求。",
+        "敢想的人不多，敢干的人更少。",
+        "信念不是鸡汤，是你深夜还在干的理由。",
+        "目标定小了，路上全是竞争对手。",
+        "不是看到希望才坚持，是坚持了才看到希望。",
+        "你信什么，就会遇见什么。",
+        "人不是慢慢崩溃的，也不是慢慢觉醒的，都是一瞬间。",
+        "目标是灯塔，不是终点。",
+        "怕就对了，怕还在干才叫勇敢。",
+        "没人看好你的时候，恰恰是你该全力以赴的时候。",
+        "失败三次不可怕，可怕的是第四次不敢了。",
+        "别人笑我太疯癫，我笑别人看不穿。",
+        "一念转，万物生。",
+        "相信是最大的杠杆。",
+        "做自己的神，不做别人的提线木偶。",
+        "路虽难，行则将至。",
+        "你不是缺能力，你缺的是一个敢开枪的决心。",
+        "所有伟大的事，起点都是一个不被理解的决定。",
+        "目标越大，噪音越多。别听。",
+        "认命是这个时代最贵的奢侈品。",
+        "普通人不敢对目标开枪，少数人持续开枪直到命中。",
+        "心变了，路就宽了。",
+        "因为相信，所以看见。",
+        "永远是少年，永登心里的高峰。",
+        "别用别人的标准定义你的天花板。",
+        "信念不需要证据，结果就是最好的证据。",
+        "还没输完，就还没输。",
+        "足够重要的事，赢面再小也要干。",
+        "人这辈子，至少要疯狂一次。",
+        "命运给你一巴掌，你就还它一个帝国。",
+        "认知到了，信念就稳了。",
+        "方向对了，时间就是朋友。",
+        "你的野心有多大，你的世界就有多大。",
+        "想赢的人很多，不怕输的人很少。",
+        "目标不是用来实现的，是用来牵引你的。",
+        "别在20楼的高度，过1楼的生活。",
+        "所有的逆袭，起点都是一个不服。",
+        "梦想不怕大，怕你不敢说出口。",
+        "绝望之谷的尽头，是觉悟之坡。",
+        "向内求，你本自具足。",
+        "选了这条路，就别回头数脚印。",
+        "信念是最贵的资产，免费获取，终身增值。",
+        "你的坚持不需要任何人理解。",
+        "这个世界亏待的从来不是有信念的人。",
+        "人生是无限游戏，输一局不叫输。",
+        "干到底，老天自有安排。"
+      ];
+
+      // 辅助函数：根据quotes数组生成一组grid-group的HTML，并挂载到指定容器
+      function renderGroup(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = ''; // 清空（但初始化时为空）
+        
+        quotes.forEach((text, idx) => {
+          const card = document.createElement('div');
+          card.className = 'quote-card';
+          if (text.length > 28) card.classList.add('long-text');
+          card.setAttribute('data-index', String(idx + 1).padStart(2, '0'));
+          
+          const textDiv = document.createElement('div');
+          textDiv.className = 'quote-text';
+          textDiv.textContent = text;
+          
+          card.appendChild(textDiv);
+          container.appendChild(card);
+        });
+      }
+
+      // 渲染两组（内容完全一致）
+      renderGroup('group1');
+      renderGroup('group2');
+
+      // 可选：由于网格列数可能随宽度变化，两组高度可能稍有不同 (但相同内容通常高度一致)
+      // 为了完全无缝，可以用一个小技巧保证高度一致：每组强制相同列数？但高度由内容自适应，只要quotes一样，字体一样，基本一致。
+      // 如果浏览器渲染有极细微差别，也没关系，肉眼难以察觉。
+
+      // 针对滚动动画：如果内容高度变化，依然可以正常工作，因为translateY(-50%)会将第二组拉到第一组起始位置。
+      // 但是当窗口改变时，高度可能会变，动画依然可用，不会破坏无缝感。
+      
+      // 但最好在resize时重新触发一下？无需，因为%比例基于元素自身高度，但translateY(-50%)指的是元素自身高度的50%，
+      // 我们的scroll-track包含了两个grid-group，它的高度是两组高度之和。所以设置-50%正好将第二组的顶部对齐容器顶部。
+      // 但有一个前提：两组高度必须完全一致（或总和的一半等于第一组高度）。由于内容相同，基本一致。
+      // 如果出现细微偏差，会在循环末端有一个微小跳跃，但人类很难察觉。
+      
+      // 增强稳定性：我们可以稍微调整动画，或者干脆用两个一样的内容，目前可行。
+
+      // 额外: 为了避免鼠标悬停时动画卡顿，无影响。
+    })();
+  </script>
+  <!-- 注：采用两组grid-group无缝滚动，动画平稳。渐变遮罩让出入平滑。 -->
+</body>
+</html>

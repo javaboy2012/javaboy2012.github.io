@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>春夜喜雨 - 杜甫</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* 雨滴动画 */
+        .rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.6));
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* 云朵装饰 */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .cloud:nth-child(1) {
+            width: 100px;
+            height: 40px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .cloud:nth-child(2) {
+            width: 80px;
+            height: 35px;
+            top: 40%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .cloud:nth-child(3) {
+            width: 120px;
+            height: 45px;
+            top: 60%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(30px); }
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 700px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 40px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            background: linear-gradient(45deg, #fff, #87ceeb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .poem-container {
+            background: linear-gradient(135deg, rgba(30, 30, 60, 0.8) 0%, rgba(20, 20, 40, 0.8) 100%);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(135, 206, 235, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .poem-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(135, 206, 235, 0.1) 0%, transparent 70%);
+            animation: pulse 6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .poem {
+            text-align: center;
+            font-size: 2.2em;
+            line-height: 2.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .poem-line {
+            margin: 20px 0;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #87ceeb;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .poem-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(135, 206, 235, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .poem-line:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(15px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .poem-line:hover::before {
+            left: 100%;
+        }
+
+        .author {
+            text-align: center;
+            font-size: 1.3em;
+            color: #87ceeb;
+            margin-top: 25px;
+            font-style: italic;
+            text-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+        }
+
+        .description {
+            text-align: center;
+            color: #b0c4de;
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(30, 30, 60, 0.6);
+            border-radius: 15px;
+            border: 2px solid rgba(135, 206, 235, 0.2);
+        }
+
+        /* 花朵装饰 */
+        .flower {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #ffb3d9;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: sway 4s ease-in-out infinite;
+        }
+
+        .flower:nth-child(1) { top: 10%; right: 15%; animation-delay: 0s; }
+        .flower:nth-child(2) { bottom: 20%; left: 10%; animation-delay: 1s; background: #ffcccb; }
+        .flower:nth-child(3) { top: 30%; left: 5%; animation-delay: 2s; background: #98fb98; }
+        .flower:nth-child(4) { bottom: 40%; right: 8%; animation-delay: 3s; }
+
+        @keyframes sway {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(5deg); }
+            75% { transform: translateY(-5px) rotate(-5deg); }
+        }
+
+        /* 星星装饰 */
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+                margin: 20px;
+            }
+            
+            .title {
+                font-size: 2.2em;
+            }
+            
+            .poem {
+                font-size: 1.8em;
+            }
+            
+            .poem-line {
+                font-size: 1.5em;
+                padding: 12px 15px;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-text {
+            font-size: 1.5em;
+            color: #87ceeb;
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div class="loading" id="loading">
+        <div class="loading-text">春夜喜雨...</div>
+    </div>
+
+    <!-- 雨滴效果 -->
+    <div class="rain" id="rain"></div>
+
+    <!-- 云朵装饰 -->
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+
+    <!-- 花朵装饰 -->
+    <div class="flower"></div>
+    <div class="flower"></div>
+    <div class="flower"></div>
+    <div class="flower"></div>
+
+    <!-- 星星装饰 -->
+    <div class="star" style="top: 15%; left: 20%;"></div>
+    <div class="star" style="top: 25%; right: 30%;"></div>
+    <div class="star" style="bottom: 30%; left: 40%;"></div>
+    <div class="star" style="top: 40%; right: 20%;"></div>
+    <div class="star" style="bottom: 20%; right: 50%;"></div>
+
+    <div class="container">
+        <h1 class="title">🌧️ 春夜喜雨 🌧️</h1>
+        
+        <div class="poem-container">
+            <div class="poem">
+                <div class="poem-line">好雨知时节</div>
+                <div class="poem-line">当春乃发生</div>
+                <div class="poem-line">随风潜入夜</div>
+                <div class="poem-line">润物细无声</div>
+                <div class="poem-line">野径云俱黑</div>
+                <div class="poem-line">江船火独明</div>
+                <div class="poem-line">晓看红湿处</div>
+                <div class="poem-line">花重锦官城</div>
+            </div>
+            <div class="author">—— 唐·杜甫</div>
+        </div>
+
+        <div class="description">
+            <p>这首诗描绘了春夜细雨的美丽景象，表达了诗人对春雨的喜爱之情。春雨知时节，在春天悄悄降临，滋润万物而不张扬。雨中的田野小径一片漆黑，只有江上的渔船灯火格外明亮。诗人想象着明天早晨，被雨水滋润的花朵会更加鲜艳，成都城内将会是一片繁花似锦的景象。</p>
+        </div>
+    </div>
+
+    <script>
+        // 创建雨滴效果
+        function createRain() {
+            const rainContainer = document.getElementById('rain');
+            const numberOfDrops = 50;
+
+            for (let i = 0; i < numberOfDrops; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                rainContainer.appendChild(drop);
+            }
+        }
+
+        // 诗句渐入动画
+        function animatePoemLines() {
+            const lines = document.querySelectorAll('.poem-line');
+            lines.forEach((line, index) => {
+                line.style.opacity = '0';
+                line.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    line.style.transition = 'all 0.8s ease';
+                    line.style.opacity = '1';
+                    line.style.transform = 'translateY(0)';
+                }, index * 300);
+            });
+        }
+
+        // 页面加载完成后执行
+        window.addEventListener('load', function() {
+            createRain();
+            
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                animatePoemLines();
+            }, 1500);
+        });
+
+        // 添加交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const poemLines = document.querySelectorAll('.poem-line');
+            
+            poemLines.forEach((line, index) => {
+                line.addEventListener('click', function() {
+                    this.style.background = 'rgba(135, 206, 235, 0.2)';
+                    this.style.transform = 'translateX(20px) scale(1.05)';
+                    setTimeout(() => {
+                        this.style.background = 'rgba(255, 255, 255, 0.05)';
+                        this.style.transform = 'translateX(15px)';
+                    }, 1000);
+                });
+                
+                // 鼠标悬停效果
+                line.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0 20px rgba(135, 206, 235, 0.5)';
+                });
+                
+                line.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

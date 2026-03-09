@@ -13,339 +13,129 @@
 
         body {
             font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #f5f5dc 0%, #e6e6fa 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow-x: hidden;
-            color: #fff;
-            padding: 10px;
-        }
-
-        /* 雨滴动画 */
-        .rain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .raindrop {
-            position: absolute;
-            width: 2px;
-            height: 100px;
-            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.6));
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(-100px); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(100vh); opacity: 0; }
-        }
-
-        /* 云朵装饰 */
-        .cloud {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50px;
-            animation: float 20s ease-in-out infinite;
-            z-index: 1;
-        }
-
-        .cloud:nth-child(1) {
-            width: 80px;
-            height: 30px;
-            top: 15%;
-            left: 5%;
-            animation-delay: 0s;
-        }
-
-        .cloud:nth-child(2) {
-            width: 60px;
-            height: 25px;
-            top: 35%;
-            right: 10%;
-            animation-delay: 5s;
-        }
-
-        .cloud:nth-child(3) {
-            width: 90px;
-            height: 35px;
-            top: 55%;
-            left: 15%;
-            animation-delay: 10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateX(0px); }
-            50% { transform: translateX(20px); }
+            padding: 20px;
+            color: #333;
         }
 
         .container {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            padding: 20px;
-            max-width: 100%;
+            padding: 30px;
+            max-width: 600px;
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 2px solid rgba(135, 206, 235, 0.3);
-            position: relative;
-            z-index: 2;
         }
 
         .title {
             text-align: center;
-            font-size: 1.8em;
-            margin-bottom: 25px;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            color: #2c5aa0;
             font-weight: bold;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-            background: linear-gradient(45deg, #fff, #87ceeb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .poem-container {
-            background: linear-gradient(135deg, rgba(30, 30, 60, 0.9) 0%, rgba(20, 20, 40, 0.9) 100%);
+            background: linear-gradient(135deg, #f8f8ff 0%, #f0f8ff 100%);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 2px solid rgba(135, 206, 235, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .poem-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(135, 206, 235, 0.1) 0%, transparent 70%);
-            animation: pulse 6s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 0.8; }
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(135, 206, 235, 0.4);
         }
 
         .poem {
             text-align: center;
-            font-size: 1.4em;
+            font-size: 1.6em;
             line-height: 2.2;
-            position: relative;
-            z-index: 1;
         }
 
         .poem-line {
-            margin: 12px 0;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.08);
+            margin: 15px 0;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.7);
             border-radius: 8px;
-            border-left: 3px solid #87ceeb;
+            border-left: 4px solid #87ceeb;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            word-break: break-all;
-        }
-
-        .poem-line::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(135, 206, 235, 0.2), transparent);
-            transition: left 0.5s ease;
         }
 
         .poem-line:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(135, 206, 235, 0.2);
             transform: translateX(8px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .poem-line:hover::before {
-            left: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .author {
             text-align: center;
-            font-size: 1.1em;
-            color: #87ceeb;
-            margin-top: 15px;
+            font-size: 1.2em;
+            color: #4682b4;
+            margin-top: 20px;
             font-style: italic;
-            text-shadow: 0 0 8px rgba(135, 206, 235, 0.5);
         }
 
         .description {
             text-align: center;
-            color: #b0c4de;
-            font-size: 1em;
+            color: #555;
+            font-size: 1.1em;
             line-height: 1.6;
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(30, 30, 60, 0.7);
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(240, 248, 255, 0.8);
             border-radius: 10px;
-            border: 2px solid rgba(135, 206, 235, 0.2);
-        }
-
-        /* 花朵装饰 */
-        .flower {
-            position: fixed;
-            width: 12px;
-            height: 12px;
-            background: #ffb3d9;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: sway 4s ease-in-out infinite;
-            z-index: 1;
-        }
-
-        .flower:nth-child(1) { top: 8%; right: 12%; animation-delay: 0s; }
-        .flower:nth-child(2) { bottom: 15%; left: 8%; animation-delay: 1s; background: #ffcccb; }
-        .flower:nth-child(3) { top: 25%; left: 3%; animation-delay: 2s; background: #98fb98; }
-        .flower:nth-child(4) { bottom: 30%; right: 5%; animation-delay: 3s; }
-
-        @keyframes sway {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            25% { transform: translateY(-8px) rotate(4deg); }
-            75% { transform: translateY(-4px) rotate(-4deg); }
-        }
-
-        /* 星星装饰 */
-        .star {
-            position: fixed;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s ease-in-out infinite;
-            z-index: 1;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
+            border: 1px solid rgba(135, 206, 235, 0.3);
         }
 
         /* 响应式设计 */
-        @media (min-width: 768px) {
+        @media (max-width: 768px) {
             .container {
-                padding: 30px;
-                max-width: 600px;
+                padding: 20px;
+                margin: 10px;
             }
             
             .title {
-                font-size: 2.2em;
+                font-size: 1.8em;
             }
             
             .poem {
+                font-size: 1.4em;
+            }
+            
+            .poem-line {
+                font-size: 1.2em;
+                padding: 10px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .title {
                 font-size: 1.6em;
             }
             
-            .poem-line {
-                font-size: 1.3em;
-                padding: 12px 18px;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .container {
-                max-width: 700px;
-                padding: 40px;
-            }
-            
-            .title {
-                font-size: 2.8em;
-            }
-            
             .poem {
-                font-size: 2.2em;
+                font-size: 1.2em;
             }
             
             .poem-line {
-                font-size: 1.8em;
-                padding: 15px 20px;
+                font-size: 1em;
+                padding: 8px 12px;
             }
-        }
-
-        /* 加载动画 */
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1a1a2e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.5s ease;
-        }
-
-        .loading.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-text {
-            font-size: 1.3em;
-            color: #87ceeb;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        /* 优化移动端触摸 */
-        @media (hover: none) {
-            .poem-line:hover {
-                background: rgba(255, 255, 255, 0.08);
-                transform: none;
+            
+            .description {
+                font-size: 0.95em;
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 加载动画 -->
-    <div class="loading" id="loading">
-        <div class="loading-text">春夜喜雨...</div>
-    </div>
-
-    <!-- 雨滴效果 -->
-    <div class="rain" id="rain"></div>
-
-    <!-- 云朵装饰 -->
-    <div class="cloud"></div>
-    <div class="cloud"></div>
-    <div class="cloud"></div>
-
-    <!-- 花朵装饰 -->
-    <div class="flower"></div>
-    <div class="flower"></div>
-    <div class="flower"></div>
-    <div class="flower"></div>
-
-    <!-- 星星装饰 -->
-    <div class="star" style="top: 12%; left: 15%;"></div>
-    <div class="star" style="top: 20%; right: 25%;"></div>
-    <div class="star" style="bottom: 25%; left: 35%;"></div>
-    <div class="star" style="top: 35%; right: 18%;"></div>
-    <div class="star" style="bottom: 18%; right: 45%;"></div>
-
     <div class="container">
         <h1 class="title">🌧️ 春夜喜雨 🌧️</h1>
         
@@ -369,81 +159,21 @@
     </div>
 
     <script>
-        // 创建雨滴效果
-        function createRain() {
-            const rainContainer = document.getElementById('rain');
-            const numberOfDrops = 30; // 减少雨滴数量以提高性能
-
-            for (let i = 0; i < numberOfDrops; i++) {
-                const drop = document.createElement('div');
-                drop.className = 'raindrop';
-                drop.style.left = Math.random() * 100 + '%';
-                drop.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                drop.style.animationDelay = Math.random() * 2 + 's';
-                rainContainer.appendChild(drop);
-            }
-        }
-
-        // 诗句渐入动画
-        function animatePoemLines() {
-            const lines = document.querySelectorAll('.poem-line');
-            lines.forEach((line, index) => {
-                line.style.opacity = '0';
-                line.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    line.style.transition = 'all 0.6s ease';
-                    line.style.opacity = '1';
-                    line.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
-        }
-
-        // 页面加载完成后执行
-        window.addEventListener('load', function() {
-            createRain();
-            
-            setTimeout(() => {
-                document.getElementById('loading').classList.add('hidden');
-                animatePoemLines();
-            }, 1000);
-        });
-
-        // 添加交互效果
+        // 诗句点击效果
         document.addEventListener('DOMContentLoaded', function() {
             const poemLines = document.querySelectorAll('.poem-line');
             
             poemLines.forEach((line, index) => {
                 line.addEventListener('click', function() {
-                    this.style.background = 'rgba(135, 206, 235, 0.2)';
-                    this.style.transform = 'translateX(10px) scale(1.02)';
+                    this.style.background = 'rgba(135, 206, 235, 0.3)';
+                    this.style.transform = 'translateX(12px) scale(1.02)';
                     setTimeout(() => {
-                        this.style.background = 'rgba(255, 255, 255, 0.08)';
+                        this.style.background = 'rgba(255, 255, 255, 0.7)';
                         this.style.transform = 'translateX(8px)';
-                    }, 800);
+                    }, 600);
                 });
-                
-                // 移动端触摸优化
-                if ('ontouchstart' in window) {
-                    line.addEventListener('touchstart', function() {
-                        this.style.background = 'rgba(135, 206, 235, 0.2)';
-                    });
-                    
-                    line.addEventListener('touchend', function() {
-                        this.style.background = 'rgba(255, 255, 255, 0.08)';
-                    });
-                }
             });
         });
-
-        // 防止移动端双击缩放
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
     </script>
 </body>
 </html>

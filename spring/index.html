@@ -19,19 +19,21 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
             color: #fff;
+            padding: 10px;
         }
 
         /* 雨滴动画 */
         .rain {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
             overflow: hidden;
+            z-index: 1;
         }
 
         .raindrop {
@@ -51,60 +53,63 @@
 
         /* 云朵装饰 */
         .cloud {
-            position: absolute;
+            position: fixed;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50px;
             animation: float 20s ease-in-out infinite;
+            z-index: 1;
         }
 
         .cloud:nth-child(1) {
-            width: 100px;
-            height: 40px;
-            top: 20%;
-            left: 10%;
+            width: 80px;
+            height: 30px;
+            top: 15%;
+            left: 5%;
             animation-delay: 0s;
         }
 
         .cloud:nth-child(2) {
-            width: 80px;
-            height: 35px;
-            top: 40%;
-            right: 15%;
+            width: 60px;
+            height: 25px;
+            top: 35%;
+            right: 10%;
             animation-delay: 5s;
         }
 
         .cloud:nth-child(3) {
-            width: 120px;
-            height: 45px;
-            top: 60%;
-            left: 20%;
+            width: 90px;
+            height: 35px;
+            top: 55%;
+            left: 15%;
             animation-delay: 10s;
         }
 
         @keyframes float {
             0%, 100% { transform: translateX(0px); }
-            50% { transform: translateX(30px); }
+            50% { transform: translateX(20px); }
         }
 
         .container {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            padding: 50px;
-            max-width: 700px;
-            width: 90%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 100%;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(135, 206, 235, 0.3);
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         .title {
             text-align: center;
-            font-size: 2.8em;
-            margin-bottom: 40px;
+            font-size: 1.8em;
+            margin-bottom: 25px;
             font-weight: bold;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
             background: linear-gradient(45deg, #fff, #87ceeb);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -112,10 +117,10 @@
         }
 
         .poem-container {
-            background: linear-gradient(135deg, rgba(30, 30, 60, 0.8) 0%, rgba(20, 20, 40, 0.8) 100%);
-            border-radius: 15px;
-            padding: 40px;
-            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(30, 30, 60, 0.9) 0%, rgba(20, 20, 40, 0.9) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
             border: 2px solid rgba(135, 206, 235, 0.3);
             position: relative;
             overflow: hidden;
@@ -139,21 +144,22 @@
 
         .poem {
             text-align: center;
-            font-size: 2.2em;
-            line-height: 2.5;
+            font-size: 1.4em;
+            line-height: 2.2;
             position: relative;
             z-index: 1;
         }
 
         .poem-line {
-            margin: 20px 0;
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            border-left: 4px solid #87ceeb;
+            margin: 12px 0;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid #87ceeb;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            word-break: break-all;
         }
 
         .poem-line::before {
@@ -168,9 +174,9 @@
         }
 
         .poem-line:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(15px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(8px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .poem-line:hover::before {
@@ -179,55 +185,57 @@
 
         .author {
             text-align: center;
-            font-size: 1.3em;
+            font-size: 1.1em;
             color: #87ceeb;
-            margin-top: 25px;
+            margin-top: 15px;
             font-style: italic;
-            text-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+            text-shadow: 0 0 8px rgba(135, 206, 235, 0.5);
         }
 
         .description {
             text-align: center;
             color: #b0c4de;
-            font-size: 1.2em;
-            line-height: 1.8;
-            margin-top: 30px;
-            padding: 25px;
-            background: rgba(30, 30, 60, 0.6);
-            border-radius: 15px;
+            font-size: 1em;
+            line-height: 1.6;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 10px;
             border: 2px solid rgba(135, 206, 235, 0.2);
         }
 
         /* 花朵装饰 */
         .flower {
-            position: absolute;
-            width: 15px;
-            height: 15px;
+            position: fixed;
+            width: 12px;
+            height: 12px;
             background: #ffb3d9;
             border-radius: 50%;
-            opacity: 0.6;
+            opacity: 0.5;
             animation: sway 4s ease-in-out infinite;
+            z-index: 1;
         }
 
-        .flower:nth-child(1) { top: 10%; right: 15%; animation-delay: 0s; }
-        .flower:nth-child(2) { bottom: 20%; left: 10%; animation-delay: 1s; background: #ffcccb; }
-        .flower:nth-child(3) { top: 30%; left: 5%; animation-delay: 2s; background: #98fb98; }
-        .flower:nth-child(4) { bottom: 40%; right: 8%; animation-delay: 3s; }
+        .flower:nth-child(1) { top: 8%; right: 12%; animation-delay: 0s; }
+        .flower:nth-child(2) { bottom: 15%; left: 8%; animation-delay: 1s; background: #ffcccb; }
+        .flower:nth-child(3) { top: 25%; left: 3%; animation-delay: 2s; background: #98fb98; }
+        .flower:nth-child(4) { bottom: 30%; right: 5%; animation-delay: 3s; }
 
         @keyframes sway {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
-            25% { transform: translateY(-10px) rotate(5deg); }
-            75% { transform: translateY(-5px) rotate(-5deg); }
+            25% { transform: translateY(-8px) rotate(4deg); }
+            75% { transform: translateY(-4px) rotate(-4deg); }
         }
 
         /* 星星装饰 */
         .star {
-            position: absolute;
-            width: 3px;
-            height: 3px;
+            position: fixed;
+            width: 2px;
+            height: 2px;
             background: white;
             border-radius: 50%;
             animation: twinkle 3s ease-in-out infinite;
+            z-index: 1;
         }
 
         @keyframes twinkle {
@@ -236,10 +244,10 @@
         }
 
         /* 响应式设计 */
-        @media (max-width: 768px) {
+        @media (min-width: 768px) {
             .container {
                 padding: 30px;
-                margin: 20px;
+                max-width: 600px;
             }
             
             .title {
@@ -247,12 +255,32 @@
             }
             
             .poem {
-                font-size: 1.8em;
+                font-size: 1.6em;
             }
             
             .poem-line {
-                font-size: 1.5em;
-                padding: 12px 15px;
+                font-size: 1.3em;
+                padding: 12px 18px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 700px;
+                padding: 40px;
+            }
+            
+            .title {
+                font-size: 2.8em;
+            }
+            
+            .poem {
+                font-size: 2.2em;
+            }
+            
+            .poem-line {
+                font-size: 1.8em;
+                padding: 15px 20px;
             }
         }
 
@@ -277,9 +305,17 @@
         }
 
         .loading-text {
-            font-size: 1.5em;
+            font-size: 1.3em;
             color: #87ceeb;
             animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* 优化移动端触摸 */
+        @media (hover: none) {
+            .poem-line:hover {
+                background: rgba(255, 255, 255, 0.08);
+                transform: none;
+            }
         }
     </style>
 </head>
@@ -304,11 +340,11 @@
     <div class="flower"></div>
 
     <!-- 星星装饰 -->
-    <div class="star" style="top: 15%; left: 20%;"></div>
-    <div class="star" style="top: 25%; right: 30%;"></div>
-    <div class="star" style="bottom: 30%; left: 40%;"></div>
-    <div class="star" style="top: 40%; right: 20%;"></div>
-    <div class="star" style="bottom: 20%; right: 50%;"></div>
+    <div class="star" style="top: 12%; left: 15%;"></div>
+    <div class="star" style="top: 20%; right: 25%;"></div>
+    <div class="star" style="bottom: 25%; left: 35%;"></div>
+    <div class="star" style="top: 35%; right: 18%;"></div>
+    <div class="star" style="bottom: 18%; right: 45%;"></div>
 
     <div class="container">
         <h1 class="title">🌧️ 春夜喜雨 🌧️</h1>
@@ -336,7 +372,7 @@
         // 创建雨滴效果
         function createRain() {
             const rainContainer = document.getElementById('rain');
-            const numberOfDrops = 50;
+            const numberOfDrops = 30; // 减少雨滴数量以提高性能
 
             for (let i = 0; i < numberOfDrops; i++) {
                 const drop = document.createElement('div');
@@ -353,12 +389,12 @@
             const lines = document.querySelectorAll('.poem-line');
             lines.forEach((line, index) => {
                 line.style.opacity = '0';
-                line.style.transform = 'translateY(30px)';
+                line.style.transform = 'translateY(20px)';
                 setTimeout(() => {
-                    line.style.transition = 'all 0.8s ease';
+                    line.style.transition = 'all 0.6s ease';
                     line.style.opacity = '1';
                     line.style.transform = 'translateY(0)';
-                }, index * 300);
+                }, index * 200);
             });
         }
 
@@ -369,7 +405,7 @@
             setTimeout(() => {
                 document.getElementById('loading').classList.add('hidden');
                 animatePoemLines();
-            }, 1500);
+            }, 1000);
         });
 
         // 添加交互效果
@@ -379,23 +415,35 @@
             poemLines.forEach((line, index) => {
                 line.addEventListener('click', function() {
                     this.style.background = 'rgba(135, 206, 235, 0.2)';
-                    this.style.transform = 'translateX(20px) scale(1.05)';
+                    this.style.transform = 'translateX(10px) scale(1.02)';
                     setTimeout(() => {
-                        this.style.background = 'rgba(255, 255, 255, 0.05)';
-                        this.style.transform = 'translateX(15px)';
-                    }, 1000);
+                        this.style.background = 'rgba(255, 255, 255, 0.08)';
+                        this.style.transform = 'translateX(8px)';
+                    }, 800);
                 });
                 
-                // 鼠标悬停效果
-                line.addEventListener('mouseenter', function() {
-                    this.style.boxShadow = '0 0 20px rgba(135, 206, 235, 0.5)';
-                });
-                
-                line.addEventListener('mouseleave', function() {
-                    this.style.boxShadow = 'none';
-                });
+                // 移动端触摸优化
+                if ('ontouchstart' in window) {
+                    line.addEventListener('touchstart', function() {
+                        this.style.background = 'rgba(135, 206, 235, 0.2)';
+                    });
+                    
+                    line.addEventListener('touchend', function() {
+                        this.style.background = 'rgba(255, 255, 255, 0.08)';
+                    });
+                }
             });
         });
+
+        // 防止移动端双击缩放
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>成语接龙 · 人机对战 | 智趣雅集</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a4d35 0%, #0e2e1e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', '华文楷书', 'Microsoft YaHei', 'PingFang SC', '楷体', 'KaiTi', serif;
+            margin: 0;
+            padding: 24px;
+        }
+
+        .game-board {
+            max-width: 1100px;
+            width: 100%;
+            background: #fef5e6;
+            border-radius: 64px 64px 56px 56px;
+            box-shadow: 0 30px 45px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 250, 220, 0.9);
+            overflow: hidden;
+        }
+
+        .game-header {
+            background: linear-gradient(120deg, #c4823a, #e9bc7a);
+            padding: 20px 28px;
+            text-align: center;
+            border-bottom: 4px solid #aa6f2c;
+        }
+
+        .game-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: 4px;
+            color: #2c2418;
+            text-shadow: 2px 2px 0 #ffdfaa;
+        }
+
+        .game-header p {
+            margin: 6px 0 0;
+            color: #382813;
+            font-weight: 500;
+        }
+
+        .core-area {
+            padding: 28px 30px 20px;
+        }
+
+        .chain-area {
+            background: #f2e5cf;
+            border-radius: 48px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: inset 0 1px 4px rgba(98, 58, 18, 0.1), 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .chain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            color: #a45d24;
+            font-weight: bold;
+        }
+
+        .chain-badge {
+            background: #c6863e;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+        }
+
+        .chain-words {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .chain-word {
+            background: #fffaf0;
+            padding: 8px 20px;
+            border-radius: 60px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #daa55a;
+            font-family: monospace;
+        }
+
+        .chain-arrow {
+            font-size: 1.6rem;
+            color: #bc874a;
+        }
+
+        .turn-area {
+            background: #f4e8d6;
+            border-radius: 48px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+        }
+
+        .current-rule {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .tail-char {
+            background: #dba55c;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            width: 90px;
+            height: 90px;
+            line-height: 90px;
+            text-align: center;
+            border-radius: 60px;
+            box-shadow: inset 0 -2px 0 #784e1e, 0 4px 8px rgba(0,0,0,0.2);
+            font-family: monospace;
+        }
+
+        .turn-label {
+            font-weight: bold;
+            background: #e2cba8;
+            padding: 6px 18px;
+            border-radius: 32px;
+            color: #4f2f12;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0 12px;
+        }
+
+        .input-group input {
+            flex: 3;
+            min-width: 180px;
+            padding: 14px 20px;
+            font-size: 1.2rem;
+            border: none;
+            background: #fffaf2;
+            border-radius: 48px;
+            font-family: monospace;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: inset 0 1px 3px #b58f54, 0 1px 0 #fff;
+            border: 1px solid #efd6b5;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #c28137;
+            background: #ffffff;
+        }
+
+        button {
+            background: #c2843c;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: #a5682a;
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: #8b623f;
+        }
+
+        .btn-hint {
+            background: #b8894f;
+        }
+
+        .btn-reset {
+            background: #6b4c2c;
+        }
+
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+
+        .hint-area {
+            background: #e9dcc8;
+            border-radius: 40px;
+            padding: 12px 20px;
+            margin-top: 20px;
+            transition: 0.2s;
+            display: none;  /* 默认隐藏，只有点击提示按钮才显示 */
+        }
+
+        .hint-title {
+            font-weight: bold;
+            color: #9c601f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .hint-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-height: 130px;
+            overflow-y: auto;
+            padding: 4px 2px;
+        }
+
+        .hint-chip {
+            background: #fff6e6;
+            padding: 6px 16px;
+            border-radius: 32px;
+            font-size: 0.85rem;
+            border-left: 3px solid #cb8a42;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: monospace;
+        }
+
+        .hint-chip:hover {
+            background: #ffe1b3;
+            transform: scale(1.02);
+        }
+
+        .status {
+            background: #e0cfb0;
+            border-radius: 28px;
+            padding: 10px 18px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #3d2a16;
+        }
+
+        footer {
+            background: #ddc29b;
+            text-align: center;
+            padding: 14px;
+            font-size: 0.7rem;
+            color: #3f2d1a;
+        }
+
+        @media (max-width: 650px) {
+            .chain-word {
+                font-size: 1rem;
+                padding: 4px 12px;
+            }
+            .tail-char {
+                width: 70px;
+                height: 70px;
+                line-height: 70px;
+                font-size: 1.8rem;
+            }
+            .core-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-board">
+    <div class="game-header">
+        <h1>🐉 成语接龙 · 人机对战 🎋</h1>
+        <p>你接一句 · 电脑续一句 | 点击提示获得参考</p>
+    </div>
+
+    <div class="core-area">
+        <!-- 接龙展示区 -->
+        <div class="chain-area">
+            <div class="chain-header">
+                <span>📜 接龙长卷</span>
+                <span class="chain-badge">⚡ 人机轮流</span>
+            </div>
+            <div class="chain-words" id="chainList">
+                <span class="chain-word" style="background:#e2cfac;">✨ 等待开局</span>
+            </div>
+        </div>
+
+        <!-- 回合控制区 -->
+        <div class="turn-area">
+            <div class="current-rule">
+                <div>
+                    <div class="turn-label">🎯 当前需要接龙的尾字</div>
+                    <div class="tail-char" id="tailCharDisplay">—</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: #8b5a2b;">👥 回合状态</div>
+                    <div id="turnStatus" style="font-weight: bold; background: #e9cfaa; padding: 6px 16px; border-radius: 36px;">⚡ 请开始游戏</div>
+                </div>
+            </div>
+
+            <!-- 玩家输入区 -->
+            <div class="input-group">
+                <input type="text" id="playerInput" placeholder="输入成语 (首字必须匹配当前尾字)" autocomplete="off">
+                <button id="submitBtn">🎤 接龙</button>
+                <button id="hintBtn" class="btn-hint">💡 提示 (最多5个)</button>
+                <button id="resetGameBtn" class="btn-reset">🔄 新的一局</button>
+            </div>
+            <div class="action-group">
+                <button id="randomStartBtn" class="btn-secondary">🎲 随机开局</button>
+                <button id="customStartBtn" class="btn-secondary">✍️ 用输入开局</button>
+            </div>
+
+            <!-- 提示区 (动态显示可接列表，最多5个常用成语) 默认隐藏，点击提示按钮才显示 -->
+            <div class="hint-area" id="hintArea">
+                <div class="hint-title">📖 可接成语参考 (点击直接使用)</div>
+                <div class="hint-list" id="hintList"></div>
+            </div>
+
+            <div class="status" id="statusMsg">
+                🏮 点击「随机开局」或输入起始成语开始对局。电脑会自动接龙，轮到你了！
+            </div>
+        </div>
+    </div>
+    <footer>
+        🎋 词库规则：data目录下以汉字命名的txt文件，每行一个成语(首字匹配文件名)。<br>
+        💡 提示功能：点击“提示”按钮后显示最多5个常用成语，点击成语可直接填入接龙。
+    </footer>
+</div>
+
+<script>
+    // ---------- 成语接龙核心算法 (封装) ----------
+    const DATA_BASE = './data/';
+    // 成语缓存 { 首字: 成语数组 }
+    const idiomCache = new Map();
+    // 游戏状态
+    let currentChain = [];          // 已接成语顺序
+    let currentTail = '';           // 需要接的尾字 (也是下一手的首字)
+    let isPlayerTurn = true;        // true: 玩家回合, false: 电脑回合
+    let gameActive = false;          // 是否对局中
+    let pendingComputer = false;     // 防止电脑异步连点
+    let currentHintList = [];        // 当前提示列表 (存储成语)
+
+    // DOM 元素
+    const chainListEl = document.getElementById('chainList');
+    const tailCharDisplay = document.getElementById('tailCharDisplay');
+    const turnStatusEl = document.getElementById('turnStatus');
+    const playerInput = document.getElementById('playerInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const hintBtn = document.getElementById('hintBtn');
+    const resetBtn = document.getElementById('resetGameBtn');
+    const randomStartBtn = document.getElementById('randomStartBtn');
+    const customStartBtn = document.getElementById('customStartBtn');
+    const statusMsgEl = document.getElementById('statusMsg');
+    const hintArea = document.getElementById('hintArea');
+    const hintListEl = document.getElementById('hintList');
+
+    // ---------- 辅助函数 ----------
+    function setStatus(msg, isError = false) {
+        statusMsgEl.innerHTML = isError ? `⚠️ ${msg}` : `✨ ${msg}`;
+        if (isError) console.warn(msg);
+    }
+
+    // 获取成语首字 (取第一个汉字)
+    function getFirstChar(word) {
+        if (!word || typeof word !== 'string') return '';
+        const match = word.trim().match(/[\u4e00-\u9fa5]/);
+        return match ? match[0] : '';
+    }
+
+    // 获取成语末字
+    function getLastChar(idiom) {
+        if (!idiom) return '';
+        const matches = idiom.trim().match(/[\u4e00-\u9fa5]/g);
+        return matches ? matches[matches.length - 1] : '';
+    }
+
+    // 核心: 根据首字加载成语列表 (异步 + 缓存)
+    async function loadIdiomListByFirstChar(firstChar) {
+        if (!firstChar || !/[\u4e00-\u9fa5]/.test(firstChar)) return [];
+        // 命中缓存数组
+        if (idiomCache.has(firstChar)) {
+            const cached = idiomCache.get(firstChar);
+            if (Array.isArray(cached)) return cached;
+            if (cached instanceof Promise) return await cached;
+        }
+        const url = `${DATA_BASE}${encodeURIComponent(firstChar)}.txt`;
+        const loadPromise = (async () => {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) return [];
+                const text = await response.text();
+                const lines = text.split(/\r?\n/);
+                const idioms = lines
+                    .map(l => l.trim())
+                    .filter(l => l.length >= 2 && /^[\u4e00-\u9fa5]{2,}$/.test(l));
+                const unique = [...new Set(idioms)];
+                return unique;
+            } catch (err) {
+                console.error(`加载 ${firstChar}.txt 失败:`, err);
+                return [];
+            }
+        })();
+        idiomCache.set(firstChar, loadPromise);
+        const result = await loadPromise;
+        idiomCache.set(firstChar, result);
+        return result;
+    }
+
+    // 获取可接成语列表 (排除已使用的成语)
+    async function getAvailableIdioms(firstChar, excludeSet) {
+        const all = await loadIdiomListByFirstChar(firstChar);
+        if (!all.length) return [];
+        return all.filter(idi => !excludeSet.has(idi));
+    }
+
+    // 获取最多N个常用的可接成语 (优先返回常见的，按原库顺序取前N个)
+    async function getTopNHintIdioms(firstChar, excludeSet, topN = 5) {
+        const available = await getAvailableIdioms(firstChar, excludeSet);
+        if (available.length === 0) return [];
+        // 直接取前 topN 个（保持原始顺序，常见成语通常排在文件前面）
+        return available.slice(0, topN);
+    }
+
+    // 随机获取一个可接成语 (用于电脑)
+    async function getRandomValidIdiom(firstChar, excludeSet) {
+        const available = await getAvailableIdioms(firstChar, excludeSet);
+        if (available.length === 0) return null;
+        const rand = Math.floor(Math.random() * available.length);
+        return available[rand];
+    }
+
+    // 更新界面 (接龙链条 + 尾字)
+    function updateUI() {
+        if (!currentChain.length) {
+            chainListEl.innerHTML = `<span class="chain-word" style="background:#e2cfac;">📖 暂无成语，请开局</span>`;
+            tailCharDisplay.textContent = '—';
+            return;
+        }
+        let html = '';
+        currentChain.forEach((item, idx) => {
+            html += `<span class="chain-word">${item}</span>`;
+            if (idx < currentChain.length - 1) html += `<span class="chain-arrow">➡</span>`;
+        });
+        chainListEl.innerHTML = html;
+        tailCharDisplay.textContent = currentTail || '?';
+        if (!gameActive) {
+            turnStatusEl.innerHTML = '⏸️ 游戏未开始';
+        } else {
+            turnStatusEl.innerHTML = isPlayerTurn ? '🎭 轮到你了 · 请接龙' : '🤖 电脑思考中 ...';
+        }
+    }
+
+    // 刷新提示区内容（但不自动显示，仅更新数据）
+    async function updateHintContent() {
+        if (!gameActive || !currentTail) {
+            currentHintList = [];
+            return;
+        }
+        const excludeSet = new Set(currentChain);
+        const topHints = await getTopNHintIdioms(currentTail, excludeSet, 5);
+        currentHintList = topHints;
+        
+        if (topHints.length === 0) {
+            hintListEl.innerHTML = '<span style="color:#a1622b;">⚠️ 暂无可用成语接龙，请尝试重置或使用其他开局</span>';
+        } else {
+            hintListEl.innerHTML = topHints.map(idi => `<div class="hint-chip" data-idiom="${idi}">${idi}</div>`).join('');
+        }
+        
+        // 重新绑定点击事件
+        document.querySelectorAll('.hint-chip').forEach(el => {
+            el.removeEventListener('click', hintClickHandler);
+            el.addEventListener('click', hintClickHandler);
+        });
+    }
+
+    // 显示提示面板（点击提示按钮时调用）
+    async function showHintPanel() {
+        if (!gameActive) {
+            setStatus('游戏未开始，请先开局', true);
+            return;
+        }
+        if (!isPlayerTurn) {
+            setStatus('现在是电脑回合，请稍后再提示', true);
+            return;
+        }
+        // 更新提示内容
+        await updateHintContent();
+        // 显示面板
+        hintArea.style.display = 'block';
+        const hintCount = currentHintList.length;
+        if (hintCount > 0) {
+            setStatus(`💡 已为您找到 ${hintCount} 个可接成语（最多显示5个），点击即可使用`, false);
+        } else {
+            setStatus(`⚠️ 没有找到以「${currentTail}」开头的可用成语，请尝试重置或认输`, true);
+        }
+    }
+
+    // 隐藏提示面板
+    function hideHintPanel() {
+        hintArea.style.display = 'none';
+    }
+
+    function hintClickHandler(e) {
+        const idiom = e.currentTarget.getAttribute('data-idiom');
+        if (idiom && isPlayerTurn && gameActive) {
+            playerInput.value = idiom;
+            setStatus(`💡 已填入提示成语：「${idiom}”，点击“接龙”即可使用`, false);
+            playerInput.focus();
+            // 使用后自动隐藏提示面板，保持界面整洁
+            hideHintPanel();
+        }
+    }
+
+    // 通用接龙添加方法 (追加成语并更新状态)
+    async function appendIdiom(idiom, isComputer = false) {
+        if (!gameActive) return false;
+        const first = getFirstChar(idiom);
+        if (first !== currentTail) {
+            if (!isComputer) setStatus(`❌ 接龙失败：「${idiom}」首字应为“${currentTail}”`, true);
+            return false;
+        }
+        if (currentChain.includes(idiom)) {
+            if (!isComputer) setStatus(`❌ 成语「${idiom}」已经使用过了`, true);
+            return false;
+        }
+        const lib = await loadIdiomListByFirstChar(first);
+        if (!lib.includes(idiom)) {
+            if (!isComputer) setStatus(`❌ 词库中无此成语：「${idiom}」，请使用有效成语`, true);
+            return false;
+        }
+        currentChain.push(idiom);
+        currentTail = getLastChar(idiom);
+        updateUI();
+        // 接龙后静默更新提示内容（但不自动显示）
+        await updateHintContent();
+        return true;
+    }
+
+    // 电脑自动接龙
+    async function computerMove() {
+        if (!gameActive || isPlayerTurn || pendingComputer) return;
+        pendingComputer = true;
+        setStatus('🤖 电脑正在遣词造句 ...');
+        await new Promise(r => setTimeout(r, 500));
+        try {
+            if (!gameActive || isPlayerTurn) return;
+            const excludeSet = new Set(currentChain);
+            const nextIdiom = await getRandomValidIdiom(currentTail, excludeSet);
+            if (!nextIdiom) {
+                setStatus(`🏆 电脑无法接龙「${currentTail}」开头的成语！恭喜你获胜！ 🎉`, false);
+                gameActive = false;
+                isPlayerTurn = false;
+                turnStatusEl.innerHTML = '🏆 游戏结束 · 玩家胜利';
+                updateUI();
+                hideHintPanel();
+                return;
+            }
+            const success = await appendIdiom(nextIdiom, true);
+            if (success) {
+                setStatus(`🤖 电脑接龙：「${nextIdiom}」 → 新尾字「${currentTail}」`, false);
+                isPlayerTurn = true;
+                updateUI();
+                const playerAvailable = await getAvailableIdioms(currentTail, new Set(currentChain));
+                if (playerAvailable.length === 0) {
+                    setStatus(`😭 没有以「${currentTail}」开头的可用成语，电脑获胜！`, true);
+                    gameActive = false;
+                    turnStatusEl.innerHTML = '💀 游戏结束 · 电脑胜利';
+                    updateUI();
+                    hideHintPanel();
+                    return;
+                }
+                setStatus(`🎤 轮到你了，请接「${currentTail}」开头的成语`, false);
+            } else {
+                setStatus('⚠️ 电脑接龙内部错误，请重置', true);
+                gameActive = false;
+                updateUI();
+            }
+        } catch (err) {
+            console.error(err);
+            setStatus('电脑接龙出错', true);
+        } finally {
+            pendingComputer = false;
+            if (gameActive && !isPlayerTurn) {
+                isPlayerTurn = true;
+                updateUI();
+            }
+        }
+    }
+
+    // 玩家提交接龙
+    async function handlePlayerSubmit() {
+        if (!gameActive) {
+            setStatus('请先开始新游戏 (随机开局 或 用输入开局)', true);
+            return;
+        }
+        if (!isPlayerTurn) {
+            setStatus('请等待电脑完成接龙', true);
+            return;
+        }
+        let idiom = playerInput.value.trim();
+        if (!idiom) {
+            setStatus('请输入成语', true);
+            return;
+        }
+        if (!/^[\u4e00-\u9fa5]{2,}$/.test(idiom)) {
+            setStatus('请输入正确的成语 (至少2个汉字)', true);
+            return;
+        }
+        const firstChar = getFirstChar(idiom);
+        if (firstChar !== currentTail) {
+            setStatus(`❌ 接龙失败，当前需要「${currentTail}」开头的成语`, true);
+            return;
+        }
+        const lib = await loadIdiomListByFirstChar(firstChar);
+        if (!lib.includes(idiom)) {
+            setStatus(`词库中没有「${idiom}」，请尝试其他成语`, true);
+            return;
+        }
+        if (currentChain.includes(idiom)) {
+            setStatus(`「${idiom}」已经使用过，不能重复`, true);
+            return;
+        }
+        const success = await appendIdiom(idiom, false);
+        if (!success) return;
+        playerInput.value = '';
+        setStatus(`✅ 接龙成功！「${idiom}」 → 尾字「${currentTail}」`, false);
+        isPlayerTurn = false;
+        updateUI();
+        // 玩家接龙后隐藏提示面板
+        hideHintPanel();
+        const computerAvailable = await getAvailableIdioms(currentTail, new Set(currentChain));
+        if (computerAvailable.length === 0) {
+            setStatus(`🏆 电脑无法接龙「${currentTail}」开头的成语！你赢了！ 🎉`, false);
+            gameActive = false;
+            isPlayerTurn = false;
+            turnStatusEl.innerHTML = '🏆 胜利 · 玩家智取';
+            updateUI();
+            return;
+        }
+        await computerMove();
+    }
+
+    // 重置游戏状态
+    function resetGame() {
+        gameActive = false;
+        pendingComputer = false;
+        currentChain = [];
+        currentTail = '';
+        isPlayerTurn = true;
+        playerInput.value = '';
+        updateUI();
+        hideHintPanel();           // 重置时隐藏提示面板
+        setStatus('游戏已重置，点击「随机开局」或「用输入开局」开始', false);
+        turnStatusEl.innerHTML = '⚙️ 已重置 · 请开局';
+        // 清空提示内容
+        currentHintList = [];
+        hintListEl.innerHTML = '';
+    }
+
+    // 根据用户输入的成语或首字开局
+    async function startGameWithInput(rawInput) {
+        resetGame();
+        const trimmed = rawInput.trim();
+        if (!trimmed) {
+            setStatus('请输入成语或汉字开局', true);
+            return false;
+        }
+        let firstIdiom = '';
+        if (trimmed.length >= 2 && /^[\u4e00-\u9fa5]{2,}$/.test(trimmed)) {
+            const fc = getFirstChar(trimmed);
+            const lib = await loadIdiomListByFirstChar(fc);
+            if (lib.includes(trimmed)) {
+                firstIdiom = trimmed;
+            } else {
+                setStatus(`词库中无「${trimmed}」，将随机取一个同首字成语`, true);
+                const randomOne = await getRandomValidIdiom(fc, new Set());
+                if (!randomOne) {
+                    setStatus(`没有以「${fc}」开头的成语，无法开局`, true);
+                    return false;
+                }
+                firstIdiom = randomOne;
+            }
+        } else {
+            const fc = getFirstChar(trimmed);
+            if (!fc) {
+                setStatus('请输入有效汉字', true);
+                return false;
+            }
+            const randomOne = await getRandomValidIdiom(fc, new Set());
+            if (!randomOne) {
+                setStatus(`没有以「${fc}」开头的成语库`, true);
+                return false;
+            }
+            firstIdiom = randomOne;
+        }
+        currentChain = [firstIdiom];
+        currentTail = getLastChar(firstIdiom);
+        gameActive = true;
+        isPlayerTurn = true;
+        updateUI();
+        // 静默更新提示内容（不显示面板）
+        await updateHintContent();
+        setStatus(`🎋 开局成功：「${firstIdiom}」 → 请接「${currentTail}」开头的成语`, false);
+        playerInput.value = '';
+        playerInput.focus();
+        return true;
+    }
+
+    // 随机开局 (常用首字)
+    async function randomStart() {
+        resetGame();
+        const commonChars = ['一', '不', '千', '万', '大', '小', '山', '水', '天', '地', '人', '风', '龙', '心', '神', '无', '有', '出', '入', '高', '上', '青', '白', '明', '如'];
+        for (let i = 0; i < commonChars.length * 2; i++) {
+            const ch = commonChars[Math.floor(Math.random() * commonChars.length)];
+            const idioms = await loadIdiomListByFirstChar(ch);
+            if (idioms.length) {
+                const randomIdiom = idioms[Math.floor(Math.random() * idioms.length)];
+                currentChain = [randomIdiom];
+                currentTail = getLastChar(randomIdiom);
+                gameActive = true;
+                isPlayerTurn = true;
+                updateUI();
+                await updateHintContent();
+                setStatus(`🎲 随机开局：「${randomIdiom}」 → 请接「${currentTail}」`, false);
+                playerInput.value = '';
+                playerInput.focus();
+                return;
+            }
+        }
+        setStatus('未找到可用词库，请检查data目录下是否有“一.txt”等文件', true);
+    }
+
+    // 提示按钮: 显示提示面板
+    async function onHint() {
+        await showHintPanel();
+    }
+
+    // 事件绑定
+    submitBtn.addEventListener('click', () => handlePlayerSubmit());
+    hintBtn.addEventListener('click', onHint);
+    resetBtn.addEventListener('click', () => resetGame());
+    randomStartBtn.addEventListener('click', async () => { await randomStart(); });
+    customStartBtn.addEventListener('click', async () => {
+        const raw = playerInput.value.trim();
+        if (!raw) {
+            setStatus('请在输入框中输入成语或汉字作为开局', true);
+            return;
+        }
+        await startGameWithInput(raw);
+    });
+
+    // 回车快捷提交
+    playerInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handlePlayerSubmit();
+    });
+
+    // 初始化状态
+    resetGame();
+    window.addEventListener('load', () => {
+        setStatus('🏮 欢迎！点击“随机开局”或“用输入开局”开始对战。电脑会自动接龙！', false);
+    });
+</script>
+</body>
+</html>

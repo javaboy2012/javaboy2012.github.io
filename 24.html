@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24点计算器 · 随机/手动输入</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(145deg, #f6f9fc 0%, #e6f0f5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+        }
+        .card {
+            max-width: 820px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 48px;
+            padding: 32px 28px 40px;
+            box-shadow: 0 20px 40px rgba(0, 20, 30, 0.2), 0 8px 16px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: 0.25s ease;
+        }
+        h1 {
+            font-weight: 600;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            color: #1a2e3b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 4px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(60, 100, 120, 0.15);
+            padding-bottom: 18px;
+        }
+        h1 small {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #3a5b6b;
+            background: rgba(60, 120, 160, 0.08);
+            padding: 2px 14px;
+            border-radius: 40px;
+            margin-left: 8px;
+        }
+        .numbers-panel {
+            background: #ffffffcc;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border-radius: 80px;
+            padding: 20px 16px 18px;
+            margin-bottom: 24px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02), 0 8px 18px rgba(0, 30, 40, 0.08);
+            border: 1px solid rgba(255,255,255,0.9);
+        }
+        .digit-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px 20px;
+            flex-wrap: wrap;
+        }
+        .digit-box {
+            background: #edf4f9;
+            width: 80px;
+            height: 80px;
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: #0a1e2b;
+            box-shadow: 0 4px 0 #b6cbd9, 0 8px 14px rgba(0, 20, 30, 0.1);
+            transition: 0.12s;
+            border: 1px solid #ffffff;
+            background: #f2f8fe;
+            position: relative;
+        }
+        .digit-box:nth-child(1) { background: #daeaf5; }
+        .digit-box:nth-child(2) { background: #d4e6f2; }
+        .digit-box:nth-child(3) { background: #cfe2f0; }
+        .digit-box:nth-child(4) { background: #c9deec; }
+
+        /* 手动输入框 */
+        .digit-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 2.6rem;
+            font-weight: 600;
+            color: #0a1e2b;
+            outline: none;
+            border-radius: 30px;
+            font-family: inherit;
+            caret-color: #1f4b5e;
+            padding: 0;
+            transition: 0.1s;
+        }
+        .digit-input:focus {
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 0 0 2px #1f4b5e80;
+        }
+        .digit-input::-webkit-inner-spin-button,
+        .digit-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .digit-input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px 18px;
+            margin: 18px 0 20px;
+        }
+        .btn {
+            background: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1b3b4b;
+            box-shadow: 0 4px 8px rgba(0, 20, 30, 0.06);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid #d6e3ed;
+            background: #f6faff;
+        }
+        .btn-primary {
+            background: #1f4b5e;
+            border: 1px solid #1f4b5e;
+            color: white;
+            box-shadow: 0 8px 16px rgba(20, 70, 90, 0.2);
+        }
+        .btn-primary:hover {
+            background: #143a4a;
+            transform: scale(0.97);
+            box-shadow: 0 4px 8px rgba(0, 30, 40, 0.2);
+        }
+        .btn-primary:active { transform: scale(0.94); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #b4ccdb;
+        }
+        .btn-outline:hover {
+            background: #e4eff8;
+            border-color: #7f9fb3;
+        }
+        .btn-success {
+            background: #2d6b4f;
+            border: 1px solid #2d6b4f;
+            color: white;
+            box-shadow: 0 8px 16px rgba(30, 80, 60, 0.2);
+        }
+        .btn-success:hover {
+            background: #1f5340;
+            transform: scale(0.97);
+        }
+
+        .result-area {
+            background: #f2f8fecc;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 18px 16px 14px;
+            margin: 20px 0 6px;
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0 10px 6px 10px;
+            color: #1a3b4b;
+            font-weight: 500;
+            border-bottom: 1px dashed #bed6e6;
+        }
+        .result-header span:first-child { font-weight: 600; }
+        .result-count {
+            background: #1f4b5e20;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: #134257;
+        }
+        .expr-list {
+            max-height: 270px;
+            overflow-y: auto;
+            padding: 10px 4px 4px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            scroll-behavior: smooth;
+        }
+        .expr-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .expr-list::-webkit-scrollbar-track {
+            background: #dae8f2;
+            border-radius: 10px;
+        }
+        .expr-list::-webkit-scrollbar-thumb {
+            background: #7f9fb3;
+            border-radius: 10px;
+        }
+        .expr-item {
+            background: #ffffffd9;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #053040;
+            border-left: 6px solid #4b7f9b;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: 0.05s;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+        .expr-item:before {
+            content: "▹";
+            color: #3d7b9b;
+            margin-right: 12px;
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+        .empty-state {
+            text-align: center;
+            color: #4a6b7b;
+            padding: 22px 10px;
+            font-style: italic;
+            background: #e4eff8b0;
+            border-radius: 60px;
+            margin: 4px 0;
+            font-size: 1rem;
+        }
+        .footer-note {
+            margin-top: 22px;
+            text-align: right;
+            font-size: 0.85rem;
+            color: #3b6173;
+            opacity: 0.7;
+            letter-spacing: 0.3px;
+            padding-right: 6px;
+        }
+        .input-hint {
+            font-size: 0.8rem;
+            color: #3b6173;
+            opacity: 0.6;
+            text-align: center;
+            margin-top: 6px;
+            letter-spacing: 0.2px;
+        }
+        @media (max-width: 540px) {
+            .card { padding: 20px 14px; }
+            .digit-box { width: 64px; height: 64px; font-size: 2.2rem; }
+            .digit-input { font-size: 2.2rem; }
+            .btn { padding: 10px 18px; font-size: 0.95rem; }
+            .expr-item { font-size: 1rem; padding: 8px 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        🧮 24 点
+        <small>随机 / 手动</small>
+    </h1>
+
+    <!-- 数字展示 & 手动输入 -->
+    <div class="numbers-panel">
+        <div class="digit-group" id="numberDisplay">
+            <div class="digit-box">
+                <input type="number" class="digit-input" id="input0" value="4" min="1" max="13" step="1">
+            </div>
+            <div class="digit-box">
+                <input type="number" class="digit-input" id="input1" value="7" min="1" max="13" step="1">
+            </div>
+            <div class="digit-box">
+                <input type="number" class="digit-input" id="input2" value="9" min="1" max="13" step="1">
+            </div>
+            <div class="digit-box">
+                <input type="number" class="digit-input" id="input3" value="3" min="1" max="13" step="1">
+            </div>
+        </div>
+        <div class="input-hint">点击数字可直接修改 (1~13)</div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-bar">
+        <button class="btn btn-primary" id="generateBtn">🎲 随机生成</button>
+        <button class="btn btn-success" id="applyInputBtn">✏️ 应用数字</button>
+        <button class="btn btn-outline" id="solveBtn">⚡ 计算 24</button>
+    </div>
+
+    <!-- 结果显示 -->
+    <div class="result-area">
+        <div class="result-header">
+            <span>📋 可行表达式</span>
+            <span class="result-count" id="resultCount">0 种</span>
+        </div>
+        <div class="expr-list" id="expressionList">
+            <div class="empty-state">输入数字或点击「随机生成」</div>
+        </div>
+    </div>
+    <div class="footer-note">数字 1~13 · 仅使用 + − × ÷ 和括号</div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // DOM 元素
+        const inputs = [
+            document.getElementById('input0'),
+            document.getElementById('input1'),
+            document.getElementById('input2'),
+            document.getElementById('input3')
+        ];
+        const generateBtn = document.getElementById('generateBtn');
+        const applyInputBtn = document.getElementById('applyInputBtn');
+        const solveBtn = document.getElementById('solveBtn');
+        const expressionList = document.getElementById('expressionList');
+        const resultCountSpan = document.getElementById('resultCount');
+
+        // 当前四个数字 (1-13)
+        let currentNumbers = [4, 7, 9, 3];
+
+        // ---------- 辅助函数 ----------
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 从输入框读取数字，校验并更新 currentNumbers
+        function readInputs() {
+            const nums = [];
+            let valid = true;
+            for (let i = 0; i < 4; i++) {
+                let val = parseInt(inputs[i].value, 10);
+                if (isNaN(val) || val < 1 || val > 13) {
+                    valid = false;
+                    // 置为无效但保留原值，用红色提示？
+                    nums.push(null);
+                } else {
+                    nums.push(val);
+                }
+            }
+            if (!valid) {
+                // 如果有无效输入，提示并返回 false
+                alert('请输入 1 到 13 之间的整数');
+                return false;
+            }
+            currentNumbers = nums;
+            return true;
+        }
+
+        // 将 currentNumbers 同步到输入框
+        function syncInputs(nums) {
+            for (let i = 0; i < 4; i++) {
+                inputs[i].value = nums[i] || 1;
+            }
+        }
+
+        // ---------- 核心 24 点求解器 (返回所有可行表达式字符串) ----------
+        function solve24(numbers) {
+            const resultSet = new Set();
+            const ops = ['+', '-', '*', '/'];
+
+            function permute(arr) {
+                if (arr.length <= 1) return [arr.slice()];
+                const perms = [];
+                for (let i = 0; i < arr.length; i++) {
+                    const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+                    const subPerms = permute(rest);
+                    for (const p of subPerms) {
+                        perms.push([arr[i], ...p]);
+                    }
+                }
+                return perms;
+            }
+
+            function computeExpr(a, op, b) {
+                switch (op) {
+                    case '+': return a + b;
+                    case '-': return a - b;
+                    case '*': return a * b;
+                    case '/': return (b === 0) ? NaN : a / b;
+                    default: return NaN;
+                }
+            }
+
+            function generateExprs(nums) {
+                if (nums.length === 1) {
+                    return [{ expr: String(nums[0]), value: nums[0] }];
+                }
+                const results = [];
+                const n = nums.length;
+                for (let mask = 1; mask < (1 << n) - 1; mask++) {
+                    if (!(mask & 1)) continue;
+                    const leftNums = [];
+                    const rightNums = [];
+                    for (let i = 0; i < n; i++) {
+                        if (mask & (1 << i)) leftNums.push(nums[i]);
+                        else rightNums.push(nums[i]);
+                    }
+                    if (leftNums.length === 0 || rightNums.length === 0) continue;
+                    const leftExprs = generateExprs(leftNums);
+                    const rightExprs = generateExprs(rightNums);
+                    for (const le of leftExprs) {
+                        for (const re of rightExprs) {
+                            for (const op of ops) {
+                                let value = computeExpr(le.value, op, re.value);
+                                if (!isNaN(value) && isFinite(value)) {
+                                    let exprStr = `(${le.expr} ${op} ${re.expr})`;
+                                    results.push({ expr: exprStr, value: value });
+                                }
+                            }
+                        }
+                    }
+                }
+                return results;
+            }
+
+            const numPerms = permute(numbers);
+            for (const perm of numPerms) {
+                const exprs = generateExprs(perm);
+                for (const e of exprs) {
+                    if (Math.abs(e.value - 24) < 1e-9) {
+                        let raw = e.expr;
+                        if (raw.startsWith('(') && raw.endsWith(')')) {
+                            let depth = 0;
+                            let canRemove = true;
+                            for (let i = 0; i < raw.length - 1; i++) {
+                                if (raw[i] === '(') depth++;
+                                else if (raw[i] === ')') depth--;
+                                if (depth === 0 && i < raw.length - 1) {
+                                    canRemove = false;
+                                    break;
+                                }
+                            }
+                            if (canRemove) {
+                                raw = raw.substring(1, raw.length - 1);
+                            }
+                        }
+                        resultSet.add(raw);
+                    }
+                }
+            }
+            return Array.from(resultSet);
+        }
+
+        // ---------- 刷新计算 & 显示 ----------
+        function refreshSolve() {
+            const expressions = solve24(currentNumbers);
+            if (expressions.length === 0) {
+                expressionList.innerHTML = `<div class="empty-state">😕 这组数字无解，试试重新生成</div>`;
+                resultCountSpan.textContent = '0 种';
+            } else {
+                expressions.sort((a, b) => a.length - b.length);
+                const html = expressions.map(expr => `<div class="expr-item">${expr}</div>`).join('');
+                expressionList.innerHTML = html;
+                resultCountSpan.textContent = `${expressions.length} 种`;
+            }
+        }
+
+        // ---------- 主要操作 ----------
+        // 1. 随机生成：生成随机数，更新输入框，自动计算
+        function generateAndSolve() {
+            const nums = [1, 2, 3, 4].map(() => randomInt(1, 13));
+            currentNumbers = nums;
+            syncInputs(nums);
+            refreshSolve();
+        }
+
+        // 2. 应用输入：读取输入框数字，校验后计算
+        function applyAndSolve() {
+            if (readInputs()) {
+                refreshSolve();
+            }
+        }
+
+        // 3. 仅计算 (使用当前 currentNumbers，但先同步输入框)
+        function solveCurrent() {
+            // 先尝试从输入框同步，但若输入无效则使用 currentNumbers
+            if (readInputs()) {
+                // 读取成功，已更新 currentNumbers
+            }
+            // 否则 currentNumbers 保持不变 (但 readInputs 会弹窗)
+            refreshSolve();
+        }
+
+        // ---------- 输入框事件：失去焦点时自动应用 (方便体验) ----------
+        function setupInputAutoApply() {
+            for (const inp of inputs) {
+                inp.addEventListener('change', function() {
+                    // 改变时自动应用并计算
+                    applyAndSolve();
+                });
+                // 阻止回车导致表单提交
+                inp.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyAndSolve();
+                    }
+                });
+                // 限制输入范围 (但不会阻止用户输入超出，在读取时校验)
+            }
+        }
+
+        // ---------- 初始化 ----------
+        function init() {
+            // 设置初始值 (有解示例)
+            const initNums = [8, 3, 3, 4];
+            currentNumbers = initNums;
+            syncInputs(initNums);
+            refreshSolve();
+
+            // 事件绑定
+            generateBtn.addEventListener('click', generateAndSolve);
+            applyInputBtn.addEventListener('click', applyAndSolve);
+            solveBtn.addEventListener('click', solveCurrent);
+
+            setupInputAutoApply();
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>

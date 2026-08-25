@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>文学连连看 · 精准端点</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            background: linear-gradient(145deg, #f1efe9 0%, #e2ddd0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            touch-action: manipulation;
+        }
+
+        .game-container {
+            background: #fcf9f2;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(80, 70, 50, 0.18), 0 8px 24px rgba(80, 70, 50, 0.08);
+            width: 100%;
+            max-width: 560px;
+            padding: 18px 12px 22px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(200, 180, 160, 0.3);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 2px dashed #dcd2c4;
+            margin-bottom: 10px;
+        }
+
+        .title-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .title-icon {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .title-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #4d3e2e;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #7a634a, #4d3e2e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .level-badge {
+            background: #cbb8a4;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 3px 16px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #b8a18a, #a58d78);
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.25);
+            white-space: nowrap;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0 10px 0;
+            border-bottom: 1px solid #ede6db;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .info-bar .hint {
+            background: #f2ebe0;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #6a5a4a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-bar .hint span {
+            font-size: 14px;
+        }
+
+        .progress-text {
+            font-weight: 500;
+            color: #5a4a3a;
+            background: #f2ebe0;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+
+        .game-board {
+            position: relative;
+            padding: 4px 0 10px 0;
+            min-height: 380px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1.05;
+        }
+
+        #lineCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            border-radius: 16px;
+        }
+
+        .columns {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 100%;
+            min-height: 320px;
+            gap: 40px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 20px;
+            flex: 1;
+            padding: 12px 0;
+        }
+
+        .column-left {
+            align-items: flex-end;
+            padding-right: 8px;
+        }
+
+        .column-right {
+            align-items: flex-start;
+            padding-left: 8px;
+        }
+
+        .tile {
+            background: #fdfaf5;
+            border: 2px solid #e0d5c8;
+            border-radius: 18px;
+            padding: 14px 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #3d3228;
+            width: 100%;
+            max-width: 140px;
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s ease;
+            box-shadow: 0 3px 10px rgba(140, 120, 100, 0.08);
+            cursor: pointer;
+            touch-action: manipulation;
+            letter-spacing: 0.5px;
+            position: relative;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+
+        .tile:active {
+            transform: scale(0.94);
+        }
+
+        .tile-left {
+            border-color: #d6c9bc;
+            background: linear-gradient(145deg, #fcf8f2, #f5ede4);
+        }
+
+        .tile-right {
+            border-color: #d6c9bc;
+            background: linear-gradient(145deg, #fcf8f2, #f5ede4);
+        }
+
+        .tile.selected {
+            border-color: #b3927a;
+            background: #f2e6da;
+            box-shadow: 0 0 0 3px rgba(179, 146, 122, 0.2), 0 6px 18px rgba(140, 110, 80, 0.12);
+            transform: scale(1.02);
+        }
+
+        .tile.matched {
+            border-color: #8aaa70;
+            background: #e9f3df;
+            opacity: 0.8;
+            cursor: default;
+            box-shadow: 0 2px 8px rgba(138, 170, 112, 0.15);
+            transform: scale(0.96);
+        }
+
+        .tile.matched::after {
+            content: '✓';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 14px;
+            color: #6f9655;
+            background: #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid #bcd4a8;
+        }
+
+        .tile.wrong {
+            animation: shake 0.35s ease;
+            border-color: #d97a6a;
+            background: #fce8e4;
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-8px);
+            }
+            40% {
+                transform: translateX(8px);
+            }
+            60% {
+                transform: translateX(-5px);
+            }
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .footer {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            padding-top: 14px;
+            border-top: 2px dashed #dcd2c4;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #f2ebe0;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #4d3e2e;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(120, 100, 80, 0.08);
+            touch-action: manipulation;
+            flex: 1;
+            min-width: 90px;
+            max-width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:active {
+            transform: scale(0.94);
+            box-shadow: 0 2px 6px rgba(120, 100, 80, 0.06);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #cbb8a4, #b8a18a);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(160, 135, 115, 0.25);
+        }
+
+        .btn-primary:active {
+            background: linear-gradient(135deg, #b8a18a, #a58d78);
+        }
+
+        .btn-secondary {
+            background: #e8dfd4;
+            color: #4d3e2e;
+        }
+
+        .btn-secondary:active {
+            background: #dcd2c4;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .complete-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(60, 50, 40, 0.50);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 32px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 20px;
+        }
+
+        .complete-overlay.show {
+            display: flex;
+        }
+
+        .complete-card {
+            background: #fcf9f2;
+            border-radius: 28px;
+            padding: 28px 24px 24px;
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(40, 30, 20, 0.30);
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .complete-card .emoji {
+            font-size: 52px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .complete-card h2 {
+            font-size: 22px;
+            color: #3d3228;
+            margin-bottom: 4px;
+        }
+
+        .complete-card p {
+            font-size: 14px;
+            color: #6a5a4a;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .complete-card .btn {
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(50, 40, 30, 0.85);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 20px;
+            font-size: 17px;
+            font-weight: 600;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .toast.success {
+            background: rgba(70, 120, 60, 0.88);
+        }
+
+        .toast.error {
+            background: rgba(180, 70, 50, 0.88);
+        }
+
+        @media (max-width: 480px) {
+            .game-container {
+                max-width: 100%;
+                padding: 12px 8px 16px;
+                border-radius: 24px;
+            }
+            .title-text {
+                font-size: 17px;
+            }
+            .level-badge {
+                font-size: 11px;
+                padding: 2px 12px;
+            }
+            .tile {
+                font-size: 15px;
+                padding: 10px 4px;
+                min-height: 48px;
+                border-radius: 14px;
+                max-width: 110px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 10px 14px;
+                min-width: 70px;
+            }
+            .info-bar .hint {
+                font-size: 11px;
+                padding: 2px 12px;
+            }
+            .progress-text {
+                font-size: 12px;
+                padding: 2px 12px;
+            }
+            .complete-card {
+                padding: 20px 16px 18px;
+            }
+            .complete-card .emoji {
+                font-size: 42px;
+            }
+            .complete-card h2 {
+                font-size: 19px;
+            }
+            .columns {
+                padding: 0 14px;
+                gap: 24px;
+            }
+            .column {
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .tile {
+                font-size: 13px;
+                padding: 8px 2px;
+                min-height: 42px;
+                border-radius: 12px;
+                max-width: 90px;
+            }
+            .columns {
+                padding: 0 8px;
+                gap: 16px;
+            }
+            .column {
+                gap: 10px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 8px 10px;
+                min-width: 60px;
+            }
+            .title-text {
+                font-size: 15px;
+            }
+            .header {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+        }
+
+        @media (min-height: 800px) {
+            .game-board {
+                min-height: 440px;
+            }
+            .tile {
+                padding: 18px 12px;
+                min-height: 66px;
+                font-size: 20px;
+                max-width: 160px;
+            }
+            .columns {
+                padding: 0 32px;
+                gap: 48px;
+            }
+            .column {
+                gap: 24px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container" id="app">
+        <div class="header">
+            <div class="title-area">
+                <span class="title-icon">📚</span>
+                <span class="title-text">文学连连看</span>
+            </div>
+            <span class="level-badge" id="levelBadge">第 1 关</span>
+        </div>
+
+        <div class="info-bar">
+            <span class="hint">
+                <span>🧩</span> 配对文学常识
+            </span>
+            <span class="progress-text" id="progressText">0 / 6</span>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="lineCanvas"></canvas>
+                <div class="columns" id="columnsContainer">
+                    <div class="column column-left" id="leftColumn"></div>
+                    <div class="column column-right" id="rightColumn"></div>
+                </div>
+            </div>
+
+            <div class="complete-overlay" id="completeOverlay">
+                <div class="complete-card">
+                    <span class="emoji">🎉</span>
+                    <h2>全部配对成功！</h2>
+                    <p id="completeMsg">文学常识掌握得真棒！</p>
+                    <button class="btn btn-primary" id="nextLevelBtn">下一关 →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <button class="btn btn-secondary" id="resetBtn">🔄 重玩</button>
+            <button class="btn btn-primary" id="nextBtn">下一关 →</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const LEVELS = [{
+                pairs: [
+                    { left: '《红楼梦》', right: '曹雪芹' },
+                    { left: '《西游记》', right: '吴承恩' },
+                    { left: '《水浒传》', right: '施耐庵' },
+                    { left: '《三国演义》', right: '罗贯中' },
+                    { left: '《史记》', right: '司马迁' },
+                    { left: '《资治通鉴》', right: '司马光' }
+                ],
+                msg: '四大名著和史书巨著，你都记住了！'
+            }, {
+                pairs: [
+                    { left: '李白', right: '诗仙' },
+                    { left: '杜甫', right: '诗圣' },
+                    { left: '王维', right: '诗佛' },
+                    { left: '白居易', right: '诗魔' },
+                    { left: '李贺', right: '诗鬼' },
+                    { left: '刘禹锡', right: '诗豪' }
+                ],
+                msg: '唐代诗人雅号记得很清楚嘛！'
+            }, {
+                pairs: [
+                    { left: '鲁迅', right: '《朝花夕拾》' },
+                    { left: '老舍', right: '《骆驼祥子》' },
+                    { left: '巴金', right: '《家》' },
+                    { left: '茅盾', right: '《子夜》' },
+                    { left: '朱自清', right: '《背影》' },
+                    { left: '冰心', right: '《繁星·春水》' }
+                ],
+                msg: '现代文学名家名作，你真是小学霸！'
+            }, {
+                pairs: [
+                    { left: '唐宋八大家', right: '韩愈' },
+                    { left: '北宋文豪', right: '苏轼' },
+                    { left: '古文运动', right: '柳宗元' },
+                    { left: '醉翁之意', right: '欧阳修' },
+                    { left: '三苏之一', right: '苏辙' },
+                    { left: '临川先生', right: '王安石' }
+                ],
+                msg: '古文大家也难不倒你，太厉害了！'
+            }];
+
+            const leftColumn = document.getElementById('leftColumn');
+            const rightColumn = document.getElementById('rightColumn');
+            const canvas = document.getElementById('lineCanvas');
+            const ctx = canvas.getContext('2d');
+            const canvasWrapper = document.getElementById('canvasWrapper');
+            const progressText = document.getElementById('progressText');
+            const levelBadge = document.getElementById('levelBadge');
+            const completeOverlay = document.getElementById('completeOverlay');
+            const completeMsg = document.getElementById('completeMsg');
+            const toast = document.getElementById('toast');
+
+            const resetBtn = document.getElementById('resetBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const nextLevelBtn = document.getElementById('nextLevelBtn');
+
+            let currentLevel = 0;
+            let pairs = [];
+            let matched = new Set();
+            let selectedLeft = null;
+            let selectedRight = null;
+            let isAnimating = false;
+            let tileElements = { left: [], right: [] };
+            let matchedPairs = [];
+
+            let toastTimer = null;
+
+            function showToast(text, type = 'info', duration = 1200) {
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                    toast.classList.remove('show', 'success', 'error');
+                }
+                toast.textContent = text;
+                toast.className = 'toast';
+                if (type === 'success') toast.classList.add('success');
+                if (type === 'error') toast.classList.add('error');
+                void toast.offsetWidth;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                    toastTimer = null;
+                }, duration);
+            }
+
+            function loadLevel(levelIndex) {
+                const levelData = LEVELS[levelIndex % LEVELS.length];
+                pairs = levelData.pairs;
+                matched.clear();
+                matchedPairs = [];
+                selectedLeft = null;
+                selectedRight = null;
+                isAnimating = false;
+                completeOverlay.classList.remove('show');
+
+                levelBadge.textContent = `第 ${levelIndex + 1} 关`;
+                progressText.textContent = `0 / ${pairs.length}`;
+
+                renderTiles();
+                drawLines();
+                updateProgress();
+            }
+
+            function renderTiles() {
+                leftColumn.innerHTML = '';
+                rightColumn.innerHTML = '';
+                tileElements.left = [];
+                tileElements.right = [];
+
+                const rightPairs = pairs.map((p, idx) => ({ ...p, idx }));
+                shuffleArray(rightPairs);
+
+                pairs.forEach((pair, idx) => {
+                    const el = createTile(pair.left, 'left', idx);
+                    leftColumn.appendChild(el);
+                    tileElements.left.push(el);
+                });
+
+                rightPairs.forEach((item) => {
+                    const el = createTile(item.right, 'right', item.idx);
+                    rightColumn.appendChild(el);
+                    tileElements.right.push(el);
+                });
+
+                updateCanvasSize();
+            }
+
+            function createTile(text, side, pairIdx) {
+                const div = document.createElement('div');
+                div.className = `tile tile-${side}`;
+                div.textContent = text;
+                div.dataset.pairIdx = pairIdx;
+                div.dataset.side = side;
+                div.dataset.matched = 'false';
+
+                div.addEventListener('click', () => handleTileClick(div));
+                div.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    handleTileClick(div);
+                });
+
+                return div;
+            }
+
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            function updateCanvasSize() {
+                const rect = canvasWrapper.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                canvas.style.width = rect.width + 'px';
+                canvas.style.height = rect.height + 'px';
+                ctx.scale(dpr, dpr);
+                drawLines();
+            }
+
+            // ===== 核心：获取卡片边缘锚点 =====
+            function getTileAnchor(el, side) {
+                const wrapperRect = canvasWrapper.getBoundingClientRect();
+                const elRect = el.getBoundingClientRect();
+                const centerY = (elRect.top + elRect.height / 2) - wrapperRect.top;
+
+                if (side === 'left') {
+                    // 左侧卡片：锚点在右边缘 (结束位置)
+                    return {
+                        x: (elRect.right) - wrapperRect.left,
+                        y: centerY
+                    };
+                } else {
+                    // 右侧卡片：锚点在左边缘 (开始位置)
+                    return {
+                        x: (elRect.left) - wrapperRect.left,
+                        y: centerY
+                    };
+                }
+            }
+
+            // ===== 优化后的连线绘制 =====
+            function drawLines() {
+                const w = canvas.width / (window.devicePixelRatio || 1);
+                const h = canvas.height / (window.devicePixelRatio || 1);
+                ctx.clearRect(0, 0, w, h);
+
+                if (matchedPairs.length > 0) {
+                    matchedPairs.forEach((item) => {
+                        const leftEl = item.leftEl;
+                        const rightEl = item.rightEl;
+                        if (!leftEl || !rightEl) return;
+
+                        // 左侧卡片锚点：右边缘 (结束点)
+                        const p1 = getTileAnchor(leftEl, 'left');
+                        // 右侧卡片锚点：左边缘 (开始点)
+                        const p2 = getTileAnchor(rightEl, 'right');
+
+                        // ---- 1. 绘制外发光光晕 ----
+                        ctx.shadowColor = 'rgba(138, 170, 112, 0.20)';
+                        ctx.shadowBlur = 28;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = 'rgba(138, 170, 112, 0.08)';
+                        ctx.lineWidth = 18;
+                        ctx.lineCap = 'round';
+                        ctx.stroke();
+
+                        // ---- 2. 主线条 (渐变色) ----
+                        ctx.shadowColor = 'rgba(138, 170, 112, 0.25)';
+                        ctx.shadowBlur = 16;
+                        const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+                        grad.addColorStop(0, '#8aaa70');
+                        grad.addColorStop(0.5, '#b8d99e');
+                        grad.addColorStop(1, '#8aaa70');
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = grad;
+                        ctx.lineWidth = 5;
+                        ctx.lineCap = 'round';
+                        ctx.stroke();
+
+                        // ---- 3. 内层高光线 ----
+                        ctx.shadowBlur = 0;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = 'rgba(255, 255, 230, 0.25)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        // ---- 4. 端点装饰 ----
+                        // 外圈光晕
+                        ctx.shadowColor = 'rgba(138, 170, 112, 0.30)';
+                        ctx.shadowBlur = 18;
+                        // 左端点 (结束点)
+                        ctx.beginPath();
+                        ctx.arc(p1.x, p1.y, 10, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(138, 170, 112, 0.15)';
+                        ctx.fill();
+
+                        // 右端点 (开始点)
+                        ctx.beginPath();
+                        ctx.arc(p2.x, p2.y, 10, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(138, 170, 112, 0.15)';
+                        ctx.fill();
+
+                        // 实心主圆点
+                        ctx.shadowColor = 'rgba(138, 170, 112, 0.35)';
+                        ctx.shadowBlur = 12;
+                        ctx.beginPath();
+                        ctx.arc(p1.x, p1.y, 7, 0, Math.PI * 2);
+                        ctx.fillStyle = '#6f9655';
+                        ctx.fill();
+
+                        ctx.beginPath();
+                        ctx.arc(p2.x, p2.y, 7, 0, Math.PI * 2);
+                        ctx.fillStyle = '#6f9655';
+                        ctx.fill();
+
+                        // 内部高光
+                        ctx.shadowBlur = 0;
+                        ctx.beginPath();
+                        ctx.arc(p1.x - 1.5, p1.y - 2, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 240, 0.5)';
+                        ctx.fill();
+
+                        ctx.beginPath();
+                        ctx.arc(p2.x - 1.5, p2.y - 2, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 240, 0.5)';
+                        ctx.fill();
+
+                        // 最内部小亮点
+                        ctx.beginPath();
+                        ctx.arc(p1.x - 2, p1.y - 3, 1.5, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                        ctx.fill();
+
+                        ctx.beginPath();
+                        ctx.arc(p2.x - 2, p2.y - 3, 1.5, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                        ctx.fill();
+                    });
+                }
+
+                drawGuideLines();
+                ctx.shadowBlur = 0;
+                ctx.shadowColor = 'transparent';
+            }
+
+            // ===== 引导虚线 (选中状态) =====
+            function drawGuideLines() {
+                if (selectedLeft && selectedLeft.dataset.matched === 'false') {
+                    const p1 = getTileAnchor(selectedLeft, 'left');
+                    const wrapperRect = canvasWrapper.getBoundingClientRect();
+                    const endX = wrapperRect.width - 10;
+                    ctx.setLineDash([6, 8]);
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(endX, p1.y);
+                    ctx.strokeStyle = 'rgba(179, 146, 122, 0.30)';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+                if (selectedRight && selectedRight.dataset.matched === 'false') {
+                    const p2 = getTileAnchor(selectedRight, 'right');
+                    const wrapperRect = canvasWrapper.getBoundingClientRect();
+                    const startX = 10;
+                    ctx.setLineDash([6, 8]);
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.moveTo(startX, p2.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = 'rgba(179, 146, 122, 0.30)';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            }
+
+            function updateProgress() {
+                const count = matched.size;
+                const total = pairs.length;
+                progressText.textContent = `${count} / ${total}`;
+                if (count === total && total > 0) {
+                    setTimeout(() => showComplete(), 350);
+                }
+            }
+
+            function showComplete() {
+                const levelData = LEVELS[currentLevel % LEVELS.length];
+                completeMsg.textContent = levelData.msg || '文学常识掌握得真棒！';
+                completeOverlay.classList.add('show');
+            }
+
+            function handleTileClick(el) {
+                if (isAnimating) return;
+                if (el.dataset.matched === 'true') return;
+                if (matched.size === pairs.length) return;
+
+                const side = el.dataset.side;
+                const pairIdx = parseInt(el.dataset.pairIdx);
+
+                if (side === 'left') {
+                    if (selectedLeft === el) {
+                        el.classList.remove('selected');
+                        selectedLeft = null;
+                        drawLines();
+                        return;
+                    }
+                    if (selectedLeft) {
+                        selectedLeft.classList.remove('selected');
+                    }
+                    selectedLeft = el;
+                    el.classList.add('selected');
+                    if (selectedRight) {
+                        attemptMatch(selectedLeft, selectedRight);
+                    } else {
+                        drawLines();
+                    }
+                } else if (side === 'right') {
+                    if (selectedRight === el) {
+                        el.classList.remove('selected');
+                        selectedRight = null;
+                        drawLines();
+                        return;
+                    }
+                    if (selectedRight) {
+                        selectedRight.classList.remove('selected');
+                    }
+                    selectedRight = el;
+                    el.classList.add('selected');
+                    if (selectedLeft) {
+                        attemptMatch(selectedLeft, selectedRight);
+                    } else {
+                        drawLines();
+                    }
+                }
+            }
+
+            function attemptMatch(leftEl, rightEl) {
+                if (isAnimating) return;
+                if (!leftEl || !rightEl) return;
+                if (leftEl.dataset.matched === 'true' || rightEl.dataset.matched === 'true') {
+                    clearSelection();
+                    return;
+                }
+
+                const leftIdx = parseInt(leftEl.dataset.pairIdx);
+                const rightIdx = parseInt(rightEl.dataset.pairIdx);
+
+                if (leftIdx === rightIdx && !matched.has(leftIdx)) {
+                    matched.add(leftIdx);
+                    leftEl.dataset.matched = 'true';
+                    rightEl.dataset.matched = 'true';
+                    leftEl.classList.remove('selected');
+                    rightEl.classList.remove('selected');
+                    leftEl.classList.add('matched');
+                    rightEl.classList.add('matched');
+
+                    matchedPairs.push({
+                        leftEl: leftEl,
+                        rightEl: rightEl,
+                        pairIdx: leftIdx
+                    });
+
+                    selectedLeft = null;
+                    selectedRight = null;
+
+                    drawLines();
+                    updateProgress();
+                    showToast('✅ 配对正确！', 'success', 600);
+
+                    if (matched.size === pairs.length) {
+                        // 完成
+                    }
+                } else {
+                    isAnimating = true;
+                    leftEl.classList.add('wrong');
+                    rightEl.classList.add('wrong');
+                    showToast('❌ 再想想吧', 'error', 700);
+
+                    setTimeout(() => {
+                        leftEl.classList.remove('wrong', 'selected');
+                        rightEl.classList.remove('wrong', 'selected');
+                        selectedLeft = null;
+                        selectedRight = null;
+                        isAnimating = false;
+                        drawLines();
+                    }, 500);
+                }
+            }
+
+            function clearSelection() {
+                if (selectedLeft) {
+                    selectedLeft.classList.remove('selected');
+                    selectedLeft = null;
+                }
+                if (selectedRight) {
+                    selectedRight.classList.remove('selected');
+                    selectedRight = null;
+                }
+                drawLines();
+            }
+
+            function resetLevel() {
+                matched.clear();
+                matchedPairs = [];
+                clearSelection();
+                completeOverlay.classList.remove('show');
+
+                document.querySelectorAll('.tile').forEach(el => {
+                    el.classList.remove('matched', 'selected', 'wrong');
+                    el.dataset.matched = 'false';
+                });
+
+                const rightTiles = tileElements.right;
+                const rightData = rightTiles.map(el => ({
+                    el: el,
+                    pairIdx: parseInt(el.dataset.pairIdx)
+                }));
+                shuffleArray(rightData);
+                rightColumn.innerHTML = '';
+                rightData.forEach(item => {
+                    rightColumn.appendChild(item.el);
+                });
+                tileElements.right = rightData.map(d => d.el);
+
+                updateProgress();
+                drawLines();
+                showToast('🔄 已重置', 'info', 600);
+            }
+
+            function nextLevel() {
+                currentLevel = (currentLevel + 1) % LEVELS.length;
+                loadLevel(currentLevel);
+                showToast(`📖 第 ${currentLevel + 1} 关`, 'info', 600);
+            }
+
+            let resizeTimer = null;
+
+            function handleResize() {
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    updateCanvasSize();
+                    resizeTimer = null;
+                }, 150);
+            }
+
+            function init() {
+                loadLevel(0);
+
+                resetBtn.addEventListener('click', resetLevel);
+                nextBtn.addEventListener('click', nextLevel);
+                nextLevelBtn.addEventListener('click', nextLevel);
+
+                window.addEventListener('resize', handleResize);
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(handleResize, 300);
+                });
+
+                document.addEventListener('click', (e) => {
+                    const board = document.getElementById('gameBoard');
+                    if (!board.contains(e.target)) {
+                        clearSelection();
+                    }
+                });
+
+                document.addEventListener('dblclick', (e) => e.preventDefault());
+            }
+
+            if (document.readyState === 'complete') {
+                init();
+            } else {
+                window.addEventListener('load', init);
+            }
+
+            window.__game = {
+                reset: resetLevel,
+                next: nextLevel,
+                load: loadLevel,
+            };
+
+        })();
+    </script>
+
+</body>
+</html>

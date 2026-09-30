@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空航天 · 物理 · C919 科普答题</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            color: #e0e6f0;
+        }
+        .container {
+            max-width: 720px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, #4fc3f7, #81d4fa, #4fc3f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #8899bb;
+            margin-bottom: 16px;
+        }
+
+        /* 实时得分栏 */
+        .score-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(79, 195, 247, 0.08);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            border-radius: 12px;
+            padding: 12px 10px;
+            margin-bottom: 16px;
+        }
+        .score-item {
+            text-align: center;
+            flex: 1;
+        }
+        .score-item .value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #4fc3f7;
+            line-height: 1.2;
+        }
+        .score-item .value.green { color: #66bb6a; }
+        .score-item .value.red { color: #ef5350; }
+        .score-item .label {
+            font-size: 0.7rem;
+            color: #8899bb;
+            margin-top: 2px;
+        }
+        .score-divider {
+            width: 1px;
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4fc3f7, #81d4fa);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+        .question-card {
+            background: rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            display: none;
+        }
+        .question-card.active { display: block; }
+        .question-number {
+            font-size: 0.75rem;
+            color: #4fc3f7;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+        .question-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 18px;
+            color: #f0f4fc;
+        }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            color: #c8d6e5;
+        }
+        .option:hover {
+            background: rgba(79, 195, 247, 0.1);
+            border-color: rgba(79, 195, 247, 0.3);
+        }
+        .option.selected {
+            background: rgba(79, 195, 247, 0.2);
+            border-color: #4fc3f7;
+            color: #fff;
+        }
+        .option.correct {
+            background: rgba(76, 175, 80, 0.25);
+            border-color: #4caf50;
+            color: #e8f5e9;
+        }
+        .option.wrong {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            color: #ffebee;
+        }
+        .option-key {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            color: #8899bb;
+        }
+        .option.selected .option-key { background: #4fc3f7; color: #0a1628; }
+        .option.correct .option-key { background: #4caf50; color: #fff; }
+        .option.wrong .option-key { background: #f44336; color: #fff; }
+        .feedback {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: rgba(76, 175, 80, 0.15); border-left: 3px solid #4caf50; }
+        .feedback.wrong { background: rgba(244, 67, 54, 0.12); border-left: 3px solid #f44336; }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 22px;
+        }
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4fc3f7, #2196f3);
+            color: #fff;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-primary:disabled {
+            background: rgba(255,255,255,0.08);
+            color: #556;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: #aab8cc;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+        .btn-view-all {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(79, 195, 247, 0.08);
+            border: 1px dashed rgba(79, 195, 247, 0.4);
+            color: #4fc3f7;
+            font-size: 0.88rem;
+        }
+        .btn-view-all:hover { background: rgba(79, 195, 247, 0.15); }
+        .btn-export {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-export:hover { opacity: 0.9; transform: translateY(-1px); }
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .result-screen.active { display: block; }
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #4fc3f7;
+            background: rgba(79,195,247,0.08);
+        }
+        .score-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #4fc3f7;
+            line-height: 1;
+        }
+        .score-label { font-size: 0.8rem; color: #8899bb; margin-top: 4px; }
+        .result-msg { font-size: 1.1rem; margin-bottom: 12px; color: #e0e6f0; }
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+        .result-stats .stat { text-align: center; }
+        .result-stats .stat .num { font-size: 1.3rem; font-weight: 700; }
+        .result-stats .stat .num.green { color: #66bb6a; }
+        .result-stats .stat .num.red { color: #ef5350; }
+        .result-stats .stat .num.gray { color: #8899bb; }
+
+        /* ===== 题库查看页面样式 ===== */
+        .bank-screen { display: none; }
+        .bank-screen.active { display: block; }
+        .bank-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .bank-header h2 { font-size: 1.1rem; color: #4fc3f7; font-weight: 700; }
+        .bank-header button { flex: 0 0 auto; padding: 8px 16px; font-size: 0.85rem; }
+        .bank-filter { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+        .filter-btn {
+            flex: 0 0 auto;
+            padding: 7px 14px;
+            font-size: 0.8rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.06);
+            color: #8899bb;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { background: rgba(79,195,247,0.1); }
+        .filter-btn.active {
+            background: rgba(79,195,247,0.2);
+            color: #4fc3f7;
+            border-color: rgba(79,195,247,0.4);
+        }
+        .bank-list { max-height: 70vh; overflow-y: auto; padding-right: 6px; }
+        .bank-list::-webkit-scrollbar { width: 6px; }
+        .bank-list::-webkit-scrollbar-thumb { background: rgba(79,195,247,0.3); border-radius: 3px; }
+        .bank-item {
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+        .bank-item.hidden { display: none; }
+        .bank-item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .bank-item-num { font-size: 0.72rem; color: #4fc3f7; letter-spacing: 1px; }
+        .bank-tag {
+            font-size: 0.68rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(79,195,247,0.12);
+            color: #81d4fa;
+        }
+        .bank-item-q { font-size: 0.95rem; line-height: 1.55; color: #e8eef8; margin-bottom: 10px; }
+        .bank-item-options { list-style: none; margin-bottom: 10px; }
+        .bank-item-options li { font-size: 0.85rem; padding: 5px 0; color: #a8b8cc; padding-left: 4px; }
+        .bank-item-options li.is-answer { color: #66bb6a; font-weight: 600; }
+        .bank-item-options li .mark { display: inline-block; width: 20px; font-weight: 700; }
+        .bank-answer { font-size: 0.85rem; color: #66bb6a; margin-bottom: 6px; }
+        .bank-explain {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: #8899bb;
+            padding-left: 10px;
+            border-left: 2px solid rgba(79,195,247,0.3);
+        }
+
+        /* ===== 答题情况查看页面 ===== */
+        .report-screen { display: none; }
+        .report-screen.active { display: block; }
+        .report-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .report-header h2 { font-size: 1.1rem; color: #4fc3f7; font-weight: 700; }
+        .report-header button { flex: 0 0 auto; padding: 8px 16px; font-size: 0.85rem; }
+        .report-summary {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(79,195,247,0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+        .report-summary .item { text-align: center; }
+        .report-summary .item .num { font-size: 1.6rem; font-weight: 800; }
+        .report-summary .item .num.green { color: #66bb6a; }
+        .report-summary .item .num.red { color: #ef5350; }
+        .report-summary .item .num.blue { color: #4fc3f7; }
+        .report-summary .item .label { font-size: 0.72rem; color: #8899bb; margin-top: 2px; }
+        .report-list { max-height: 60vh; overflow-y: auto; padding-right: 6px; }
+        .report-list::-webkit-scrollbar { width: 6px; }
+        .report-list::-webkit-scrollbar-thumb { background: rgba(79,195,247,0.3); border-radius: 3px; }
+        .report-item {
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-left: 3px solid #4caf50;
+        }
+        .report-item.wrong { border-left-color: #f44336; }
+        .report-item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .report-item-num { font-size: 0.72rem; color: #8899bb; }
+        .report-status {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+        .report-status.correct { background: rgba(76,175,80,0.2); color: #66bb6a; }
+        .report-status.wrong { background: rgba(244,67,54,0.2); color: #ef5350; }
+        .report-status.unanswered { background: rgba(136,153,187,0.2); color: #8899bb; }
+        .report-item-q { font-size: 0.88rem; line-height: 1.5; color: #c8d6e5; margin-bottom: 8px; }
+        .report-item-answers { font-size: 0.82rem; line-height: 1.7; }
+        .report-item-answers .your { color: #ef5350; }
+        .report-item-answers .correct { color: #66bb6a; }
+        .report-item-answers .your.is-correct { color: #66bb6a; }
+
+        @media (max-width: 480px) {
+            .container { padding: 20px; }
+            .question-card { padding: 16px; }
+            .question-text { font-size: 0.95rem; }
+            .option { font-size: 0.88rem; padding: 10px 12px; }
+            .bank-header, .report-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .score-item .value { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🚀 航空航天 · 物理 · C919</h1>
+    <p class="subtitle">北京初中生科技活动 · 知识闯关</p>
+
+    <!-- 答题主区域 -->
+    <div id="mainScreen">
+        <!-- 实时得分栏 -->
+        <div class="score-bar">
+            <div class="score-item">
+                <div class="value" id="liveScore">0</div>
+                <div class="label">当前得分</div>
+            </div>
+            <div class="score-divider"></div>
+            <div class="score-item">
+                <div class="value green" id="liveCorrect">0</div>
+                <div class="label">答对</div>
+            </div>
+            <div class="score-divider"></div>
+            <div class="score-item">
+                <div class="value red" id="liveWrong">0</div>
+                <div class="label">答错</div>
+            </div>
+            <div class="score-divider"></div>
+            <div class="score-item">
+                <div class="value" id="liveProgress">0/30</div>
+                <div class="label">已答</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div id="quizArea"></div>
+
+        <div class="nav-buttons" id="navButtons">
+            <button class="btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>← 上一题</button>
+            <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>请先选择答案</button>
+        </div>
+
+        <button class="btn-view-all" onclick="showBank()">📖 查看全部题目与答案</button>
+
+        <div class="result-screen" id="resultScreen">
+            <div class="score-circle">
+                <span class="score-number" id="scoreNumber">0</span>
+                <span class="score-label">分 / 30</span>
+            </div>
+            <p class="result-msg" id="resultMsg"></p>
+            <div class="result-stats">
+                <div class="stat">
+                    <div class="num green" id="finalCorrect">0</div>
+                    <div class="label">答对</div>
+                </div>
+                <div class="stat">
+                    <div class="num red" id="finalWrong">0</div>
+                    <div class="label">答错</div>
+                </div>
+                <div class="stat">
+                    <div class="num gray" id="finalUnanswered">0</div>
+                    <div class="label">未答</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <button class="btn-primary" onclick="showReport()" style="max-width:200px;">📊 查看答题情况</button>
+                <button class="btn-secondary" onclick="restartQuiz()" style="max-width:200px;">🔄 重新挑战</button>
+            </div>
+            <button class="btn-view-all" onclick="showBank()" style="margin-top:12px;">📖 查看题库</button>
+        </div>
+    </div>
+
+    <!-- 题库查看区域 -->
+    <div class="bank-screen" id="bankScreen">
+        <div class="bank-header">
+            <h2>📚 全部题目与答案解析</h2>
+            <div style="display:flex;gap:8px;flex:0 0 auto;">
+                <button class="btn-export" onclick="exportTxt()">📥 导出TXT</button>
+                <button class="btn-secondary" onclick="hideBank()">← 返回答题</button>
+            </div>
+        </div>
+        <div class="bank-filter" id="bankFilter">
+            <button class="filter-btn active" data-cat="all" onclick="filterBank('all', this)">全部（30题）</button>
+            <button class="filter-btn" data-cat="physics" onclick="filterBank('physics', this)">物理学基础（10题）</button>
+            <button class="filter-btn" data-cat="aero" onclick="filterBank('aero', this)">航空航天常识（10题）</button>
+            <button class="filter-btn" data-cat="c919" onclick="filterBank('c919', this)">国产大飞机C919（10题）</button>
+        </div>
+        <div class="bank-list" id="bankList"></div>
+    </div>
+
+    <!-- 答题情况查看区域 -->
+    <div class="report-screen" id="reportScreen">
+        <div class="report-header">
+            <h2>📊 你的答题情况</h2>
+            <div style="display:flex;gap:8px;flex:0 0 auto;">
+                <button class="btn-export" onclick="exportReportTxt()">📥 导出答题记录</button>
+                <button class="btn-secondary" onclick="hideReport()">← 返回</button>
+            </div>
+        </div>
+        <div class="report-summary" id="reportSummary"></div>
+        <div class="report-list" id="reportList"></div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // 物理学基础 (1-10)
+        { cat: "physics", q: "火箭发射时，向下喷射燃气，火箭却能向上加速升空。这主要说明（ ）", o: ["力的作用是相互的，且力可以改变物体的运动状态", "火箭不受重力作用", "燃气推开了空气，空气把火箭推上去", "火箭的密度比空气小"], a: 0, e: "火箭向下喷气，燃气对火箭产生向上的反作用力，这个力改变了火箭的运动状态，使其加速上升。" },
+        { cat: "physics", q: "飞船在轨运行时，航天员处于“失重”状态。下列说法正确的是（ ）", o: ["航天员不受地球引力", "航天员受到的引力用于提供绕地球飞行的向心力", "失重是因为离地球太远，没有重力了", "飞船的速度太慢，重力消失了"], a: 1, e: "失重并非重力消失，而是重力（引力）充当了向心力，使航天员产生“漂浮”感。" },
+        { cat: "physics", q: "若“天宫”空间站与飞船分离瞬间，一切外力突然消失，分离后的飞船将（ ）", o: ["静止", "匀速直线运动", "加速运动", "减速运动"], a: 1, e: "根据牛顿第一定律，物体不受外力时将保持原有的运动状态，即匀速直线运动。" },
+        { cat: "physics", q: "飞机能够起飞，物理原理是（ ）", o: ["机翼上下表面流速不同，上方流速大压强小，下方流速小压强大，产生向上的升力", "发动机推力直接让飞机垂直上升", "空气浮力大于飞机重力", "机翼密度小于空气密度"], a: 0, e: "这是伯努利原理的应用：机翼上表面弯曲，空气流速大、压强小；下表面较平，流速小、压强大，形成向上的压力差（升力）。" },
+        { cat: "physics", q: "气球从吸管口向后喷气，气球向前飞出。这个实验演示的是（ ）", o: ["反冲运动", "浮力原理", "惯性现象", "摩擦生热"], a: 0, e: "气球向后喷气，气体对气球产生向前的反作用力，这就是反冲运动，与火箭原理相同。" },
+        { cat: "physics", q: "正在水平面上滚动的小球，如果它受到的外力同时消失，那么它将（ ）", o: ["立即停下来", "慢慢停下来", "做匀速直线运动", "改变运动方向"], a: 2, e: "根据牛顿第一定律，不受外力时，运动物体将保持匀速直线运动状态。" },
+        { cat: "physics", q: "火箭采用多级结构的主要原因是（ ）", o: ["多级火箭可以逐渐提高速度", "成本较低", "多级火箭更平稳安全", "速度更快，但仅因为级数多"], a: 0, e: "多级火箭在燃料用完后会抛掉空壳，减轻质量，使后续级能继续加速，最终达到更高速度。" },
+        { cat: "physics", q: "第一宇宙速度 7.9 km/s 指的是（ ）", o: ["航天器环绕地球飞行的最小发射速度", "航天器脱离地球引力的速度", "航天器飞出太阳系的速度", "航天器在月球上起飞的速度"], a: 0, e: "第一宇宙速度是航天器近地环绕的最小发射速度，也是最大环绕速度。" },
+        { cat: "physics", q: "流体（气体或液体）中，流速越大的位置，压强（ ）", o: ["越大", "越小", "不变", "与流速无关"], a: 1, e: "这是流体压强的基本规律，飞机升力、火车站黄线等均与此有关。" },
+        { cat: "physics", q: "失重环境下，航天员锻炼主要使用（ ）", o: ["举重", "跑步和蹬车锻炼", "踢足球", "普通哑铃"], a: 1, e: "在失重环境中，跑步机和自行车功量计配合束缚装置，帮助航天员对抗肌肉萎缩和骨钙流失。" },
+
+        // 航空航天常识 (11-20)
+        { cat: "aero", q: "人类第一次登上月球的时间是（ ）", o: ["1971年7月21日", "1969年7月21日", "1970年7月21日", "2007年7月21日"], a: 1, e: "1969年7月21日（北京时间），美国阿波罗11号的阿姆斯特朗踏上月球。" },
+        { cat: "aero", q: "我国的航天测控船名叫（ ）", o: ["雪龙号", "辽宁号", "远望号", "大洋号"], a: 2, e: "“远望号”系列航天测量船是中国航天测控网的重要组成部分。" },
+        { cat: "aero", q: "月球与地球的平均距离约为（ ）", o: ["3.84万公里", "384万公里", "38.4万公里", "3840万公里"], a: 2, e: "月球距地球平均约38.4万公里。" },
+        { cat: "aero", q: "中国空间站首个核心舱被命名为（ ）", o: ["天宫一号", "天和核心舱", "天舟一号", "问天实验舱"], a: 1, e: "“天和”核心舱是中国空间站的管理和控制中心。" },
+        { cat: "aero", q: "嫦娥五号探测器完成的中国探月工程关键一步是（ ）", o: ["绕月飞行", "月球背面着陆", "月球采样返回", "载人登月"], a: 2, e: "嫦娥五号实现了中国首次月球采样返回任务。" },
+        { cat: "aero", q: "“光年”是（ ）", o: ["时间单位", "距离单位", "温度单位", "质量单位"], a: 1, e: "光年是光在真空中一年内走过的距离，是距离单位。" },
+        { cat: "aero", q: "我国第一颗量子科学实验卫星以哪位古代科学家命名？（ ）", o: ["鲁班", "孔子", "墨子", "庄子"], a: 2, e: "“墨子号”量子卫星，纪念墨子最早提出“光是沿直线传播”及小孔成像理论。" },
+        { cat: "aero", q: "航天员在空间站中怎样刷牙？（ ）", o: ["用普通漱口杯刷牙，将废水吐到水池里", "用特制吸管吸水，将废水吐到水池里", "用特制漱口杯刷牙，将废水吐到卫生纸上", "用水袋中的水刷牙，将废水吐到马桶里"], a: 2, e: "失重环境下水无法自然流下，航天员使用可吞咽的牙膏或特制漱口杯，用湿纸巾处理废水。" },
+        { cat: "aero", q: "倾角小于90°的轨道称为（ ）", o: ["逆行轨道", "顺行轨道", "同步轨道", "静止轨道"], a: 1, e: "顺行轨道（倾角 < 90°）的卫星运行方向与地球自转方向一致。" },
+        { cat: "aero", q: "航天测控网的中枢是（ ）", o: ["地基测控站", "数据中继卫星", "指挥中心", "远望号测量船"], a: 2, e: "北京航天飞行控制中心（指挥中心）是航天测控网的中枢。" },
+
+        // C919 (21-30)
+        { cat: "c919", q: "国产大飞机 C919 中的“C”代表（ ）", o: ["中国（CHINA）和中国商飞（COMAC）的首字母", "客运（Cargo）", "创新（Creative）", "第三架试飞飞机"], a: 0, e: "C919的“C”寓意中国（China）和中国商飞（COMAC），也是与空客（Airbus）、波音（Boeing）并列的命名方式。" },
+        { cat: "c919", q: "C919 中的“19”代表（ ）", o: ["最大飞行高度 19000 英尺", "最大载客量为 190 座", "最大航程 1900 公里", "研制了 19 年"], a: 1, e: "“19”代表C919的最大载客量为190座。" },
+        { cat: "c919", q: "C919 属于哪一类民航客机？（ ）", o: ["支线飞机（50-110座）", "干线飞机（大飞机）", "货运飞机", "通用航空飞机"], a: 1, e: "C919是喷气式中程干线客机，与波音737、空客A320同级别。" },
+        { cat: "c919", q: "C919 机体主结构大量使用了哪种先进材料？（ ）", o: ["第三代铝锂合金", "普通碳钢", "纯钛合金", "木材复合材料"], a: 0, e: "C919大量使用第三代铝锂合金，同等重量下强度更大，同等强度下重量更轻。" },
+        { cat: "c919", q: "C919 的“超临界机翼”设计，主要目的是（ ）", o: ["更省油、气动效率更高", "让飞机飞得更高", "让飞机更重", "减少载客量"], a: 0, e: "超临界机翼可使巡航气动效率提高20%以上，阻力减小约8%。" },
+        { cat: "c919", q: "C919 座舱内部的大气环境大约相当于海拔多少米？（ ）", o: ["0米（海平面）", "1000米", "2400米", "5000米"], a: 2, e: "C919座舱增压后，内部大气环境约相当于海拔2400米，兼顾舒适与结构安全。" },
+        { cat: "c919", q: "C919 的发动机由哪家公司提供？（ ）", o: ["中国商飞", "CFM国际公司（LEAP-X1C）", "波音公司", "罗尔斯·罗伊斯"], a: 1, e: "C919采用CFM国际公司研制的LEAP-X1C发动机。" },
+        { cat: "c919", q: "C919 的研制策略是（ ）", o: ["全部零件国产化", "中国设计、系统集成、全球招标", "完全进口组装", "仅生产外壳"], a: 1, e: "C919采取“中国设计、系统集成、全球招标”的集成创新策略，吸引全球200多家企业参与。" },
+        { cat: "c919", q: "C919 的最大航程大约能达到（ ）", o: ["5555公里", "2000公里", "10000公里", "3000公里"], a: 0, e: "C919最大航程约5555公里，标准航程4075公里。" },
+        { cat: "c919", q: "大型客机巡航一般在万米左右的平流层飞行，主要原因是（ ）", o: ["平流层气流较平稳，颠簸感弱", "平流层空气多，升力大", "平流层温度高", "平流层氧气多"], a: 0, e: "平流层空气以水平运动为主，气流较平稳，适合巡航飞行。" }
+    ];
+
+    const catNames = { physics: "物理学基础", aero: "航空航天常识", c919: "国产大飞机C919" };
+
+    let currentIndex = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+    let answered = new Array(quizData.length).fill(false);
+
+    const quizArea = document.getElementById('quizArea');
+    const progressFill = document.getElementById('progressFill');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const navButtons = document.getElementById('navButtons');
+    const resultScreen = document.getElementById('resultScreen');
+    const mainScreen = document.getElementById('mainScreen');
+    const bankScreen = document.getElementById('bankScreen');
+    const reportScreen = document.getElementById('reportScreen');
+
+    // ===== 实时得分统计 =====
+    function updateLiveStats() {
+        let correct = 0, wrong = 0, done = 0;
+        userAnswers.forEach((ans, i) => {
+            if (answered[i]) {
+                done++;
+                if (ans === quizData[i].a) correct++;
+                else wrong++;
+            }
+        });
+        document.getElementById('liveScore').textContent = correct;
+        document.getElementById('liveCorrect').textContent = correct;
+        document.getElementById('liveWrong').textContent = wrong;
+        document.getElementById('liveProgress').textContent = done + '/' + quizData.length;
+    }
+
+    function renderQuestion(index) {
+        const q = quizData[index];
+        const isAnswered = answered[index];
+        const selected = userAnswers[index];
+
+        let optionsHTML = '';
+        q.o.forEach((opt, i) => {
+            let cls = 'option';
+            if (isAnswered) {
+                if (i === q.a) cls += ' correct';
+                else if (i === selected && selected !== q.a) cls += ' wrong';
+            } else if (i === selected) {
+                cls += ' selected';
+            }
+            const key = String.fromCharCode(65 + i);
+            optionsHTML += `<div class="${cls}" onclick="selectOption(${index}, ${i})">
+                <span class="option-key">${key}</span>
+                <span>${opt}</span>
+            </div>`;
+        });
+
+        let feedbackHTML = '';
+        if (isAnswered) {
+            const isCorrect = selected === q.a;
+            feedbackHTML = `<div class="feedback show ${isCorrect ? 'correct' : 'wrong'}">
+                ${isCorrect ? '✅ 回答正确！+1分' : '❌ 回答错误。'} ${q.e}
+            </div>`;
+        }
+
+        quizArea.innerHTML = `
+            <div class="question-card active">
+                <div class="question-number">第 ${index + 1} 题 / 共 ${quizData.length} 题 · ${catNames[q.cat]}</div>
+                <div class="question-text">${q.q}</div>
+                <div class="options">${optionsHTML}</div>
+                ${feedbackHTML}
+            </div>
+        `;
+
+        progressFill.style.width = ((index + 1) / quizData.length * 100) + '%';
+        prevBtn.disabled = index === 0;
+
+        // 控制下一题按钮：未作答时禁用
+        if (!isAnswered) {
+            nextBtn.disabled = true;
+            nextBtn.textContent = '请先选择答案';
+        } else {
+            nextBtn.disabled = false;
+            if (index === quizData.length - 1) {
+                nextBtn.textContent = '查看成绩 🏆';
+            } else {
+                nextBtn.textContent = '下一题 →';
+            }
+        }
+    }
+
+    function selectOption(qIndex, optIndex) {
+        if (answered[qIndex]) return;
+        userAnswers[qIndex] = optIndex;
+        answered[qIndex] = true;
+        updateLiveStats();
+        renderQuestion(qIndex);
+    }
+
+    function nextQuestion() {
+        if (!answered[currentIndex]) return;
+        if (currentIndex < quizData.length - 1) {
+            currentIndex++;
+            renderQuestion(currentIndex);
+        } else {
+            showResult();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion(currentIndex);
+        }
+    }
+
+    function showResult() {
+        quizArea.innerHTML = '';
+        navButtons.style.display = 'none';
+        resultScreen.classList.add('active');
+
+        let correct = 0, wrong = 0, unanswered = 0;
+        userAnswers.forEach((ans, i) => {
+            if (!answered[i]) { unanswered++; return; }
+            if (ans === quizData[i].a) correct++;
+            else wrong++;
+        });
+
+        document.getElementById('scoreNumber').textContent = correct;
+        document.getElementById('finalCorrect').textContent = correct;
+        document.getElementById('finalWrong').textContent = wrong;
+        document.getElementById('finalUnanswered').textContent = unanswered;
+
+        let msg = '';
+        const rate = correct / quizData.length;
+        if (rate >= 0.9) msg = '🎉 太棒了！你是空天知识的明日之星！';
+        else if (rate >= 0.7) msg = '👍 不错！再复习一下错题就更好了。';
+        else if (rate >= 0.5) msg = '💪 有基础，继续加油！';
+        else msg = '📚 别灰心，重新挑战一次吧！';
+        document.getElementById('resultMsg').textContent = msg;
+    }
+
+    function restartQuiz() {
+        currentIndex = 0;
+        userAnswers.fill(null);
+        answered.fill(false);
+        navButtons.style.display = 'flex';
+        resultScreen.classList.remove('active');
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        nextBtn.textContent = '请先选择答案';
+        updateLiveStats();
+        renderQuestion(0);
+    }
+
+    // ===== 题库查看功能 =====
+    function renderBank(filterCat) {
+        const list = document.getElementById('bankList');
+        let html = '';
+        quizData.forEach((q, idx) => {
+            const hidden = (filterCat !== 'all' && q.cat !== filterCat) ? ' hidden' : '';
+            const key = String.fromCharCode(65 + q.a);
+            let optHTML = '';
+            q.o.forEach((opt, i) => {
+                const isAns = i === q.a;
+                const mark = String.fromCharCode(65 + i);
+                optHTML += `<li class="${isAns ? 'is-answer' : ''}"><span class="mark">${mark}.</span>${opt}${isAns ? ' ✓' : ''}</li>`;
+            });
+            html += `
+                <div class="bank-item${hidden}" data-cat="${q.cat}">
+                    <div class="bank-item-top">
+                        <span class="bank-item-num">第 ${idx + 1} 题</span>
+                        <span class="bank-tag">${catNames[q.cat]}</span>
+                    </div>
+                    <div class="bank-item-q">${q.q}</div>
+                    <ul class="bank-item-options">${optHTML}</ul>
+                    <div class="bank-answer">✅ 正确答案：${key}</div>
+                    <div class="bank-explain">💡 ${q.e}</div>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+    }
+
+    function filterBank(cat, btn) {
+        document.querySelectorAll('#bankFilter .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderBank(cat);
+    }
+
+    function showBank() {
+        mainScreen.style.display = 'none';
+        reportScreen.classList.remove('active');
+        bankScreen.classList.add('active');
+        renderBank('all');
+        document.querySelectorAll('#bankFilter .filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('#bankFilter .filter-btn[data-cat="all"]').classList.add('active');
+        document.querySelector('.bank-list').scrollTop = 0;
+    }
+
+    function hideBank() {
+        bankScreen.classList.remove('active');
+        mainScreen.style.display = 'block';
+    }
+
+    // ===== 答题情况查看 =====
+    function showReport() {
+        mainScreen.style.display = 'none';
+        bankScreen.classList.remove('active');
+        reportScreen.classList.add('active');
+
+        let correct = 0, wrong = 0, unanswered = 0;
+        userAnswers.forEach((ans, i) => {
+            if (!answered[i]) { unanswered++; return; }
+            if (ans === quizData[i].a) correct++;
+            else wrong++;
+        });
+
+        document.getElementById('reportSummary').innerHTML = `
+            <div class="item"><div class="num blue">${correct}</div><div class="label">答对（得分）</div></div>
+            <div class="item"><div class="num red">${wrong}</div><div class="label">答错</div></div>
+            <div class="item"><div class="num">${unanswered}</div><div class="label">未答</div></div>
+        `;
+
+        let listHTML = '';
+        quizData.forEach((q, i) => {
+            const isAnswered = answered[i];
+            const userAns = userAnswers[i];
+            const isCorrect = isAnswered && userAns === q.a;
+            const statusCls = !isAnswered ? 'unanswered' : (isCorrect ? 'correct' : 'wrong');
+            const statusText = !isAnswered ? '未作答' : (isCorrect ? '✓ 正确 +1分' : '✗ 错误');
+            const userKey = isAnswered ? String.fromCharCode(65 + userAns) : '—';
+            const correctKey = String.fromCharCode(65 + q.a);
+
+            let answerLine = '';
+            if (isAnswered) {
+                answerLine = `<span class="your ${isCorrect ? 'is-correct' : ''}">你的选择：${userKey}（${q.o[userAns]}）</span><br><span class="correct">正确答案：${correctKey}（${q.o[q.a]}）</span>`;
+            } else {
+                answerLine = `<span class="correct">正确答案：${correctKey}（${q.o[q.a]}）</span>`;
+            }
+
+            listHTML += `
+                <div class="report-item ${isCorrect ? '' : 'wrong'}">
+                    <div class="report-item-top">
+                        <span class="report-item-num">第 ${i + 1} 题 · ${catNames[q.cat]}</span>
+                        <span class="report-status ${statusCls}">${statusText}</span>
+                    </div>
+                    <div class="report-item-q">${q.q}</div>
+                    <div class="report-item-answers">${answerLine}</div>
+                </div>
+            `;
+        });
+        document.getElementById('reportList').innerHTML = listHTML;
+        document.querySelector('.report-list').scrollTop = 0;
+    }
+
+    function hideReport() {
+        reportScreen.classList.remove('active');
+        mainScreen.style.display = 'block';
+    }
+
+    // ===== 导出题库为TXT =====
+    function exportTxt() {
+        const catNamesFull = {
+            physics: "一、物理学基础",
+            aero: "二、航空航天常识",
+            c919: "三、国产大飞机C919"
+        };
+
+        let lines = [];
+        lines.push("════════════════════════════════════════");
+        lines.push("  航空航天 · 物理 · C919 科普答题题库");
+        lines.push("  北京初中生科技活动 · 共30题（每题1分）");
+        lines.push("  导出时间：" + new Date().toLocaleString('zh-CN'));
+        lines.push("════════════════════════════════════════");
+        lines.push("");
+
+        const categories = ['physics', 'aero', 'c919'];
+        let globalIndex = 0;
+
+        categories.forEach(cat => {
+            lines.push("");
+            lines.push("【" + catNamesFull[cat] + "】");
+            lines.push("────────────────────────────────────────");
+
+            quizData.forEach((q) => {
+                if (q.cat !== cat) return;
+                globalIndex++;
+                const correctKey = String.fromCharCode(65 + q.a);
+                lines.push("");
+                lines.push(globalIndex + ". " + q.q);
+                q.o.forEach((opt, i) => {
+                    const mark = String.fromCharCode(65 + i);
+                    const isAns = i === q.a ? "  ★正确答案" : "";
+                    lines.push("   " + mark + ". " + opt + isAns);
+                });
+                lines.push("   【答案】" + correctKey);
+                lines.push("   【解析】" + q.e);
+            });
+        });
+
+        lines.push("");
+        lines.push("════════════════════════════════════════");
+        lines.push("  答案速查表");
+        lines.push("════════════════════════════════════════");
+        let answerLine = "";
+        quizData.forEach((q, i) => {
+            const key = String.fromCharCode(65 + q.a);
+            answerLine += (i + 1) + "." + key + "  ";
+            if ((i + 1) % 10 === 0) {
+                lines.push(answerLine.trim());
+                answerLine = "";
+            }
+        });
+        if (answerLine.trim()) lines.push(answerLine.trim());
+        lines.push("");
+        lines.push("  祝你在科技活动中取得好成绩！🚀");
+
+        const content = lines.join("\n");
+        const blob = new Blob(["\uFEFF" + content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = "航空航天物理C919题库_" + dateStr + ".txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // ===== 导出答题记录为TXT =====
+    function exportReportTxt() {
+        let correct = 0, wrong = 0, unanswered = 0;
+        userAnswers.forEach((ans, i) => {
+            if (!answered[i]) { unanswered++; return; }
+            if (ans === quizData[i].a) correct++;
+            else wrong++;
+        });
+
+        let lines = [];
+        lines.push("════════════════════════════════════════");
+        lines.push("  航空航天 · 物理 · C919 答题记录");
+        lines.push("  北京初中生科技活动");
+        lines.push("  导出时间：" + new Date().toLocaleString('zh-CN'));
+        lines.push("════════════════════════════════════════");
+        lines.push("");
+        lines.push("【成绩总览】");
+        lines.push("  总分：" + correct + " / " + quizData.length);
+        lines.push("  答对：" + correct + " 题");
+        lines.push("  答错：" + wrong + " 题");
+        lines.push("  未答：" + unanswered + " 题");
+        lines.push("");
+        lines.push("────────────────────────────────────────");
+        lines.push("【逐题详情】");
+        lines.push("");
+
+        quizData.forEach((q, i) => {
+            const isAnswered = answered[i];
+            const userAns = userAnswers[i];
+            const isCorrect = isAnswered && userAns === q.a;
+            const correctKey = String.fromCharCode(65 + q.a);
+
+            lines.push((i + 1) + ". [" + catNames[q.cat] + "] " + q.q);
+            if (isAnswered) {
+                const userKey = String.fromCharCode(65 + userAns);
+                lines.push("   你的选择：" + userKey + ". " + q.o[userAns] + (isCorrect ? "  ✓" : "  ✗"));
+            } else {
+                lines.push("   你的选择：未作答");
+            }
+            lines.push("   正确答案：" + correctKey + ". " + q.o[q.a]);
+            lines.push("");
+        });
+
+        lines.push("════════════════════════════════════════");
+        lines.push("  继续加油！🚀");
+
+        const content = lines.join("\n");
+        const blob = new Blob(["\uFEFF" + content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = "C919答题记录_" + dateStr + "_得分" + correct + ".txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // 初始化
+    updateLiveStats();
+    renderQuestion(0);
+</script>
+</body>
+</html>

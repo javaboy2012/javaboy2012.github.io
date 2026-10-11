@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>常考文学常识轮播答题</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei";}
+    body{background:#f7efe0;padding:16px;transition:background 0.4s ease;}
+
+    .top-circle{
+      width:110px;
+      height:110px;
+      background:#d62828;
+      border-radius:50%;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      font-weight:bold;
+      font-size:22px;
+      transition:background 0.4s ease, color 0.4s ease;
+    }
+
+    .tag{
+      width:160px;
+      background:#b4862b;
+      color:#fff;
+      text-align:center;
+      padding:6px 10px;
+      border-radius:30px;
+      margin:14px auto;
+      font-size:16px;
+      transition:background 0.4s ease, color 0.4s ease;
+    }
+
+    /* 主题切换按钮组 */
+    .theme-switcher{
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .theme-btn{
+      padding:7px 14px;
+      border-radius:20px;
+      border:1px solid rgba(0,0,0,0.08);
+      background:rgba(255,255,255,0.75);
+      color:#444;
+      font-size:14px;
+      cursor:pointer;
+      transition:all 0.3s ease;
+    }
+    .theme-btn:hover{
+      transform:translateY(-1px);
+    }
+    .theme-btn.active{
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    /* 语音开关按钮 */
+    .voice-box{
+      text-align:center;
+      margin-bottom:12px;
+    }
+    .voice-btn{
+      padding:6px 14px;
+      border-radius:20px;
+      border:1px solid #ccc;
+      background:#fff;
+      cursor:pointer;
+    }
+
+    .q-card{
+      background:#fff;
+      border-radius:16px;
+      padding:28px 20px;
+      margin:20px 0;
+      font-size:26px;
+      text-align:center;
+      line-height:1.4;
+      transition:background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .q-index{
+      font-size:22px;
+      color:#666;
+      margin-bottom:12px;
+      display:block;
+      transition:color 0.4s ease;
+    }
+
+    .option{
+      background:#e8f0ff;
+      border-radius:12px;
+      padding:18px;
+      margin:12px 0;
+      text-align:center;
+      font-size:24px;
+      border:1px solid #c9d8f5;
+      transition:background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .option.right{
+      background:#38bd69;
+      color:#fff;
+      border-color:#279b52;
+    }
+
+    .count-down{
+      width:84px;
+      height:84px;
+      line-height:84px;
+      margin:14px auto 0;
+      text-align:center;
+      font-size:54px;
+      color:#d62828;
+      font-weight:bold;
+      border-radius:50%;
+      background:rgba(255,255,255,0.92);
+      box-shadow:0 6px 20px rgba(0,0,0,0.12);
+      display:none;
+      transition:background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+    }
+
+    .explain{
+      background:#fff3cd;
+      border-radius:12px;
+      padding:14px 16px;
+      margin-top:14px;
+      font-size:18px;
+      line-height:1.5;
+      display:none;
+      transition:background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+    }
+
+    /* ========== 风格1：暖米黄经典 ========== */
+    body.theme-classic{
+      background:#f7efe0;
+    }
+    body.theme-classic .top-circle{
+      background:#d62828;
+      color:#fff;
+    }
+    body.theme-classic .tag{
+      background:#b4862b;
+      color:#fff;
+    }
+    body.theme-classic .q-card{
+      background:#fff;
+      color:#222;
+      border:1px solid #f1e3c4;
+    }
+    body.theme-classic .q-index{
+      color:#666;
+    }
+    body.theme-classic .option{
+      background:#e8f0ff;
+      color:#222;
+      border-color:#c9d8f5;
+    }
+    body.theme-classic .option.right{
+      background:#38bd69;
+      color:#fff;
+      border-color:#279b52;
+    }
+    body.theme-classic .count-down{
+      background:rgba(255,255,255,0.92);
+      color:#d62828;
+    }
+    body.theme-classic .explain{
+      background:#fff3cd;
+      color:#7a6117;
+    }
+    body.theme-classic .theme-btn.active{
+      background:#b4862b;
+      color:#fff;
+    }
+
+    /* ========== 风格2：清新蓝白 ========== */
+    body.theme-blue{
+      background:#eef6ff;
+    }
+    body.theme-blue .top-circle{
+      background:#1e6feb;
+      color:#fff;
+    }
+    body.theme-blue .tag{
+      background:#3b82f6;
+      color:#fff;
+    }
+    body.theme-blue .q-card{
+      background:#ffffff;
+      color:#0f172a;
+      border:1px solid #d7e8ff;
+      box-shadow:0 8px 24px rgba(59,130,246,0.08);
+    }
+    body.theme-blue .q-index{
+      color:#3b82f6;
+    }
+    body.theme-blue .option{
+      background:#f0f7ff;
+      color:#0f172a;
+      border-color:#b9dcff;
+    }
+    body.theme-blue .option.right{
+      background:#16a34a;
+      color:#fff;
+      border-color:#16a34a;
+    }
+    body.theme-blue .count-down{
+      background:#ffffff;
+      color:#1e6feb;
+      border:2px solid #93c5fd;
+    }
+    body.theme-blue .explain{
+      background:#e6f4ff;
+      color:#1e40af;
+      border:1px solid #bfdbfe;
+    }
+    body.theme-blue .theme-btn.active{
+      background:#3b82f6;
+      color:#fff;
+    }
+
+    /* ========== 风格3：暗夜紫调 ========== */
+    body.theme-dark{
+      background:#14122a;
+    }
+    body.theme-dark .top-circle{
+      background:#7c3aed;
+      color:#fff;
+    }
+    body.theme-dark .tag{
+      background:#a855f7;
+      color:#fff;
+    }
+    body.theme-dark .q-card{
+      background:#1f1b3d;
+      color:#f5f3ff;
+      border:1px solid #312e66;
+      box-shadow:0 10px 30px rgba(124,58,237,0.18);
+    }
+    body.theme-dark .q-index{
+      color:#c4b5fd;
+    }
+    body.theme-dark .option{
+      background:#2a2652;
+      color:#f5f3ff;
+      border-color:#433d85;
+    }
+    body.theme-dark .option.right{
+      background:#22c55e;
+      color:#fff;
+      border-color:#22c55e;
+    }
+    body.theme-dark .count-down{
+      background:#1f1b3d;
+      color:#a855f7;
+      border:2px solid #7c3aed;
+    }
+    body.theme-dark .explain{
+      background:#2a2652;
+      color:#e9d5ff;
+      border:1px solid #7c3aed;
+    }
+    body.theme-dark .theme-btn{
+      background:#2a2652;
+      color:#e9d5ff;
+      border-color:#433d85;
+    }
+    body.theme-dark .theme-btn.active{
+      background:#a855f7;
+      color:#fff;
+    }
+
+    /* ========== 风格4：活力橙红 ========== */
+    body.theme-orange{
+      background:#fff4e6;
+    }
+    body.theme-orange .top-circle{
+      background:#ef4444;
+      color:#fff;
+    }
+    body.theme-orange .tag{
+      background:#f97316;
+      color:#fff;
+    }
+    body.theme-orange .q-card{
+      background:#ffffff;
+      color:#1f2937;
+      border:1px solid #fed7aa;
+      box-shadow:0 8px 24px rgba(249,115,22,0.12);
+    }
+    body.theme-orange .q-index{
+      color:#f97316;
+    }
+    body.theme-orange .option{
+      background:#fff7ed;
+      color:#1f2937;
+      border-color:#fdba74;
+    }
+    body.theme-orange .option.right{
+      background:#16a34a;
+      color:#fff;
+      border-color:#16a34a;
+    }
+    body.theme-orange .count-down{
+      background:#ffffff;
+      color:#ef4444;
+      border:2px solid #fca5a5;
+    }
+    body.theme-orange .explain{
+      background:#fff7ed;
+      color:#9a3412;
+      border:1px solid #fdba74;
+    }
+    body.theme-orange .theme-btn.active{
+      background:#f97316;
+      color:#fff;
+    }
+
+    /* ========== 风格5：清新墨绿 ========== */
+    body.theme-green{
+      background:#edf7f1;
+    }
+    body.theme-green .top-circle{
+      background:#047857;
+      color:#fff;
+    }
+    body.theme-green .tag{
+      background:#10b981;
+      color:#fff;
+    }
+    body.theme-green .q-card{
+      background:#ffffff;
+      color:#052e24;
+      border:1px solid #bfe9d3;
+      box-shadow:0 8px 24px rgba(16,185,129,0.12);
+    }
+    body.theme-green .q-index{
+      color:#047857;
+    }
+    body.theme-green .option{
+      background:#f0fbf5;
+      color:#052e24;
+      border-color:#a7e9cb;
+    }
+    body.theme-green .option.right{
+      background:#059669;
+      color:#fff;
+      border-color:#059669;
+    }
+    body.theme-green .count-down{
+      background:#ffffff;
+      color:#047857;
+      border:2px solid #6ee7b7;
+    }
+    body.theme-green .explain{
+      background:#ecfdf5;
+      color:#065f46;
+      border:1px solid #a7e9cb;
+    }
+    body.theme-green .theme-btn.active{
+      background:#10b981;
+      color:#fff;
+    }
+  </style>
+</head>
+<body class="theme-classic">
+  <div class="top-circle">常考<br>文学<br>常识</div>
+  <div class="tag">文学常识篇</div>
+
+  <!-- 五种风格切换按钮 -->
+  <div class="theme-switcher">
+    <button class="theme-btn active" data-theme="classic">经典</button>
+    <button class="theme-btn" data-theme="blue">蓝白</button>
+    <button class="theme-btn" data-theme="dark">暗夜</button>
+    <button class="theme-btn" data-theme="orange">橙红</button>
+    <button class="theme-btn" data-theme="green">墨绿</button>
+  </div>
+
+  <!-- 语音朗读开关 -->
+  <div class="voice-box">
+    <button class="voice-btn" id="voiceSwitch">朗读：开启</button>
+  </div>
+
+  <div class="q-card" id="question">
+    <span class="q-index" id="qIndex"></span>
+    <span id="qText"></span>
+  </div>
+  <div id="options-box"></div>
+  <div class="count-down" id="cd">3</div>
+  <div class="explain" id="exp"></div>
+
+  <script>
+    let audioCtx = null;
+    let voiceOn = true; // 默认开启语音读题
+    const voiceSwitchBtn = document.getElementById('voiceSwitch');
+
+    // 语音朗读函数，返回Promise，等待朗读完成
+    function speakText(text) {
+      return new Promise((resolve) => {
+        if(!voiceOn) {
+          resolve();
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "zh-CN";
+        utter.rate = 0.95;
+        utter.onend = () => resolve();
+        utter.onerror = () => resolve();
+        window.speechSynthesis.speak(utter);
+      })
+    }
+
+    // 语音开关点击事件
+    voiceSwitchBtn.onclick = function(){
+      voiceOn = !voiceOn;
+      if(voiceOn){
+        this.innerText = "朗读：开启";
+      }else{
+        this.innerText = "朗读：关闭";
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    // 倒计时滴答音效
+    function playTickSound() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.type = "sine";
+      oscillator.frequency.value = 800;
+      gainNode.gain.value = 0.25;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.12);
+    }
+
+    // 答对提示音：清脆上行三连音
+    function playCorrectSound() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const t = audioCtx.currentTime;
+      const note1 = audioCtx.createOscillator();
+      const gain1 = audioCtx.createGain();
+      note1.connect(gain1);
+      gain1.connect(audioCtx.destination);
+      note1.type = "sine";
+      note1.frequency.value = 587;
+      gain1.gain.value = 0.25;
+      note1.start(t);
+      note1.stop(t + 0.12);
+
+      const note2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      note2.connect(gain2);
+      gain2.connect(audioCtx.destination);
+      note2.type = "sine";
+      note2.frequency.value = 880;
+      gain2.gain.value = 0.25;
+      note2.start(t + 0.12);
+      note2.stop(t + 0.24);
+
+      const note3 = audioCtx.createOscillator();
+      const gain3 = audioCtx.createGain();
+      note3.connect(gain3);
+      gain3.connect(audioCtx.destination);
+      note3.type = "sine";
+      note3.frequency.value = 1318;
+      gain3.gain.value = 0.25;
+      note3.start(t + 0.24);
+      note3.stop(t + 0.40);
+    }
+
+    // 30道文学常识题库
+    const questionList = [
+      {
+        "id": 1,
+        "question": "《资治通鉴》属于哪种史书体例？",
+        "options": [
+          "A. 编年体",
+          "B. 国别体",
+          "C. 纪传体"
+        ],
+        "answer": "A",
+        "explain": "《资治通鉴》由司马光主编，是我国规模最大的编年体通史；国别体代表《战国策》，纪传体代表《史记》"
+      },
+      {
+        "id": 2,
+        "question": "《史记》的史书体例是？",
+        "options": [
+          "A. 编年体",
+          "B. 国别体",
+          "C. 纪传体"
+        ],
+        "answer": "C",
+        "explain": "《史记》是我国第一部纪传体通史，以人物传记为核心编写史书"
+      },
+      {
+        "id": 3,
+        "question": "《战国策》属于哪种史书体例？",
+        "options": [
+          "A. 编年体",
+          "B. 国别体",
+          "C. 纪传体"
+        ],
+        "answer": "B",
+        "explain": "《战国策》按不同国家分篇记载史事，是典型国别体史书"
+      },
+      {
+        "id": 4,
+        "question": "我国第一部诗歌总集是？",
+        "options": [
+          "A. 《楚辞》",
+          "B. 《诗经》",
+          "C. 《乐府诗集》"
+        ],
+        "answer": "B",
+        "explain": "《诗经》收录西周至春秋305篇诗歌，是我国最早诗歌总集"
+      },
+      {
+        "id": 5,
+        "question": "“史家之绝唱，无韵之离骚”评价的是哪部作品？",
+        "options": [
+          "A. 《汉书》",
+          "B. 《史记》",
+          "C. 《左传》"
+        ],
+        "answer": "B",
+        "explain": "这句话出自鲁迅，用来高度评价司马迁的《史记》"
+      },
+      {
+        "id": 6,
+        "question": "《诗经》分为哪三部分？",
+        "options": [
+          "A. 赋、比、兴",
+          "B. 风、雅、颂",
+          "C. 诗、词、曲"
+        ],
+        "answer": "B",
+        "explain": "《诗经》按音乐内容分为风、雅、颂；赋、比、兴是《诗经》的主要表现手法"
+      },
+      {
+        "id": 7,
+        "question": "下列哪部作品属于屈原的代表作？",
+        "options": [
+          "A. 《论语》",
+          "B. 《离骚》",
+          "C. 《庄子》"
+        ],
+        "answer": "B",
+        "explain": "《离骚》是屈原的长篇抒情诗，开创了楚辞传统；《论语》《庄子》并非屈原作品"
+      },
+      {
+        "id": 8,
+        "question": "“四书”不包括下面哪一项？",
+        "options": [
+          "A. 《大学》",
+          "B. 《中庸》",
+          "C. 《春秋》"
+        ],
+        "answer": "C",
+        "explain": "四书指《大学》《中庸》《论语》《孟子》，《春秋》属于五经"
+      },
+      {
+        "id": 9,
+        "question": "《春秋》相传是由谁整理修订的？",
+        "options": [
+          "A. 老子",
+          "B. 孔子",
+          "C. 孟子"
+        ],
+        "answer": "B",
+        "explain": "《春秋》是我国第一部编年体史书，相传由孔子整理修订"
+      },
+      {
+        "id": 10,
+        "question": "“落霞与孤鹜齐飞，秋水共长天一色”出自哪篇文章？",
+        "options": [
+          "A. 《滕王阁序》",
+          "B. 《岳阳楼记》",
+          "C. 《醉翁亭记》"
+        ],
+        "answer": "A",
+        "explain": "这句出自王勃的《滕王阁序》，是描写秋景的千古名句"
+      },
+      {
+        "id": 11,
+        "question": "《红楼梦》的作者是？",
+        "options": [
+          "A. 罗贯中",
+          "B. 施耐庵",
+          "C. 曹雪芹"
+        ],
+        "answer": "C",
+        "explain": "《红楼梦》是清代曹雪芹创作的长篇古典小说，代表中国古典小说高峰"
+      },
+      {
+        "id": 12,
+        "question": "《西游记》属于中国古典四大名著中的哪一类？",
+        "options": [
+          "A. 历史演义小说",
+          "B. 神魔小说",
+          "C. 世情小说"
+        ],
+        "answer": "B",
+        "explain": "《西游记》是吴承恩创作的神魔小说，以唐僧师徒西天取经为主线"
+      },
+      {
+        "id": 13,
+        "question": "“先天下之忧而忧，后天下之乐而乐”出自谁的作品？",
+        "options": [
+          "A. 欧阳修",
+          "B. 范仲淹",
+          "C. 苏轼"
+        ],
+        "answer": "B",
+        "explain": "这句话出自范仲淹的《岳阳楼记》，表达了以天下为己任的政治情怀"
+      },
+      {
+        "id": 14,
+        "question": "下列哪位诗人被称为“诗仙”？",
+        "options": [
+          "A. 杜甫",
+          "B. 李白",
+          "C. 白居易"
+        ],
+        "answer": "B",
+        "explain": "李白想象力丰富、诗风豪放，被后人誉为“诗仙”；杜甫被称为“诗圣”"
+      },
+      {
+        "id": 15,
+        "question": "《论语》主要记载了谁及其弟子的言行？",
+        "options": [
+          "A. 老子",
+          "B. 孔子",
+          "C. 庄子"
+        ],
+        "answer": "B",
+        "explain": "《论语》是儒家经典之一，主要记录孔子及其弟子的言行和思想"
+      },
+      {
+        "id": 16,
+        "question": "被称为“诗圣”的是唐代哪位诗人？",
+        "options": [
+          "A. 李白",
+          "B. 杜甫",
+          "C. 王维"
+        ],
+        "answer": "B",
+        "explain": "杜甫诗作多反映民生疾苦，被后人尊称为“诗圣”，他的诗被称作“诗史”"
+      },
+      {
+        "id": 17,
+        "question": "“但愿人长久，千里共婵娟”中“婵娟”指的是什么？",
+        "options": [
+          "A. 月亮",
+          "B. 美人",
+          "C. 桂花"
+        ],
+        "answer": "A",
+        "explain": "词句出自苏轼《水调歌头》，婵娟在这里代指明月"
+      },
+      {
+        "id": 18,
+        "question": "“唐宋八大家”不包含下面哪位？",
+        "options": [
+          "A. 韩愈",
+          "B. 李白",
+          "C. 欧阳修"
+        ],
+        "answer": "B",
+        "explain": "唐宋八大家：韩愈、柳宗元、欧阳修、苏洵、苏轼、苏辙、王安石、曾巩。李白是诗人，不在其中"
+      },
+      {
+        "id": 19,
+        "question": "《水浒传》的作者是？",
+        "options": [
+          "A. 施耐庵",
+          "B. 罗贯中",
+          "C. 吴承恩"
+        ],
+        "answer": "A",
+        "explain": "《水浒传》作者施耐庵，是我国第一部以农民起义为题材的长篇章回小说"
+      },
+      {
+        "id": 20,
+        "question": "“会当凌绝顶，一览众山小”描写的是哪座山？",
+        "options": [
+          "A. 华山",
+          "B. 泰山",
+          "C. 黄山"
+        ],
+        "answer": "B",
+        "explain": "出自杜甫《望岳》，诗歌歌咏泰山雄伟壮阔的景象"
+      },
+      {
+        "id": 21,
+        "question": "“乐府双璧”指《木兰诗》和哪一篇？",
+        "options": [
+          "A. 《孔雀东南飞》",
+          "B. 《陌上桑》",
+          "C. 《长歌行》"
+        ],
+        "answer": "A",
+        "explain": "《孔雀东南飞》与《木兰诗》合称为乐府双璧，是汉乐府叙事诗的代表作"
+      },
+      {
+        "id": 22,
+        "question": "《三国演义》的作者是？",
+        "options": [
+          "A. 罗贯中",
+          "B. 施耐庵",
+          "C. 曹雪芹"
+        ],
+        "answer": "A",
+        "explain": "罗贯中《三国演义》，是我国第一部长篇章回体历史演义小说"
+      },
+      {
+        "id": 23,
+        "question": "“醉翁之意不在酒”出自欧阳修的哪篇文章？",
+        "options": [
+          "A. 《岳阳楼记》",
+          "B. 《醉翁亭记》",
+          "C. 《桃花源记》"
+        ],
+        "answer": "B",
+        "explain": "出自欧阳修《醉翁亭记》，本意是欣赏山水，后用来表示本意不在此"
+      },
+      {
+        "id": 24,
+        "question": "陶渊明属于哪个朝代的诗人？",
+        "options": [
+          "A. 魏晋",
+          "B. 唐代",
+          "C. 宋代"
+        ],
+        "answer": "A",
+        "explain": "陶渊明，东晋末期诗人，田园诗派开创者，代表作《桃花源记》《饮酒》"
+      },
+      {
+        "id": 25,
+        "question": "“大漠孤烟直，长河落日圆”是谁的诗句？",
+        "options": [
+          "A. 高适",
+          "B. 王维",
+          "C. 岑参"
+        ],
+        "answer": "B",
+        "explain": "出自王维《使至塞上》，描绘塞外雄浑壮丽风光"
+      },
+      {
+        "id": 26,
+        "question": "“五经”不包含下面哪一部？",
+        "options": [
+          "A. 《诗经》",
+          "B. 《尚书》",
+          "C. 《论语》"
+        ],
+        "answer": "C",
+        "explain": "五经：《诗》《书》《礼》《易》《春秋》，《论语》属于四书"
+      },
+      {
+        "id": 27,
+        "question": "《桃花源记》的作者是？",
+        "options": [
+          "A. 陶渊明",
+          "B. 柳宗元",
+          "C. 韩愈"
+        ],
+        "answer": "A",
+        "explain": "陶渊明《桃花源记》，描绘与世隔绝、安宁美好的世外桃源"
+      },
+      {
+        "id": 28,
+        "question": "“忽如一夜春风来，千树万树梨花开”写的是什么？",
+        "options": [
+          "A. 梨花",
+          "B. 大雪",
+          "C. 春风"
+        ],
+        "answer": "B",
+        "explain": "出自岑参《白雪歌送武判官归京》，用梨花比喻漫天大雪"
+      },
+      {
+        "id": 29,
+        "question": "“一门三父子，都是大文豪”，三父子指的是？",
+        "options": [
+          "A. 曹操、曹丕、曹植",
+          "B. 苏洵、苏轼、苏辙",
+          "C. 班彪、班固、班昭"
+        ],
+        "answer": "B",
+        "explain": "苏洵、苏轼、苏辙，合称三苏，同列唐宋八大家"
+      },
+      {
+        "id": 30,
+        "question": "“温故而知新”出自哪部典籍？",
+        "options": [
+          "A. 《孟子》",
+          "B. 《论语》",
+          "C. 《道德经》"
+        ],
+        "answer": "B",
+        "explain": "出自《论语》，意思是温习旧知识，从而得到新的理解与体会"
+      }
+    ];
+
+    let currentIdx = 0;
+    const qIndexDom = document.getElementById('qIndex');
+    const qTextDom = document.getElementById('qText');
+    const optBox = document.getElementById('options-box');
+    const cdDom = document.getElementById('cd');
+    const expDom = document.getElementById('exp');
+    const themeButtons = document.querySelectorAll('.theme-btn');
+
+    // 切换主题
+    themeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const theme = btn.dataset.theme;
+        document.body.className = '';
+        document.body.classList.add('theme-' + theme);
+        themeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    async function renderQ() {
+      const item = questionList[currentIdx];
+
+      optBox.innerHTML = '';
+      expDom.style.display = 'none';
+      cdDom.style.display = 'none';
+
+      qIndexDom.innerText = `第${item.id}题`;
+      qTextDom.innerText = item.question;
+
+      // 渲染全部选项在页面上（页面正常显示所有选项）
+      item.options.forEach(txt => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.innerText = txt;
+        optBox.appendChild(div);
+      });
+
+      // 第一步：朗读题号+题干，不读答案
+      await speakText(`第${item.id}题，${item.question}`);
+
+      // 第二步：题干读完，启动3秒倒计时
+      for (let i = 3; i >= 1; i--) {
+        cdDom.style.display = 'block';
+        cdDom.innerText = i;
+        playTickSound();
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      cdDom.style.display = 'none';
+
+      // 倒计时结束，同步：高亮答案 + 朗读答案
+      const rightOptText = item.options.find(s => s.startsWith(item.answer));
+      const rightIndex = item.options.findIndex(s => s.startsWith(item.answer));
+      optBox.children[rightIndex].classList.add('right'); // 高亮
+      playCorrectSound();
+      await speakText(`正确答案是${rightOptText}`); // 同时读出答案
+
+      // 展示解析
+      expDom.innerText = item.explain;
+      expDom.style.display = 'block';
+
+      await new Promise(r => setTimeout(r, 3000));
+      currentIdx = (currentIdx + 1) % questionList.length;
+      renderQ();
+    }
+
+    document.body.insertAdjacentHTML('beforeend', `<div id="tip" style="position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:8px;z-index:9999;">点击页面任意位置，开启音效并开始答题轮播</div>`);
+    document.body.addEventListener('click', () => {
+      document.getElementById('tip').remove();
+      renderQ();
+    }, { once: true });
+  </script>
+</body>
+</html>

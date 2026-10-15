@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10儿童眼及视力保健 · 自动判题</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    max-width: 860px; margin: 0 auto; padding: 0 16px 80px;
+    line-height: 1.7; color: #333; background: #eef6fd;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: #eef6fd; padding: 16px 0 12px; margin: 0 -16px;
+    padding-left: 16px; padding-right: 16px;
+    box-shadow: 0 4px 12px rgba(0,120,220,.06);
+  }
+  h1 { font-size: 21px; text-align: center; color: #1a4d7a; margin: 0 0 12px; }
+  .stats {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .stat {
+    background: #fff; border-radius: 20px; padding: 4px 14px;
+    box-shadow: 0 2px 6px rgba(0,149,255,.1); font-weight: bold;
+  }
+  .stat.total { color: #1a4d7a; }
+  .stat.ok    { color: #1a9e4b; }
+  .stat.bad   { color: #d9534f; }
+  .progress {
+    height: 8px; background: #d9ecfb; border-radius: 5px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; width: 0%; border-radius: 5px;
+    background: linear-gradient(90deg, #0095ff, #4fc3f7);
+    transition: width .35s ease;
+  }
+
+  .question {
+    margin-top: 20px; padding: 18px 20px; background: #fff;
+    border-left: 5px solid #0095ff; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,149,255,.08);
+    transition: box-shadow .25s;
+  }
+  .question.done-ok  { border-left-color: #1a9e4b; }
+  .question.done-bad { border-left-color: #d9534f; }
+
+  .q-title { font-weight: bold; font-size: 15.5px; color: #1a4d7a; margin-bottom: 12px; }
+  .q-num { color: #0095ff; margin-right: 4px; }
+  .q-type {
+    display: inline-block; font-size: 11px; color: #fff; background: #0095ff;
+    border-radius: 3px; padding: 1px 7px; margin-left: 6px;
+    vertical-align: middle; font-weight: normal;
+  }
+  .q-type.multi { background: #ff8c00; }
+
+  .options { list-style: none; padding: 0; margin: 0; }
+  .option {
+    position: relative; margin: 8px 0; padding: 10px 14px 10px 40px;
+    border: 1.5px solid #dbeaf7; border-radius: 6px; background: #fafdff;
+    cursor: pointer; font-size: 14.5px; transition: all .18s;
+    user-select: none;
+  }
+  .option::before {
+    content: ""; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px; border: 2px solid #9fc9e8; background: #fff;
+  }
+  .option.single::before { border-radius: 50%; }
+  .option.multi::before  { border-radius: 3px; }
+  .option:not(.locked):hover { border-color: #0095ff; background: #f0f9ff; }
+  .option.selected { border-color: #0095ff; background: #e6f4ff; }
+  .option.selected::before { background: #0095ff; border-color: #0095ff; box-shadow: inset 0 0 0 3px #fff; }
+  .option.correct {
+    border-color: #1a9e4b; background: #e9f9ef; color: #14713a; font-weight: bold;
+  }
+  .option.correct::before {
+    background: #1a9e4b; border-color: #1a9e4b;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong {
+    border-color: #d9534f; background: #fdeceb; color: #a5322e;
+  }
+  .option.wrong::before {
+    background: #d9534f; border-color: #d9534f;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong:not(.locked):hover { border-color: #0095ff; background: #fff5f4; }
+  .option.locked { cursor: default; }
+
+  .confirm-btn {
+    display: inline-block; margin-top: 10px; padding: 8px 22px;
+    background: #ff8c00; color: #fff; border: none; border-radius: 20px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(255,140,0,.3); transition: all .2s;
+  }
+  .confirm-btn:hover { background: #e87d00; transform: translateY(-1px); }
+  .confirm-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .feedback.ok  { background: #e9f9ef; color: #14713a; border-left: 3px solid #1a9e4b; }
+  .feedback.bad { background: #fdeceb; color: #a5322e; border-left: 3px solid #d9534f; }
+  .feedback b { color: #c0392b; }
+  .feedback .tip { display: block; margin-top: 4px; color: #555; font-size: 13px; }
+
+  .toolbar { text-align: center; margin: 34px 0 10px; }
+  .toolbar button {
+    padding: 11px 30px; margin: 0 6px; border: none; border-radius: 24px;
+    font-size: 15px; font-weight: bold; cursor: pointer; transition: all .2s;
+  }
+  .btn-auto { background: linear-gradient(135deg,#0095ff,#4fc3f7); color:#fff; box-shadow:0 4px 12px rgba(0,149,255,.35); }
+  .btn-auto:hover { transform: translateY(-2px); }
+  .btn-reset { background: #fff; color: #1a4d7a; border: 1.5px solid #b7d8ef !important; }
+  .btn-reset:hover { background: #f0f9ff; }
+
+  .final {
+    margin-top: 20px; padding: 22px; text-align: center; border-radius: 10px;
+    font-size: 17px; font-weight: bold; display: none;
+    background: linear-gradient(135deg,#e8f6ff,#d0ecff); color:#1a4d7a;
+    box-shadow: 0 4px 14px rgba(0,149,255,.15);
+  }
+  .final .score { font-size: 30px; color: #0095ff; display: block; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .option { font-size: 14px; padding-left: 36px; }
+    h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>10儿童眼及视力保健 · 自动判题</h1>
+  <div class="stats">
+    <span class="stat total">已掌握 <span id="sOk">0</span>/23</span>
+    <span class="stat bad">待订正 <span id="sBad">0</span></span>
+  </div>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+</header>
+
+<div id="quiz"></div>
+
+<div class="toolbar">
+  <button class="btn-auto" id="btnAuto">一键显示全部答案</button>
+  <button class="btn-reset" id="btnReset">重新开始</button>
+</div>
+
+<div class="final" id="final"></div>
+
+<script>
+/* ============ 题库数据 ============ */
+const quizData = [
+  {
+    type: 'single',
+    title: '视力低常标准（ ）',
+    options: [
+      'A、4岁视力≤0.8，5岁视力≤0.6',
+      'B、4岁视力≤0.8，5岁视力≤1.0',
+      'C、4岁视力≤0.6，5岁视力≤0.8',
+      'D、4岁视力≤1.0，5岁视力≤0.8'
+    ],
+    answer: [2],
+    tip: '视力低常标准：4岁视力≤0.6，5岁视力≤0.8。'
+  },
+  {
+    type: 'single',
+    title: '儿童增加视力检查的年龄（ ）？',
+    options: ['A、3岁以上', 'B、4岁以上', 'C、5岁以上', 'D、6岁以上'],
+    answer: [1],
+    tip: '儿童4岁以上应增加视力检查。'
+  },
+  {
+    type: 'single',
+    title: '眼睛与各种电子产品荧光屏的距离一般为屏面对角线的（ ），屏幕略（ ）眼高？',
+    options: [
+      'A、2-4倍，高于',
+      'B、3-5倍，低于',
+      'C、1-3倍、高于',
+      'D、5-7倍、低于'
+    ],
+    answer: [1],
+    tip: '眼睛与屏幕距离为屏面对角线的3-5倍，屏幕略低于眼高。'
+  },
+  {
+    type: 'single',
+    title: '儿童持续近距离注视时间每次不宜超过（ ）？',
+    options: ['A、10分钟', 'B、20分钟', 'C、30分钟', 'D、40分钟'],
+    answer: [1],
+    tip: '儿童持续近距离注视时间每次不宜超过20分钟。'
+  },
+  {
+    type: 'single',
+    title: '检查儿童视力检测距离是（ ），视力表照度（ ）？',
+    options: [
+      'A、4米，400Lux',
+      'B、4米，500Lux',
+      'C、5米，400Lux',
+      'D、5米，500Lux'
+    ],
+    answer: [3],
+    tip: '视力检测距离为5米，视力表照度为500Lux。'
+  },
+  {
+    type: 'single',
+    title: '视力检查时，视力表高度',
+    options: [
+      'A、1.0行高度为受检者眼睛高度',
+      'B、距离地面1米',
+      'C、0.8行高度为受检者眼睛高度',
+      'D、距离地面1.5米'
+    ],
+    answer: [0],
+    tip: '视力表1.0行高度应与受检者眼睛高度一致。'
+  },
+  {
+    type: 'multi',
+    title: '儿童眼及视力保健中，眼的检查方法包括？',
+    options: [
+      'A、眼外观',
+      'B、眼位检查',
+      'C、光照反射',
+      'D、眼球运动',
+      'E、视力检查'
+    ],
+    answer: [0, 1, 2, 3, 4],
+    tip: '眼的检查方法包括眼外观、眼位检查、光照反射、眼球运动、视力检查。'
+  },
+  {
+    type: 'single',
+    title: '儿童（ ）视力低常或双眼裸眼视力相差（ ）行及以上时，2周-1个月后应复查一次，复查后视力仍符合上述条件时应转诊。',
+    options: ['单眼、二', '单眼、三', '双眼、二', '双眼、三'],
+    answer: [0],
+    tip: '单眼视力低常或双眼裸眼视力相差二行及以上时应复查。'
+  },
+  {
+    type: 'single',
+    title: '对视力低常的儿童每（ ）测查视力一次，记录在“视力矫治登记册”上。',
+    options: ['两周', '一个月', '三个月', '半年'],
+    answer: [1],
+    tip: '对视力低常的儿童每一个月测查视力一次。'
+  },
+  {
+    type: 'multi',
+    title: '出现下列情况之一者，应及时转诊。',
+    options: [
+      '具有任何一种视物行为异常的表现。',
+      '用眼疲劳，黑眼眶重。',
+      '眼位检查和眼球运动检查发现眼位偏斜或运动不协调。',
+      '眼睑、结膜、角膜和瞳孔等检查发现可疑异常。'
+    ],
+    answer: [0, 2, 3],
+    tip: '用眼疲劳、黑眼眶重不是转诊的严格标准，其余三项均为转诊指征。'
+  },
+  {
+    type: 'multi',
+    title: '下列说法正确的是',
+    options: [
+      '托幼机构不能对幼儿进行弱视训练',
+      '视力检查结束后，在规定时间内录入北京市妇幼信息系统。',
+      '保证录入数据的准确性和完整性',
+      '视力低常转诊后，不需要做追访'
+    ],
+    answer: [1, 2],
+    tip: '托幼机构可以进行弱视训练（在医生指导下），转诊后需要做追访，故选项1、4错误。'
+  },
+  {
+    type: 'multi',
+    title: '眼部预防保健措施有哪些？',
+    options: [
+      '早期发现、及时治疗',
+      '注意用眼卫生，合理营养，平衡膳食。',
+      '屈光不正的儿童及时去正规机构配眼镜',
+      '不要盲目使用眼保健产品，要在专业医师指导下，合理、适度使用。'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为眼部预防保健措施。'
+  },
+  {
+    type: 'multi',
+    title: '如何预防传染性眼病',
+    options: [
+      '教育和督促儿童经常洗手，不揉眼睛。',
+      '不要带领患有传染性眼病的儿童到人群聚集的场所活动',
+      '注意隔离患有传染性眼病的儿童，防止疾病传播蔓延。',
+      '定期对玩具、毛巾进行消毒，以预防传染性眼病的发生和流行。'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为预防传染性眼病的措施。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园有110名小朋友，其中100名小朋友参加了视力检查。教师检查出20人视力低常。有10人去医院，确诊8人视力低常。请问幼儿园一共有视力低常的人多少人？',
+    options: ['20', '8', '18', '10'],
+    answer: [0],
+    tip: '教师检查出20人视力低常，即幼儿园共有20人视力低常。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园有105名小朋友，其中100名小朋友参加了视力检查。教师检查出20人视力低常。有10人去医院，确诊8人视力低常。请问这家幼儿园视力低常患病率是多少。',
+    options: ['17.1%', '19.0%', '18.0%', '20.0%'],
+    answer: [3],
+    tip: '视力低常患病率 = 20/100 × 100% = 20.0%。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园有105名小朋友，其中100名小朋友参加了视力检查。教师检查出20人视力低常。有10人去医院，确诊8人视力低常，其中弱视5人。请问这家幼儿园弱视患病率是多少。',
+    options: ['5.0%', '25.0%', '10.0%', '62.5%'],
+    answer: [0],
+    tip: '弱视患病率 = 5/100 × 100% = 5.0%。'
+  },
+  {
+    type: 'multi',
+    title: '近视防控的“三明治”疗法有',
+    options: [
+      '充足的户外阳光暴露',
+      '调节训练方法',
+      '低浓度的阿托品滴眼液',
+      '角膜塑形镜'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '近视防控“三明治”疗法包括充足的户外阳光暴露、调节训练方法、低浓度阿托品滴眼液、角膜塑形镜。'
+  },
+  {
+    type: 'single',
+    title: '中国的“国病”是',
+    options: ['近视', '远视', '弱视', '龋齿'],
+    answer: [0],
+    tip: '近视是中国的“国病”。'
+  },
+  {
+    type: 'single',
+    title: '中度近视为',
+    options: [
+      '-3.00D至-6.00D',
+      '-2.00D至-6.00D',
+      '-3.00D至-8.00D',
+      '-4.00D至-6.00D'
+    ],
+    answer: [0],
+    tip: '中度近视为-3.00D至-6.00D。'
+  },
+  {
+    type: 'single',
+    title: '国内已经有很多医院对于出生后（ ）小时的新生儿进行眼病的筛查。',
+    options: ['1', '12', '24', '48'],
+    answer: [2],
+    tip: '出生后24小时的新生儿进行眼病筛查。'
+  },
+  {
+    type: 'single',
+    title: '弱视治愈后容易复发，继续追踪观察（ ）年非常重要',
+    options: ['1', '2', '3', '4'],
+    answer: [2],
+    tip: '弱视治愈后继续追踪观察3年非常重要。'
+  },
+  {
+    type: 'single',
+    title: '视觉发育关键期（ ）岁前，视觉发育敏感期（ ）岁前。',
+    options: ['2, 6', '1, 6', '2, 8', '1，8'],
+    answer: [0],
+    tip: '视觉发育关键期2岁前，视觉发育敏感期6岁前。'
+  },
+  {
+    type: 'single',
+    title: '儿童操作各种电子屏时间每次不宜超过（ ），每天累计时间建议不超过（ ）',
+    options: [
+      '1小时；2小时',
+      '20分钟；1小时',
+      '10分钟；30分钟',
+      '30分钟；1小时'
+    ],
+    answer: [1],
+    tip: '儿童操作电子屏时间每次不宜超过20分钟，每天累计不超过1小时。'
+  }
+];
+
+/* ============ 状态 ============ */
+const state = quizData.map(() => ({ selected: [], correct: false, wrong: false }));
+
+const quizEl  = document.getElementById('quiz');
+const sOkEl   = document.getElementById('sOk');
+const sBadEl  = document.getElementById('sBad');
+const barEl   = document.getElementById('bar');
+const finalEl = document.getElementById('final');
+
+/* ============ 渲染单题 ============ */
+function renderQuestion(qIdx) {
+  const q = quizData[qIdx];
+  const s = state[qIdx];
+  const isMulti = q.type === 'multi';
+
+  const optHtml = q.options.map((text, oIdx) => {
+    let cls = 'option ' + (isMulti ? 'multi' : 'single');
+    const isAnswer = q.answer.includes(oIdx);
+    const isSelected = s.selected.includes(oIdx);
+
+    if (s.correct) {
+      cls += ' locked';
+      if (isAnswer) cls += ' correct';
+    } else if (s.wrong) {
+      if (isSelected) cls += ' wrong';
+    } else {
+      if (isSelected) cls += ' selected';
+    }
+    return `<li class="${cls}" data-q="${qIdx}" data-o="${oIdx}">${text}</li>`;
+  }).join('');
+
+  let confirmHtml = '';
+  if (isMulti && !s.correct) {
+    confirmHtml = `<button class="confirm-btn" data-q="${qIdx}" ${s.selected.length === 0 ? 'disabled' : ''}>${s.wrong ? '再次确认' : '确认答案'}</button>`;
+  }
+
+  let fbHtml = '';
+  if (s.correct) {
+    fbHtml = `<div class="feedback ok">✓ 回答正确！<span class="tip">${q.tip}</span></div>`;
+  } else if (s.wrong) {
+    fbHtml = `<div class="feedback bad">✗ 回答错误，请重新选择后再试。</div>`;
+  }
+
+  const cardCls = s.correct ? 'done-ok' : (s.wrong ? 'done-bad' : '');
+
+  return `<div class="question ${cardCls}" id="card-${qIdx}">
+    <div class="q-title">
+      <span class="q-num">${qIdx + 1}.</span>${q.title}
+      <span class="q-type ${isMulti ? 'multi' : ''}">${isMulti ? '多选题' : '单选题'}</span>
+    </div>
+    <ul class="options">${optHtml}</ul>
+    ${confirmHtml}
+    ${fbHtml}
+  </div>`;
+}
+
+function renderAll() {
+  quizEl.innerHTML = quizData.map((_, i) => renderQuestion(i)).join('');
+}
+
+/* ============ 统计 ============ */
+function updateStats() {
+  let ok = 0, bad = 0;
+  state.forEach(s => {
+    if (s.correct) ok++;
+    else if (s.wrong) bad++;
+  });
+  sOkEl.textContent  = ok;
+  sBadEl.textContent = bad;
+  barEl.style.width  = (ok / quizData.length * 100) + '%';
+
+  if (ok === quizData.length) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `🎉 全部答对，太棒了！<span class="score">23 / 23</span>可点击「重新开始」再次练习。`;
+  } else {
+    finalEl.style.display = 'none';
+  }
+}
+
+/* ============ 单选 ============ */
+function handleSingle(qIdx, oIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct) return;
+  s.selected = [oIdx];
+  const right = (q.answer.length === 1 && q.answer[0] === oIdx);
+  s.correct = right;
+  s.wrong   = !right;
+  refreshCard(qIdx);
+}
+
+/* ============ 多选 ============ */
+function toggleMulti(qIdx, oIdx) {
+  const s = state[qIdx];
+  if (s.correct) return;
+  const pos = s.selected.indexOf(oIdx);
+  if (pos > -1) s.selected.splice(pos, 1);
+  else s.selected.push(oIdx);
+  s.wrong = false;
+  refreshCard(qIdx);
+}
+
+function confirmMulti(qIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct || s.selected.length === 0) return;
+  const a = [...s.selected].sort((x, y) => x - y).join(',');
+  const b = [...q.answer].sort((x, y) => x - y).join(',');
+  if (a === b) { s.correct = true; s.wrong = false; }
+  else         { s.wrong = true; }
+  refreshCard(qIdx);
+}
+
+/* ============ 刷新 ============ */
+function refreshCard(qIdx) {
+  const old = document.getElementById('card-' + qIdx);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderQuestion(qIdx);
+  const neu = tmp.firstElementChild;
+  if (old) old.replaceWith(neu);
+  updateStats();
+}
+
+/* ============ 事件 ============ */
+quizEl.addEventListener('click', function (e) {
+  const opt = e.target.closest('.option');
+  if (opt && !opt.classList.contains('locked')) {
+    const qIdx = +opt.dataset.q, oIdx = +opt.dataset.o;
+    if (quizData[qIdx].type === 'single') handleSingle(qIdx, oIdx);
+    else toggleMulti(qIdx, oIdx);
+    return;
+  }
+  const btn = e.target.closest('.confirm-btn');
+  if (btn && !btn.disabled) confirmMulti(+btn.dataset.q);
+});
+
+/* ============ 一键显示答案 ============ */
+document.getElementById('btnAuto').addEventListener('click', function () {
+  quizData.forEach((q, i) => {
+    const s = state[i];
+    s.correct  = true;
+    s.wrong    = false;
+    s.selected = [...q.answer];
+  });
+  renderAll();
+  updateStats();
+  finalEl.style.display = 'block';
+  finalEl.innerHTML = `已显示全部正确答案 ✅<br><span class="score">23 / 23</span>可点击「重新开始」自行练习。`;
+});
+
+/* ============ 重新开始 ============ */
+document.getElementById('btnReset').addEventListener('click', function () {
+  state.forEach(s => { s.selected = []; s.correct = false; s.wrong = false; });
+  renderAll();
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ============ 初始化 ============ */
+renderAll();
+updateStats();
+</script>
+</body>
+</html>

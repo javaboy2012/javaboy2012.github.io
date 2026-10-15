@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12儿童口腔 · 自动判题</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    max-width: 860px; margin: 0 auto; padding: 0 16px 80px;
+    line-height: 1.7; color: #333; background: #eef6fd;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: #eef6fd; padding: 16px 0 12px; margin: 0 -16px;
+    padding-left: 16px; padding-right: 16px;
+    box-shadow: 0 4px 12px rgba(0,120,220,.06);
+  }
+  h1 { font-size: 21px; text-align: center; color: #1a4d7a; margin: 0 0 12px; }
+  .stats {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .stat {
+    background: #fff; border-radius: 20px; padding: 4px 14px;
+    box-shadow: 0 2px 6px rgba(0,149,255,.1); font-weight: bold;
+  }
+  .stat.total { color: #1a4d7a; }
+  .stat.ok    { color: #1a9e4b; }
+  .stat.bad   { color: #d9534f; }
+  .progress {
+    height: 8px; background: #d9ecfb; border-radius: 5px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; width: 0%; border-radius: 5px;
+    background: linear-gradient(90deg, #0095ff, #4fc3f7);
+    transition: width .35s ease;
+  }
+
+  .question {
+    margin-top: 20px; padding: 18px 20px; background: #fff;
+    border-left: 5px solid #0095ff; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,149,255,.08);
+    transition: box-shadow .25s;
+  }
+  .question.done-ok  { border-left-color: #1a9e4b; }
+  .question.done-bad { border-left-color: #d9534f; }
+
+  .q-title { font-weight: bold; font-size: 15.5px; color: #1a4d7a; margin-bottom: 12px; }
+  .q-num { color: #0095ff; margin-right: 4px; }
+  .q-type {
+    display: inline-block; font-size: 11px; color: #fff; background: #0095ff;
+    border-radius: 3px; padding: 1px 7px; margin-left: 6px;
+    vertical-align: middle; font-weight: normal;
+  }
+  .q-type.multi { background: #ff8c00; }
+
+  .options { list-style: none; padding: 0; margin: 0; }
+  .option {
+    position: relative; margin: 8px 0; padding: 10px 14px 10px 40px;
+    border: 1.5px solid #dbeaf7; border-radius: 6px; background: #fafdff;
+    cursor: pointer; font-size: 14.5px; transition: all .18s;
+    user-select: none;
+  }
+  .option::before {
+    content: ""; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px; border: 2px solid #9fc9e8; background: #fff;
+  }
+  .option.single::before { border-radius: 50%; }
+  .option.multi::before  { border-radius: 3px; }
+  .option:not(.locked):hover { border-color: #0095ff; background: #f0f9ff; }
+  .option.selected { border-color: #0095ff; background: #e6f4ff; }
+  .option.selected::before { background: #0095ff; border-color: #0095ff; box-shadow: inset 0 0 0 3px #fff; }
+  .option.correct {
+    border-color: #1a9e4b; background: #e9f9ef; color: #14713a; font-weight: bold;
+  }
+  .option.correct::before {
+    background: #1a9e4b; border-color: #1a9e4b;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong {
+    border-color: #d9534f; background: #fdeceb; color: #a5322e;
+  }
+  .option.wrong::before {
+    background: #d9534f; border-color: #d9534f;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong:not(.locked):hover { border-color: #0095ff; background: #fff5f4; }
+  .option.locked { cursor: default; }
+
+  .confirm-btn {
+    display: inline-block; margin-top: 10px; padding: 8px 22px;
+    background: #ff8c00; color: #fff; border: none; border-radius: 20px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(255,140,0,.3); transition: all .2s;
+  }
+  .confirm-btn:hover { background: #e87d00; transform: translateY(-1px); }
+  .confirm-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .feedback.ok  { background: #e9f9ef; color: #14713a; border-left: 3px solid #1a9e4b; }
+  .feedback.bad { background: #fdeceb; color: #a5322e; border-left: 3px solid #d9534f; }
+  .feedback b { color: #c0392b; }
+  .feedback .tip { display: block; margin-top: 4px; color: #555; font-size: 13px; }
+
+  .toolbar { text-align: center; margin: 34px 0 10px; }
+  .toolbar button {
+    padding: 11px 30px; margin: 0 6px; border: none; border-radius: 24px;
+    font-size: 15px; font-weight: bold; cursor: pointer; transition: all .2s;
+  }
+  .btn-auto { background: linear-gradient(135deg,#0095ff,#4fc3f7); color:#fff; box-shadow:0 4px 12px rgba(0,149,255,.35); }
+  .btn-auto:hover { transform: translateY(-2px); }
+  .btn-reset { background: #fff; color: #1a4d7a; border: 1.5px solid #b7d8ef !important; }
+  .btn-reset:hover { background: #f0f9ff; }
+
+  .final {
+    margin-top: 20px; padding: 22px; text-align: center; border-radius: 10px;
+    font-size: 17px; font-weight: bold; display: none;
+    background: linear-gradient(135deg,#e8f6ff,#d0ecff); color:#1a4d7a;
+    box-shadow: 0 4px 14px rgba(0,149,255,.15);
+  }
+  .final .score { font-size: 30px; color: #0095ff; display: block; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .option { font-size: 14px; padding-left: 36px; }
+    h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>12儿童口腔 · 自动判题</h1>
+  <div class="stats">
+    <span class="stat total">已掌握 <span id="sOk">0</span>/16</span>
+    <span class="stat bad">待订正 <span id="sBad">0</span></span>
+  </div>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+</header>
+
+<div id="quiz"></div>
+
+<div class="toolbar">
+  <button class="btn-auto" id="btnAuto">一键显示全部答案</button>
+  <button class="btn-reset" id="btnReset">重新开始</button>
+</div>
+
+<div class="final" id="final"></div>
+
+<script>
+/* ============ 题库数据 ============ */
+const quizData = [
+  {
+    type: 'single',
+    title: '恒牙（ ）岁开始萌出，（ ）岁全部萌出，全牙列共28-32颗',
+    options: ['6；12；', '4；10；', '5；11；'],
+    answer: [0],
+    tip: '恒牙6岁开始萌出，12岁全部萌出。'
+  },
+  {
+    type: 'single',
+    title: '乳牙有多少颗',
+    options: ['18', '20', '22'],
+    answer: [1],
+    tip: '乳牙共20颗。'
+  },
+  {
+    type: 'multi',
+    title: '全身应用，加氟形式有：',
+    options: ['饮水加氟', '食盐加氟', '牛奶加氟', '植物油加氟'],
+    answer: [0, 1, 2],
+    tip: '全身加氟形式包括饮水加氟、食盐加氟、牛奶加氟，植物油加氟不属于全身用氟方式。'
+  },
+  {
+    type: 'multi',
+    title: '局部应用加氟有',
+    options: ['氟泡沫', '氟漱口水', '氟涂料'],
+    answer: [0, 1, 2],
+    tip: '局部用氟包括氟泡沫、氟漱口水、氟涂料。'
+  },
+  {
+    type: 'multi',
+    title: 'WHO口腔健康标准是：',
+    options: [
+      '牙齿清洁、无龋洞',
+      '牙齿亮白、没有龋坏',
+      '无疼痛感、牙龈颜色正常、无出血现象',
+      '没有缺牙、排列整齐、无假牙'
+    ],
+    answer: [0, 2],
+    tip: 'WHO口腔健康标准为：牙齿清洁、无龋洞、无疼痛感、牙龈颜色正常、无出血现象。'
+  },
+  {
+    type: 'multi',
+    title: '关于牙菌斑正确的说法是',
+    options: [
+      '用力漱口可以将牙菌斑清除',
+      '药物可以将牙菌斑清除',
+      '只能依靠机械方式去除',
+      '牙菌斑是附着在牙齿表面未矿化的细菌群体'
+    ],
+    answer: [2, 3],
+    tip: '牙菌斑只能依靠机械方式去除，是附着在牙齿表面未矿化的细菌群体。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园口腔检查每年（ ）次',
+    options: ['1', '2', '3'],
+    answer: [0],
+    tip: '幼儿园口腔检查每年1次。'
+  },
+  {
+    type: 'single',
+    title: '请问该幼儿园的龋患率是多少？',
+    options: ['47.6%', '50%', '15%', '33.33%'],
+    answer: [0],
+    tip: '根据图例数据计算，龋患率为47.6%。'
+  },
+  {
+    type: 'single',
+    title: '这个幼儿园的龋均是多少？',
+    options: ['3', '2', '1.5', '5'],
+    answer: [0],
+    tip: '龋均为3。'
+  },
+  {
+    type: 'single',
+    title: '这个幼儿园的新龋率是多少？',
+    options: ['33.33%', '40%', '23.8%', '25%'],
+    answer: [0],
+    tip: '新龋率为33.33%。'
+  },
+  {
+    type: 'single',
+    title: '这个幼儿园的矫治率（人）是多少？',
+    options: ['60%', '40%', '23.8%', '30%'],
+    answer: [0],
+    tip: '矫治率（人）为60%。'
+  },
+  {
+    type: 'single',
+    title: '这个幼儿园的矫治率（牙）是多少？',
+    options: ['33.33%', '50%', '75%', '30%'],
+    answer: [1],
+    tip: '矫治率（牙）为50%。'
+  },
+  {
+    type: 'single',
+    title: '请问上面乳牙的牙位图是指的那颗牙齿？',
+    options: ['右上第一磨牙', '右上第二磨牙', '左上第一磨牙', '左下第一磨牙', '左下尖牙'],
+    answer: [0],
+    tip: '该牙位图为右上第一磨牙。'
+  },
+  {
+    type: 'single',
+    title: '请问上面乳牙的牙位图是指的那颗牙齿？',
+    options: ['左下中切牙', '右下中切牙', '左下侧切牙', '右下侧切牙'],
+    answer: [0],
+    tip: '该牙位图为左下中切牙。'
+  },
+  {
+    type: 'single',
+    title: '请问上面乳牙的牙位图是指的那颗牙齿？',
+    options: ['左下第二磨牙', '左下第一磨牙', '右下第二磨牙', '右下第一磨牙'],
+    answer: [0],
+    tip: '该牙位图为左下第二磨牙。'
+  },
+  {
+    type: 'single',
+    title: '请问上面乳牙的牙位图是指的那颗牙齿？',
+    options: ['右上侧切牙', '右上尖牙', '左上侧切', '左上尖牙'],
+    answer: [1],
+    tip: '该牙位图为右上尖牙。'
+  }
+];
+
+/* ============ 状态 ============ */
+const state = quizData.map(() => ({ selected: [], correct: false, wrong: false }));
+
+const quizEl  = document.getElementById('quiz');
+const sOkEl   = document.getElementById('sOk');
+const sBadEl  = document.getElementById('sBad');
+const barEl   = document.getElementById('bar');
+const finalEl = document.getElementById('final');
+
+/* ============ 渲染单题 ============ */
+function renderQuestion(qIdx) {
+  const q = quizData[qIdx];
+  const s = state[qIdx];
+  const isMulti = q.type === 'multi';
+
+  const optHtml = q.options.map((text, oIdx) => {
+    let cls = 'option ' + (isMulti ? 'multi' : 'single');
+    const isAnswer = q.answer.includes(oIdx);
+    const isSelected = s.selected.includes(oIdx);
+
+    if (s.correct) {
+      cls += ' locked';
+      if (isAnswer) cls += ' correct';
+    } else if (s.wrong) {
+      if (isSelected) cls += ' wrong';
+    } else {
+      if (isSelected) cls += ' selected';
+    }
+    return `<li class="${cls}" data-q="${qIdx}" data-o="${oIdx}">${text}</li>`;
+  }).join('');
+
+  let confirmHtml = '';
+  if (isMulti && !s.correct) {
+    confirmHtml = `<button class="confirm-btn" data-q="${qIdx}" ${s.selected.length === 0 ? 'disabled' : ''}>${s.wrong ? '再次确认' : '确认答案'}</button>`;
+  }
+
+  let fbHtml = '';
+  if (s.correct) {
+    fbHtml = `<div class="feedback ok">✓ 回答正确！<span class="tip">${q.tip}</span></div>`;
+  } else if (s.wrong) {
+    fbHtml = `<div class="feedback bad">✗ 回答错误，请重新选择后再试。</div>`;
+  }
+
+  const cardCls = s.correct ? 'done-ok' : (s.wrong ? 'done-bad' : '');
+
+  return `<div class="question ${cardCls}" id="card-${qIdx}">
+    <div class="q-title">
+      <span class="q-num">${qIdx + 1}.</span>${q.title}
+      <span class="q-type ${isMulti ? 'multi' : ''}">${isMulti ? '多选题' : '单选题'}</span>
+    </div>
+    <ul class="options">${optHtml}</ul>
+    ${confirmHtml}
+    ${fbHtml}
+  </div>`;
+}
+
+function renderAll() {
+  quizEl.innerHTML = quizData.map((_, i) => renderQuestion(i)).join('');
+}
+
+/* ============ 统计 ============ */
+function updateStats() {
+  let ok = 0, bad = 0;
+  state.forEach(s => {
+    if (s.correct) ok++;
+    else if (s.wrong) bad++;
+  });
+  sOkEl.textContent  = ok;
+  sBadEl.textContent = bad;
+  barEl.style.width  = (ok / quizData.length * 100) + '%';
+
+  if (ok === quizData.length) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `🎉 全部答对，太棒了！<span class="score">16 / 16</span>可点击「重新开始」再次练习。`;
+  } else {
+    finalEl.style.display = 'none';
+  }
+}
+
+/* ============ 单选 ============ */
+function handleSingle(qIdx, oIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct) return;
+  s.selected = [oIdx];
+  const right = (q.answer.length === 1 && q.answer[0] === oIdx);
+  s.correct = right;
+  s.wrong   = !right;
+  refreshCard(qIdx);
+}
+
+/* ============ 多选 ============ */
+function toggleMulti(qIdx, oIdx) {
+  const s = state[qIdx];
+  if (s.correct) return;
+  const pos = s.selected.indexOf(oIdx);
+  if (pos > -1) s.selected.splice(pos, 1);
+  else s.selected.push(oIdx);
+  s.wrong = false;
+  refreshCard(qIdx);
+}
+
+function confirmMulti(qIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct || s.selected.length === 0) return;
+  const a = [...s.selected].sort((x, y) => x - y).join(',');
+  const b = [...q.answer].sort((x, y) => x - y).join(',');
+  if (a === b) { s.correct = true; s.wrong = false; }
+  else         { s.wrong = true; }
+  refreshCard(qIdx);
+}
+
+/* ============ 刷新 ============ */
+function refreshCard(qIdx) {
+  const old = document.getElementById('card-' + qIdx);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderQuestion(qIdx);
+  const neu = tmp.firstElementChild;
+  if (old) old.replaceWith(neu);
+  updateStats();
+}
+
+/* ============ 事件 ============ */
+quizEl.addEventListener('click', function (e) {
+  const opt = e.target.closest('.option');
+  if (opt && !opt.classList.contains('locked')) {
+    const qIdx = +opt.dataset.q, oIdx = +opt.dataset.o;
+    if (quizData[qIdx].type === 'single') handleSingle(qIdx, oIdx);
+    else toggleMulti(qIdx, oIdx);
+    return;
+  }
+  const btn = e.target.closest('.confirm-btn');
+  if (btn && !btn.disabled) confirmMulti(+btn.dataset.q);
+});
+
+/* ============ 一键显示答案 ============ */
+document.getElementById('btnAuto').addEventListener('click', function () {
+  quizData.forEach((q, i) => {
+    const s = state[i];
+    s.correct  = true;
+    s.wrong    = false;
+    s.selected = [...q.answer];
+  });
+  renderAll();
+  updateStats();
+  finalEl.style.display = 'block';
+  finalEl.innerHTML = `已显示全部正确答案 ✅<br><span class="score">16 / 16</span>可点击「重新开始」自行练习。`;
+});
+
+/* ============ 重新开始 ============ */
+document.getElementById('btnReset').addEventListener('click', function () {
+  state.forEach(s => { s.selected = []; s.correct = false; s.wrong = false; });
+  renderAll();
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ============ 初始化 ============ */
+renderAll();
+updateStats();
+</script>
+</body>
+</html>

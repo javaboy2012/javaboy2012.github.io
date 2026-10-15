@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北京托幼机构保健医培训考试真题5 · 自动判题</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    max-width: 860px; margin: 0 auto; padding: 0 16px 80px;
+    line-height: 1.7; color: #333; background: #eef6fd;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: #eef6fd; padding: 16px 0 12px; margin: 0 -16px;
+    padding-left: 16px; padding-right: 16px;
+    box-shadow: 0 4px 12px rgba(0,120,220,.06);
+  }
+  h1 { font-size: 20px; text-align: center; color: #1a4d7a; margin: 0 0 12px; line-height:1.4; }
+  .stats {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .stat {
+    background: #fff; border-radius: 20px; padding: 4px 14px;
+    box-shadow: 0 2px 6px rgba(0,149,255,.1); font-weight: bold;
+  }
+  .stat.total { color: #1a4d7a; }
+  .stat.ok    { color: #1a9e4b; }
+  .stat.bad   { color: #d9534f; }
+  .progress {
+    height: 8px; background: #d9ecfb; border-radius: 5px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; width: 0%; border-radius: 5px;
+    background: linear-gradient(90deg, #0095ff, #4fc3f7);
+    transition: width .35s ease;
+  }
+
+  .question {
+    margin-top: 20px; padding: 18px 20px; background: #fff;
+    border-left: 5px solid #0095ff; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,149,255,.08);
+    transition: box-shadow .25s;
+  }
+  .question.done-ok  { border-left-color: #1a9e4b; }
+  .question.done-bad { border-left-color: #d9534f; }
+
+  .q-title { font-weight: bold; font-size: 15.5px; color: #1a4d7a; margin-bottom: 12px; }
+  .q-num { color: #0095ff; margin-right: 4px; }
+  .q-type {
+    display: inline-block; font-size: 11px; color: #fff; background: #0095ff;
+    border-radius: 3px; padding: 1px 7px; margin-left: 6px;
+    vertical-align: middle; font-weight: normal;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0; }
+  .option {
+    position: relative; margin: 8px 0; padding: 10px 14px 10px 40px;
+    border: 1.5px solid #dbeaf7; border-radius: 6px; background: #fafdff;
+    cursor: pointer; font-size: 14.5px; transition: all .18s;
+    user-select: none;
+  }
+  .option::before {
+    content: ""; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px; border: 2px solid #9fc9e8; background: #fff;
+    border-radius: 50%;
+  }
+  .option:not(.locked):hover { border-color: #0095ff; background: #f0f9ff; }
+  .option.selected { border-color: #0095ff; background: #e6f4ff; }
+  .option.selected::before { background: #0095ff; border-color: #0095ff; box-shadow: inset 0 0 0 3px #fff; }
+  .option.correct {
+    border-color: #1a9e4b; background: #e9f9ef; color: #14713a; font-weight: bold;
+  }
+  .option.correct::before {
+    background: #1a9e4b; border-color: #1a9e4b;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong {
+    border-color: #d9534f; background: #fdeceb; color: #a5322e;
+  }
+  .option.wrong::before {
+    background: #d9534f; border-color: #d9534f;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong:not(.locked):hover { border-color: #0095ff; background: #fff5f4; }
+  .option.locked { cursor: default; }
+
+  .feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .feedback.ok  { background: #e9f9ef; color: #14713a; border-left: 3px solid #1a9e4b; }
+  .feedback.bad { background: #fdeceb; color: #a5322e; border-left: 3px solid #d9534f; }
+  .feedback b { color: #c0392b; }
+  .feedback .tip { display: block; margin-top: 4px; color: #555; font-size: 13px; }
+
+  .toolbar { text-align: center; margin: 34px 0 10px; }
+  .toolbar button {
+    padding: 11px 30px; margin: 0 6px; border: none; border-radius: 24px;
+    font-size: 15px; font-weight: bold; cursor: pointer; transition: all .2s;
+  }
+  .btn-auto { background: linear-gradient(135deg,#0095ff,#4fc3f7); color:#fff; box-shadow:0 4px 12px rgba(0,149,255,.35); }
+  .btn-auto:hover { transform: translateY(-2px); }
+  .btn-reset { background: #fff; color: #1a4d7a; border: 1.5px solid #b7d8ef !important; }
+  .btn-reset:hover { background: #f0f9ff; }
+
+  .final {
+    margin-top: 20px; padding: 22px; text-align: center; border-radius: 10px;
+    font-size: 17px; font-weight: bold; display: none;
+    background: linear-gradient(135deg,#e8f6ff,#d0ecff); color:#1a4d7a;
+    box-shadow: 0 4px 14px rgba(0,149,255,.15);
+  }
+  .final .score { font-size: 30px; color: #0095ff; display: block; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .option { font-size: 14px; padding-left: 36px; }
+    h1 { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>北京托幼机构保健医培训考试真题5 · 自动判题</h1>
+  <div class="stats">
+    <span class="stat total">已掌握 <span id="sOk">0</span>/70</span>
+    <span class="stat bad">待订正 <span id="sBad">0</span></span>
+  </div>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+</header>
+
+<div id="quiz"></div>
+
+<div class="toolbar">
+  <button class="btn-auto" id="btnAuto">一键显示全部答案</button>
+  <button class="btn-reset" id="btnReset">重新开始</button>
+</div>
+
+<div class="final" id="final"></div>
+
+<script>
+/* ============ 题库数据 ============ */
+const quizData = [
+  { title:'为儿童提供合理的营养膳食，满足儿童正常生长发育需要托幼机构应（ ）更换一次食谱，每学期至少进行一次膳食调查和营养评估。', options:['1-2周','1个月','2-4周','3-6周'], answer:0, tip:'托幼机构应1-2周更换一次食谱。' },
+  { title:'制订与儿童生理特点相适应的体格锻炼计划，根据儿童年龄特点开展游戏及体育活动，全日制的托幼机构坚持每天（）的户外活动，增进儿童身心健康。', options:['1小时以上','半小时以上','2小时以上','1.5小时以上'], answer:2, tip:'全日制托幼机构每天户外活动2小时以上。' },
+  { title:'托幼机构应当聘用符合国家规定的卫生保健人员。卫生保健人员包括（），并定期接受县级以上妇幼保健机构组织的卫生保健专业知识培训和业务指导。', options:['医师','护士','保健员','以上都是'], answer:3, tip:'卫生保健人员包括医师、护士、保健员。' },
+  { title:'入托健康检查结果（）内有效，超过后应该健康检查以后入园。', options:['6个月','3个月','9个月','12个月'], answer:1, tip:'入托健康检查结果3个月内有效。' },
+  { title:'保教人员应对儿童进行全日健康观察，内容包括（）并做好观察及处理记录。', options:['饮食、睡眠','大小便','精神状况、情绪行为','以上都是'], answer:3, tip:'全日健康观察内容包括饮食、睡眠、大小便、精神状况、情绪行为等。' },
+  { title:'留样食品应当按品种分别盛放于清洗消毒后的密闭专用容器内，在冷藏条件下存放（）以上；每样品种不少于100克以满足检验需要，并作好记录。', options:['12小时','72小时','48小时','36小时'], answer:2, tip:'留样食品冷藏存放48小时以上。' },
+  { title:'三大营养素热量占总热量的百分比是蛋白质12~15%，脂肪30~35%，碳水化合物50~60%。每日早餐、午餐、晚餐热量分配比例为（）。', options:['30%、40%和30%','40%、30%和30%','40%、50%和10%','35%、35%和30%'], answer:0, tip:'早、中、晚三餐热量分配为30%、40%、30%。' },
+  { title:'托幼机构预防新型冠状病毒的消毒剂优选有效氯浓度（）mg/L的含氯消毒剂。', options:['800','250-500','1000','2000'], answer:1, tip:'预防新冠病毒优选有效氯250-500mg/L的含氯消毒剂。' },
+  { title:'局部用氟的目标人群为（）儿童。', options:['1-3岁','3-6岁','5-8岁','7-10岁'], answer:1, tip:'局部用氟目标人群为3-6岁儿童。' },
+  { title:'新型冠状病毒的潜伏期多为（）天。', options:['1-14天','10-15天','3-7天','15-30天'], answer:2, tip:'新型冠状病毒潜伏期多为3-7天。' },
+  { title:'学前儿童"生理性流涎"发生的时间一般是（）。', options:['1个月','2个月','3-6个月','12个月'], answer:2, tip:'生理性流涎一般发生在3-6个月。' },
+  { title:'（）是主要的造血器官。', options:['细胞','白细胞','红骨髓','红细胞'], answer:2, tip:'红骨髓是主要的造血器官。' },
+  { title:'人体最坚硬的器官是（）。', options:['头','骨骼','大脑','牙齿'], answer:3, tip:'牙齿是人体最坚硬的器官。' },
+  { title:'（）是对幼儿进行集体教养的机构。', options:['家庭','游乐园','社会','幼儿园'], answer:3, tip:'幼儿园是对幼儿进行集体教养的机构。' },
+  { title:'幼儿在下列消化器官的功能中（）较成人为强。', options:['胃的消化功能','肠的吸收功能','肝的解毒功能','牙齿的咀嚼能力'], answer:1, tip:'幼儿肠的吸收功能较成人为强。' },
+  { title:'（）是人体中最大的内分泌腺。', options:['肾上腺','甲状腺','胸腺','松果体'], answer:1, tip:'甲状腺是人体最大的内分泌腺。' },
+  { title:'骨连结的主要方式是（）。', options:['直接骨连结','间接骨连结','软骨','致密结缔组织'], answer:1, tip:'骨连结的主要方式是间接骨连结。' },
+  { title:'人体从外界摄取营养物质，把它转化成机体自身的物质并储存能量的变化过程为（）。', options:['新陈代谢','同化作用（合成储存）','异化作用（分解代谢）','吸收'], answer:1, tip:'同化作用是合成并储存能量的过程。' },
+  { title:'幼儿（）发育相对较晚，这是幼儿早期肌肉不协调的主要原因。', options:['小脑','大脑','延脑','脊髓'], answer:0, tip:'小脑发育相对较晚，是幼儿早期肌肉不协调的主要原因。' },
+  { title:'婴幼儿眼球的前后径比较短、故呈（）。', options:['生理性斜视','生理性弱视','生理性近视','生理性远视'], answer:3, tip:'婴幼儿眼球前后径较短，呈生理性远视。' },
+  { title:'学前儿童处于生长发育期，一般来说同化作用（）异化作用。', options:['小于','大于','等于','无关于'], answer:1, tip:'学前儿童同化作用大于异化作用。' },
+  { title:'人体有（）块骨骼。', options:['260','261','206','207'], answer:2, tip:'人体有206块骨骼。' },
+  { title:'骨是由（）构成。', options:['骨膜、骨质和骨髓','骨骼、软骨和骨质','骨质、骨骼和骨髓','骨膜、骨细胞和骨质'], answer:0, tip:'骨由骨膜、骨质和骨髓构成。' },
+  { title:'以下称为下呼吸道的是（）。', options:['鼻、咽、喉','气管、支气管','肺','鼻'], answer:1, tip:'气管、支气管为下呼吸道。' },
+  { title:'培养学前儿童正确坐、立、行姿势，有利于其（）形成。', options:['脊椎生理弯曲','足弓','骨盆','关节'], answer:0, tip:'正确坐立行姿势有利于脊椎生理弯曲的形成。' },
+  { title:'气体交换的场所是（）。', options:['肺','胃','气管','鼻'], answer:0, tip:'肺是气体交换的场所。' },
+  { title:'学前儿童的咽鼓管短，并且呈水平位，所以幼儿易患（）。', options:['泪囊炎','咽喉炎','中耳炎','结膜炎'], answer:2, tip:'幼儿咽鼓管短且水平，易患中耳炎。' },
+  { title:'教学前儿童正确鼻涕的方法是（）。', options:['捏住鼻梁用力擤','捏住鼻孔轻轻擤','轻轻堵住一侧鼻孔，先擤一侧，再擤另一侧','捂住鼻孔用力擤'], answer:2, tip:'正确擤鼻涕：堵住一侧鼻孔，先擤一侧再擤另一侧。' },
+  { title:'尿液在（）中形成。', options:['输尿管','肾脏','膀胱','尿道'], answer:1, tip:'尿液在肾脏中形成。' },
+  { title:'下列关于学前儿童内分泌系统特点及卫生保健的叙述,正确的是( )。', options:['生长激素是由肾上腺分泌的','婴幼儿白天生长激素分泌旺盛','要组织好婴幼儿睡眠,促进婴幼儿生长','一定要食用加碘盐'], answer:2, tip:'要组织好婴幼儿睡眠，促进婴幼儿生长激素分泌。' },
+  { title:'儿童腕骨全部钙化,约在( )。', options:['12岁左右','10岁左右','8岁左右','6岁左右'], answer:1, tip:'儿童腕骨全部钙化约在10岁左右。' },
+  { title:'新生儿的头围平均为( )。', options:['30厘米','34厘米','38厘米','42厘米'], answer:1, tip:'新生儿头围平均34厘米。' },
+  { title:'正常情况下,肺位于胸腔内,左肺和右肺的分叶为( )。', options:['左肺2叶、右肺3叶','左肺3叶、右肺2叶','左肺1叶、右肺2叶','左肺3叶、右肺4叶'], answer:0, tip:'左肺2叶、右肺3叶。' },
+  { title:'乳牙共20颗，于何时出齐（）。', options:['1岁左右','1岁半左右','2岁半左右','3岁左右'], answer:2, tip:'乳牙共20颗，2岁半左右出齐。' },
+  { title:'下列关于学前儿童生长发育规律的说法，错误的是（）。', options:['神经系统率先发育','淋巴系统前十年快速发育','生殖系统在第一生长高峰期迅速发育','其它各器官或系统呈波浪式发育'], answer:2, tip:'生殖系统在青春期迅速发育，而不是第一生长高峰期。' },
+  { title:'季节对儿童生长发育有一定影响，其中儿童身高增长较快的季节是（）。', options:['春季','夏季','秋季','冬季'], answer:0, tip:'春季儿童身高增长较快。' },
+  { title:'血小板具有的作用是（）。', options:['造血','止血凝血','减少血细胞','溶血'], answer:1, tip:'血小板具有止血凝血作用。' },
+  { title:'血色鲜红,出血量多,呈节律喷射状,与心跳一致,时间稍长的出血可以判断是（）。', options:['静脉出血','动脉出血','毛细血管出血','内出血'], answer:1, tip:'动脉出血：血色鲜红，呈节律喷射状。' },
+  { title:'幼儿血液中有吞噬细菌作用的（）较少，所以抗病能力差，易感染疾病。', options:['红细胞','白细胞','血红蛋白','胶原蛋白'], answer:1, tip:'幼儿血液中白细胞较少，抗病能力差。' },
+  { title:'人的整个生长发育期间，全身、大多数器官和系统有两次生长突增高峰，一次是在（），第二次是在青春发育初期。', options:['胎儿期','婴儿期','幼儿前期','幼儿期'], answer:0, tip:'第一次生长突增高峰是胎儿期，第二次是青春发育初期。' },
+  { title:'侏儒症是因垂体的生长激素分泌过（）。', options:['多','少','快','慢'], answer:1, tip:'侏儒症是垂体生长激素分泌过少引起的。' },
+  { title:'关系到儿童生长发育和智力发展的内分泌腺是（）。', options:['脑下垂体','肾上腺','甲状旁腺','甲状腺'], answer:3, tip:'甲状腺关系到儿童生长发育和智力发展。' },
+  { title:'小孩眼睛在（）以前可以有生理性远视。', options:['五岁','三岁','七岁','一岁'], answer:0, tip:'小孩眼睛在五岁以前可以有生理性远视。' },
+  { title:'下列不属于结缔组织的是（）。', options:['脂肪组织','血液','肌腱','皮肤'], answer:3, tip:'皮肤属于上皮组织，不属于结缔组织。' },
+  { title:'人体生命活动最基本的特征是（）。', options:['适应性','新陈代谢','生长发育','生殖'], answer:1, tip:'新陈代谢是人体生命活动最基本的特征。' },
+  { title:'婴幼儿大脑对葡萄糖有特殊的依赖，因此，学前儿童每餐的膳食中应摄入一定量的（）以满足脑组织代谢所需要的能量。', options:['碳水化合物（又叫糖类）','蛋白质','脂肪','维生素'], answer:0, tip:'婴幼儿大脑依赖葡萄糖，应摄入碳水化合物。' },
+  { title:'生长发育评价中最重要和最常用的形态指标是（）。', options:['身高、体重','头围、胸围','身高、胸围','体重、头围'], answer:0, tip:'身高、体重是生长发育评价最重要和最常用的形态指标。' },
+  { title:'出生后发育最为迅速的阶段为（）。', options:['新生儿期','婴儿期','幼儿前期','学龄前期'], answer:1, tip:'出生后发育最迅速的阶段是婴儿期。' },
+  { title:'以下称为上呼吸道的是（）。', options:['鼻、咽、气管','气管、支气管、咽','肺、咽、鼻','鼻、咽、喉'], answer:3, tip:'鼻、咽、喉为上呼吸道。' },
+  { title:'呼吸道与消化道的共同通道是（）。', options:['咽','喉','鼻','支气管'], answer:0, tip:'咽是呼吸道与消化道的共同通道。' },
+  { title:'对一般混合性食物胃的排空需要（）。', options:['4-5小时','5-6小时','2小时以上','3-4小时'], answer:0, tip:'混合性食物胃排空需4-5小时。' },
+  { title:'连通最小动脉和静脉之间的血管是（）。', options:['毛细血管','心脏','动脉','静脉'], answer:0, tip:'毛细血管连通最小动脉和静脉。' },
+  { title:'（）是人体最大的消化腺。', options:['肝脏','唾液腺','胰腺','胃腺'], answer:0, tip:'肝脏是人体最大的消化腺。' },
+  { title:'消化管中最为膨大的器官是（）。', options:['胃','肝脏','大肠','小肠'], answer:0, tip:'胃是消化管中最膨大的器官。' },
+  { title:'以下食物排空时间最短的是（）。', options:['脂肪','糖类','蛋白质','水'], answer:3, tip:'水排空时间最短。' },
+  { title:'以下是防止性早熟腺体是( )。', options:['垂体','肾上腺','性腺','松果体'], answer:3, tip:'松果体可防止性早熟。' },
+  { title:'对一般混合性食物胃的排空需要( )。', options:['4-5小时','5-6小时','2小时以上','3-4小时'], answer:0, tip:'混合性食物胃排空需4-5小时。' },
+  { title:'当幼儿阅读、写字、画画时柔和的光线应来自( )。', options:['左上方','右上方','左','右'], answer:0, tip:'柔和光线应来自左上方。' },
+  { title:'( )是人体吸收营养的主要器官。', options:['胃','肝脏','小肠','回肠'], answer:2, tip:'小肠是人体吸收营养的主要器官。' },
+  { title:'下列关于神经系统的说法错误的是（）。', options:['神经系统由中枢神经系统和周围神经系统组成','脑神经属于周围神经系统','神经系统活动的基本活动方式是反射','"望梅止渴"是一种非条件反射'], answer:3, tip:'"望梅止渴"是一种条件反射，故D错误。' },
+  { title:'（）是影响幼儿生长发育的外在因素。', options:['遗传','性别','内分泌','疾病的影响'], answer:3, tip:'疾病的影响是影响幼儿生长发育的外在因素。' },
+  { title:'学前儿童的发育遵循"头尾律"，在出生后整个生长发育过程中，躯干增加（）倍，上肢增加（）倍，下肢增加（）倍，头部增加（）倍。', options:['2,3,4,1','4,3,2,1','1,2,3,4','3,4,2,1'], answer:0, tip:'躯干2倍，上肢3倍，下肢4倍，头部1倍。' },
+  { title:'手脚变大，个子长高属于（）。', options:['生长','发育','成熟','以上都是'], answer:0, tip:'手脚变大、个子长高属于生长。' },
+  { title:'学前儿童出生后一年内体检（）次。', options:['1','2','3','5'], answer:3, tip:'学前儿童出生后一年内体检5次。' },
+  { title:'（）不是体格测量的必测项目。', options:['身高','体重','头围','胸围'], answer:3, tip:'胸围不是体格测量的必测项目。' },
+  { title:'学前儿童检测体重最好在（）、空腹、便后进行。', options:['早晨','中午','下午','晚上'], answer:0, tip:'检测体重最好在早晨、空腹、便后进行。' },
+  { title:'较大学前儿童可以使用（）测量身高。', options:['量床','身高计','杠杆秤','身高测量仪'], answer:1, tip:'较大学前儿童可以使用身高计测量身高。' },
+  { title:'一般来说，新生儿出生时的平均身高是（）cm。', options:['45','50','55','60'], answer:1, tip:'新生儿出生平均身高50cm。' },
+  { title:'按粗略的评价方法计算，一个6岁幼儿的体重约为（）。', options:['16千克','18千克','20千克','22千克'], answer:2, tip:'6岁幼儿体重约20千克。' },
+  { title:'下列关于学前儿童的生长发育的说法错误的是（）。', options:['学前儿童的生长发育是由量变到质变的过程','学前儿童的生长发育具有阶段性','学前儿童的生长发育具有程序性','学前儿童的生长发育速度是直线上升的'], answer:3, tip:'学前儿童的生长发育速度是波浪式的，不是直线上升的。' }
+];
+
+/* ============ 状态 ============ */
+const state = quizData.map(() => ({ selected: [], correct: false, wrong: false }));
+
+const quizEl  = document.getElementById('quiz');
+const sOkEl   = document.getElementById('sOk');
+const sBadEl  = document.getElementById('sBad');
+const barEl   = document.getElementById('bar');
+const finalEl = document.getElementById('final');
+
+/* ============ 渲染单题 ============ */
+function renderQuestion(qIdx) {
+  const q = quizData[qIdx];
+  const s = state[qIdx];
+
+  const optHtml = q.options.map((text, oIdx) => {
+    let cls = 'option';
+    const isAnswer = q.answer === oIdx;
+    const isSelected = s.selected.includes(oIdx);
+
+    if (s.correct) {
+      cls += ' locked';
+      if (isAnswer) cls += ' correct';
+    } else if (s.wrong) {
+      if (isSelected) cls += ' wrong';
+    } else {
+      if (isSelected) cls += ' selected';
+    }
+    const letter = String.fromCharCode(65 + oIdx);
+    return `<li class="${cls}" data-q="${qIdx}" data-o="${oIdx}">${letter}、${text}</li>`;
+  }).join('');
+
+  let fbHtml = '';
+  if (s.correct) {
+    fbHtml = `<div class="feedback ok">✓ 回答正确！<span class="tip">${q.tip}</span></div>`;
+  } else if (s.wrong) {
+    fbHtml = `<div class="feedback bad">✗ 回答错误，请重新选择。</div>`;
+  }
+
+  const cardCls = s.correct ? 'done-ok' : (s.wrong ? 'done-bad' : '');
+
+  return `<div class="question ${cardCls}" id="card-${qIdx}">
+    <div class="q-title">
+      <span class="q-num">${qIdx + 1}.</span>${q.title}
+      <span class="q-type">单选题</span>
+    </div>
+    <ul class="options">${optHtml}</ul>
+    ${fbHtml}
+  </div>`;
+}
+
+function renderAll() {
+  quizEl.innerHTML = quizData.map((_, i) => renderQuestion(i)).join('');
+}
+
+/* ============ 统计 ============ */
+function updateStats() {
+  let ok = 0, bad = 0;
+  state.forEach(s => {
+    if (s.correct) ok++;
+    else if (s.wrong) bad++;
+  });
+  sOkEl.textContent  = ok;
+  sBadEl.textContent = bad;
+  barEl.style.width  = (ok / quizData.length * 100) + '%';
+
+  if (ok === quizData.length) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `🎉 全部答对，太棒了！<span class="score">70 / 70</span>可点击「重新开始」再次练习。`;
+  } else {
+    finalEl.style.display = 'none';
+  }
+}
+
+/* ============ 单选 ============ */
+function handleSingle(qIdx, oIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct) return;
+  s.selected = [oIdx];
+  const right = (q.answer === oIdx);
+  s.correct = right;
+  s.wrong   = !right;
+  refreshCard(qIdx);
+}
+
+/* ============ 刷新 ============ */
+function refreshCard(qIdx) {
+  const old = document.getElementById('card-' + qIdx);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderQuestion(qIdx);
+  const neu = tmp.firstElementChild;
+  if (old) old.replaceWith(neu);
+  updateStats();
+}
+
+/* ============ 事件 ============ */
+quizEl.addEventListener('click', function (e) {
+  const opt = e.target.closest('.option');
+  if (opt && !opt.classList.contains('locked')) {
+    const qIdx = +opt.dataset.q, oIdx = +opt.dataset.o;
+    handleSingle(qIdx, oIdx);
+  }
+});
+
+/* ============ 一键显示答案 ============ */
+document.getElementById('btnAuto').addEventListener('click', function () {
+  quizData.forEach((q, i) => {
+    const s = state[i];
+    s.correct  = true;
+    s.wrong    = false;
+    s.selected = [q.answer];
+  });
+  renderAll();
+  updateStats();
+  finalEl.style.display = 'block';
+  finalEl.innerHTML = `已显示全部正确答案 ✅<br><span class="score">70 / 70</span>可点击「重新开始」自行练习。`;
+});
+
+/* ============ 重新开始 ============ */
+document.getElementById('btnReset').addEventListener('click', function () {
+  state.forEach(s => { s.selected = []; s.correct = false; s.wrong = false; });
+  renderAll();
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ============ 初始化 ============ */
+renderAll();
+updateStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一日生活 · 自动判题</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    max-width: 860px; margin: 0 auto; padding: 0 16px 80px;
+    line-height: 1.7; color: #333; background: #eef6fd;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: #eef6fd; padding: 16px 0 12px; margin: 0 -16px;
+    padding-left: 16px; padding-right: 16px;
+    box-shadow: 0 4px 12px rgba(0,120,220,.06);
+  }
+  h1 { font-size: 21px; text-align: center; color: #1a4d7a; margin: 0 0 12px; }
+  .stats {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .stat {
+    background: #fff; border-radius: 20px; padding: 4px 14px;
+    box-shadow: 0 2px 6px rgba(0,149,255,.1); font-weight: bold;
+  }
+  .stat.total { color: #1a4d7a; }
+  .stat.ok    { color: #1a9e4b; }
+  .stat.bad   { color: #d9534f; }
+  .progress {
+    height: 8px; background: #d9ecfb; border-radius: 5px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; width: 0%; border-radius: 5px;
+    background: linear-gradient(90deg, #0095ff, #4fc3f7);
+    transition: width .35s ease;
+  }
+
+  .question {
+    margin-top: 20px; padding: 18px 20px; background: #fff;
+    border-left: 5px solid #0095ff; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,149,255,.08);
+    transition: box-shadow .25s;
+  }
+  .question.done-ok  { border-left-color: #1a9e4b; }
+  .question.done-bad { border-left-color: #d9534f; }
+
+  .q-title { font-weight: bold; font-size: 15.5px; color: #1a4d7a; margin-bottom: 12px; }
+  .q-num { color: #0095ff; margin-right: 4px; }
+  .q-type {
+    display: inline-block; font-size: 11px; color: #fff; background: #0095ff;
+    border-radius: 3px; padding: 1px 7px; margin-left: 6px;
+    vertical-align: middle; font-weight: normal;
+  }
+  .q-type.multi { background: #ff8c00; }
+
+  .options { list-style: none; padding: 0; margin: 0; }
+  .option {
+    position: relative; margin: 8px 0; padding: 10px 14px 10px 40px;
+    border: 1.5px solid #dbeaf7; border-radius: 6px; background: #fafdff;
+    cursor: pointer; font-size: 14.5px; transition: all .18s;
+    user-select: none;
+  }
+  .option::before {
+    content: ""; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px; border: 2px solid #9fc9e8; background: #fff;
+  }
+  .option.single::before { border-radius: 50%; }
+  .option.multi::before  { border-radius: 3px; }
+  .option:not(.locked):hover { border-color: #0095ff; background: #f0f9ff; }
+  .option.selected { border-color: #0095ff; background: #e6f4ff; }
+  .option.selected::before { background: #0095ff; border-color: #0095ff; box-shadow: inset 0 0 0 3px #fff; }
+  .option.correct {
+    border-color: #1a9e4b; background: #e9f9ef; color: #14713a; font-weight: bold;
+  }
+  .option.correct::before {
+    background: #1a9e4b; border-color: #1a9e4b;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong {
+    border-color: #d9534f; background: #fdeceb; color: #a5322e;
+  }
+  .option.wrong::before {
+    background: #d9534f; border-color: #d9534f;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong:not(.locked):hover { border-color: #0095ff; background: #fff5f4; }
+  .option.locked { cursor: default; }
+
+  .confirm-btn {
+    display: inline-block; margin-top: 10px; padding: 8px 22px;
+    background: #ff8c00; color: #fff; border: none; border-radius: 20px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(255,140,0,.3); transition: all .2s;
+  }
+  .confirm-btn:hover { background: #e87d00; transform: translateY(-1px); }
+  .confirm-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .feedback.ok  { background: #e9f9ef; color: #14713a; border-left: 3px solid #1a9e4b; }
+  .feedback.bad { background: #fdeceb; color: #a5322e; border-left: 3px solid #d9534f; }
+  .feedback b { color: #c0392b; }
+  .feedback .tip { display: block; margin-top: 4px; color: #555; font-size: 13px; }
+
+  .toolbar { text-align: center; margin: 34px 0 10px; }
+  .toolbar button {
+    padding: 11px 30px; margin: 0 6px; border: none; border-radius: 24px;
+    font-size: 15px; font-weight: bold; cursor: pointer; transition: all .2s;
+  }
+  .btn-auto { background: linear-gradient(135deg,#0095ff,#4fc3f7); color:#fff; box-shadow:0 4px 12px rgba(0,149,255,.35); }
+  .btn-auto:hover { transform: translateY(-2px); }
+  .btn-reset { background: #fff; color: #1a4d7a; border: 1.5px solid #b7d8ef !important; }
+  .btn-reset:hover { background: #f0f9ff; }
+
+  .final {
+    margin-top: 20px; padding: 22px; text-align: center; border-radius: 10px;
+    font-size: 17px; font-weight: bold; display: none;
+    background: linear-gradient(135deg,#e8f6ff,#d0ecff); color:#1a4d7a;
+    box-shadow: 0 4px 14px rgba(0,149,255,.15);
+  }
+  .final .score { font-size: 30px; color: #0095ff; display: block; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .option { font-size: 14px; padding-left: 36px; }
+    h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>一日生活 · 自动判题</h1>
+  <div class="stats">
+    <span class="stat total">已掌握 <span id="sOk">0</span>/23</span>
+    <span class="stat bad">待订正 <span id="sBad">0</span></span>
+  </div>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+</header>
+
+<div id="quiz"></div>
+
+<div class="toolbar">
+  <button class="btn-auto" id="btnAuto">一键显示全部答案</button>
+  <button class="btn-reset" id="btnReset">重新开始</button>
+</div>
+
+<div class="final" id="final"></div>
+
+<script>
+/* ============ 题库数据 ============ */
+const quizData = [
+  {
+    type: 'single',
+    title: '儿童正餐间隔时间（ ）小时，准时开饭，全托应增加晚点。',
+    options: ['A、3-4小时', 'B、3-4.5小时', 'C、3.5-4小时', 'D、3.5-4.5小时'],
+    answer: [2],
+    tip: '儿童正餐间隔时间应为3.5-4小时。'
+  },
+  {
+    type: 'single',
+    title: '每日保证儿童按需饮水。每日上、下午各 1~2 次集中饮水， 3~6 岁儿童饮水量 （ ）毫升/次，并根据季节变化酌情调整饮水量。',
+    options: ['A、100-150ml', 'B、100-200ml', 'C、150-200ml', 'D、50-150ml'],
+    answer: [0],
+    tip: '3~6岁儿童每次饮水量为100-150ml。'
+  },
+  {
+    type: 'single',
+    title: '儿童梳子、拖鞋个人专用，保持清洁，清洗频率为多少',
+    options: ['A、每周', 'B、每两周', 'C、每月', 'D、每天'],
+    answer: [0],
+    tip: '儿童梳子、拖鞋应每周清洗一次。'
+  },
+  {
+    type: 'single',
+    title: '儿童进餐时间（）分钟/餐',
+    options: ['A、15-20', 'B、20-30', 'C、30-40', 'D、20-40'],
+    answer: [1],
+    tip: '儿童进餐时间以20-30分钟/餐为宜。'
+  },
+  {
+    type: 'multi',
+    title: '幼儿入园晨检，检查内容有哪些？',
+    options: [
+      '有无发热,及时测量体温',
+      '精神状态、面色,有无皮疹及某些传染病的早期表现等',
+      '了解儿童的一般健康情况,如饮食、睡眠、大小便等',
+      '有无携带不安全的物品'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '晨检内容包括：一测体温、二看精神面色、三问饮食睡眠大小便、四查有无携带不安全物品。'
+  },
+  {
+    type: 'single',
+    title: '学龄前儿童每日户外活动时间不少于（ ）小时，全托儿童不少于（ ）小时，其中体育锻炼不少于（ ）小时。',
+    options: [
+      '1小时、2小时、2小时',
+      '1小时、2小时、1小时',
+      '2小时、3小时、2小时',
+      '2小时、3小时、1小时'
+    ],
+    answer: [3],
+    tip: '学龄前儿童每日户外活动不少于2小时，全托儿童不少于3小时，其中体育锻炼不少于1小时。'
+  },
+  {
+    type: 'single',
+    title: '园所做好带药登记与管理工作，带药条和药袋要保留（ ）。',
+    options: ['72小时', '48小时', '24小时', '1周'],
+    answer: [2],
+    tip: '带药条和药袋需保留24小时。'
+  },
+  {
+    type: 'multi',
+    title: '儿童日常生活用品专人专用，保持清洁。下列哪项正确？',
+    options: [
+      '园（所）内儿童每人 1 巾 1 杯，每周清洗并消毒1次。',
+      '毛巾应放置在阳光通风处晾晒。',
+      '设置有毛巾架，毛巾架有明确标识，毛巾互相不接触、不贴墙。',
+      '每学期为儿童换洗床单、被套、枕套（巾）1 次。'
+    ],
+    answer: [0, 1, 2],
+    tip: '床单、被套、枕套应每月换洗1次，而非每学期，故选项4错误。'
+  },
+  {
+    type: 'multi',
+    title: '幼儿园的一日生活制度是根据什么制定的：',
+    options: [
+      '各年龄段儿童的生理、心理特点。',
+      '地区的季节变化',
+      '本园所的实际情况',
+      '教师的工作安排'
+    ],
+    answer: [0, 1, 2],
+    tip: '一日生活制度依据各年龄段儿童特点、季节变化和本园所实际情况制定，不依据教师工作安排。'
+  },
+  {
+    type: 'multi',
+    title: '合理安排儿童作息时间和各个生活环节的时间、顺序和次数，需要注意的是：',
+    options: [
+      '动静结合',
+      '集体活动与自由活动结合',
+      '室内活动与室外活动结合',
+      '不同形式的活动交替进行。'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '一日生活安排应做到动静结合、集体与自由结合、室内与室外结合、不同形式活动交替进行。'
+  },
+  {
+    type: 'single',
+    title: '幼儿餐后安静活动或散步时间为：',
+    options: ['10分钟', '15分钟', '10-15分钟', '15-30分钟'],
+    answer: [2],
+    tip: '餐后应安排10-15分钟的安静活动或散步。'
+  },
+  {
+    type: 'single',
+    title: '幼儿的正常腋温是（），口腔温度比腋窝温度高0.5°C，直肠温度比口腔温度高0.5°C',
+    options: ['36-37°C', '36.7-37°C', '36-37.2°C', '36.7-37.2°C'],
+    answer: [2],
+    tip: '幼儿正常腋温为36-37.2°C。'
+  },
+  {
+    type: 'single',
+    title: '在安静状态，幼儿胸部或腹腔一起一伏为一次呼吸。3-6岁儿童正常值为',
+    options: ['20-18次/分', '21-15次/分', '25-21次/分', '24-21次/分'],
+    answer: [2],
+    tip: '3-6岁儿童呼吸频率正常值为25-21次/分。'
+  },
+  {
+    type: 'multi',
+    title: '一般测量桡动脉用（  ）轻按桡动脉。正常脉搏规则，匀速（80-120次/分）',
+    options: ['食指', '大拇指', '中指', '无名指'],
+    answer: [0, 2],
+    tip: '测量桡动脉应用食指和中指轻按，拇指有动脉搏动会干扰计数。'
+  },
+  {
+    type: 'multi',
+    title: '下列哪些选项是热敷的作用？',
+    options: [
+      '保暖、解痉、镇痛，促进血液循环',
+      '控制炎症的扩散，降低体温',
+      '促进炎症消散或局限',
+      '减轻局部组织充血，'
+    ],
+    answer: [0, 2],
+    tip: '热敷的作用是保暖、解痉、镇痛、促进血液循环，以及促进炎症消散或局限。'
+  },
+  {
+    type: 'multi',
+    title: '下列哪些选项是冷敷的作用？',
+    options: [
+      '保暖、解痉、镇痛，促进血液循环',
+      '控制炎症的扩散，降低体温',
+      '减少脑细胞的需氧量',
+      '减轻局部充血，出血及疼痛，'
+    ],
+    answer: [1, 2, 3],
+    tip: '冷敷的作用是控制炎症扩散、降低体温、减少脑细胞需氧量、减轻局部充血出血及疼痛。'
+  },
+  {
+    type: 'multi',
+    title: '哪些部位不能冷敷？',
+    options: ['后颈', '后背', '前胸', '腹部', '脚心', '手心'],
+    answer: [0, 2, 3, 4],
+    tip: '不能冷敷的部位：后颈、前胸、腹部、脚心。'
+  },
+  {
+    type: 'single',
+    title: '哪些部位不能热敷？',
+    options: ['后背', '前胸', '腹部', '脚心'],
+    answer: [1],
+    tip: '前胸不能热敷。'
+  },
+  {
+    type: 'single',
+    title: '急性扭伤及软组织损需要在（  ）小时后才能进行热敷。',
+    options: ['24', '48-72', '24-36', '12-24'],
+    answer: [0],
+    tip: '急性扭伤及软组织损伤需在24小时后才能进行热敷。'
+  },
+  {
+    type: 'single',
+    title: '儿童一天大便是1-2次，小便一天一般是（  ）次',
+    options: ['4-5', '5-6', '6-7', '7-8'],
+    answer: [2],
+    tip: '儿童一天小便一般为6-7次。'
+  },
+  {
+    type: 'single',
+    title: '3-6岁幼儿，冬季午睡时间应为',
+    options: ['1.5-2小时', '1-1.5小时', '1.5-2.5小时', '2-2.5小时'],
+    answer: [0],
+    tip: '冬季午睡时间应为1.5-2小时。'
+  },
+  {
+    type: 'single',
+    title: '3-6岁幼儿，夏季午睡时间应为',
+    options: ['1.5-2小时', '1-1.5小时', '1.5-2.5小时', '2-2.5小时'],
+    answer: [2],
+    tip: '夏季午睡时间应为1.5-2.5小时。'
+  },
+  {
+    type: 'single',
+    title: '3-6岁幼儿，夜间睡眠时间应为',
+    options: ['8小时', '9小时', '10小时', '12小时'],
+    answer: [2],
+    tip: '3-6岁幼儿夜间睡眠时间应为10小时。'
+  }
+];
+
+/* ============ 状态 ============ */
+const state = quizData.map(() => ({ selected: [], correct: false, wrong: false }));
+
+const quizEl  = document.getElementById('quiz');
+const sOkEl   = document.getElementById('sOk');
+const sBadEl  = document.getElementById('sBad');
+const barEl   = document.getElementById('bar');
+const finalEl = document.getElementById('final');
+
+/* ============ 渲染单题 ============ */
+function renderQuestion(qIdx) {
+  const q = quizData[qIdx];
+  const s = state[qIdx];
+  const isMulti = q.type === 'multi';
+
+  const optHtml = q.options.map((text, oIdx) => {
+    let cls = 'option ' + (isMulti ? 'multi' : 'single');
+    const isAnswer = q.answer.includes(oIdx);
+    const isSelected = s.selected.includes(oIdx);
+
+    if (s.correct) {
+      cls += ' locked';
+      if (isAnswer) cls += ' correct';
+    } else if (s.wrong) {
+      if (isSelected) cls += ' wrong';
+    } else {
+      if (isSelected) cls += ' selected';
+    }
+    return `<li class="${cls}" data-q="${qIdx}" data-o="${oIdx}">${text}</li>`;
+  }).join('');
+
+  let confirmHtml = '';
+  if (isMulti && !s.correct) {
+    confirmHtml = `<button class="confirm-btn" data-q="${qIdx}" ${s.selected.length === 0 ? 'disabled' : ''}>${s.wrong ? '再次确认' : '确认答案'}</button>`;
+  }
+
+  let fbHtml = '';
+  if (s.correct) {
+    fbHtml = `<div class="feedback ok">✓ 回答正确！<span class="tip">${q.tip}</span></div>`;
+  } else if (s.wrong) {
+    fbHtml = `<div class="feedback bad">✗ 回答错误，请重新选择后再试。</div>`;
+  }
+
+  const cardCls = s.correct ? 'done-ok' : (s.wrong ? 'done-bad' : '');
+
+  return `<div class="question ${cardCls}" id="card-${qIdx}">
+    <div class="q-title">
+      <span class="q-num">${qIdx + 1}.</span>${q.title}
+      <span class="q-type ${isMulti ? 'multi' : ''}">${isMulti ? '多选题' : '单选题'}</span>
+    </div>
+    <ul class="options">${optHtml}</ul>
+    ${confirmHtml}
+    ${fbHtml}
+  </div>`;
+}
+
+function renderAll() {
+  quizEl.innerHTML = quizData.map((_, i) => renderQuestion(i)).join('');
+}
+
+/* ============ 统计 ============ */
+function updateStats() {
+  let ok = 0, bad = 0;
+  state.forEach(s => {
+    if (s.correct) ok++;
+    else if (s.wrong) bad++;
+  });
+  sOkEl.textContent  = ok;
+  sBadEl.textContent = bad;
+  barEl.style.width  = (ok / quizData.length * 100) + '%';
+
+  if (ok === quizData.length) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `🎉 全部答对，太棒了！<span class="score">23 / 23</span>可点击「重新开始」再次练习。`;
+  } else {
+    finalEl.style.display = 'none';
+  }
+}
+
+/* ============ 单选 ============ */
+function handleSingle(qIdx, oIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct) return;
+  s.selected = [oIdx];
+  const right = (q.answer.length === 1 && q.answer[0] === oIdx);
+  s.correct = right;
+  s.wrong   = !right;
+  refreshCard(qIdx);
+}
+
+/* ============ 多选 ============ */
+function toggleMulti(qIdx, oIdx) {
+  const s = state[qIdx];
+  if (s.correct) return;
+  const pos = s.selected.indexOf(oIdx);
+  if (pos > -1) s.selected.splice(pos, 1);
+  else s.selected.push(oIdx);
+  s.wrong = false;
+  refreshCard(qIdx);
+}
+
+function confirmMulti(qIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct || s.selected.length === 0) return;
+  const a = [...s.selected].sort((x, y) => x - y).join(',');
+  const b = [...q.answer].sort((x, y) => x - y).join(',');
+  if (a === b) { s.correct = true; s.wrong = false; }
+  else         { s.wrong = true; }
+  refreshCard(qIdx);
+}
+
+/* ============ 刷新 ============ */
+function refreshCard(qIdx) {
+  const old = document.getElementById('card-' + qIdx);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderQuestion(qIdx);
+  const neu = tmp.firstElementChild;
+  if (old) old.replaceWith(neu);
+  updateStats();
+}
+
+/* ============ 事件 ============ */
+quizEl.addEventListener('click', function (e) {
+  const opt = e.target.closest('.option');
+  if (opt && !opt.classList.contains('locked')) {
+    const qIdx = +opt.dataset.q, oIdx = +opt.dataset.o;
+    if (quizData[qIdx].type === 'single') handleSingle(qIdx, oIdx);
+    else toggleMulti(qIdx, oIdx);
+    return;
+  }
+  const btn = e.target.closest('.confirm-btn');
+  if (btn && !btn.disabled) confirmMulti(+btn.dataset.q);
+});
+
+/* ============ 一键显示答案 ============ */
+document.getElementById('btnAuto').addEventListener('click', function () {
+  quizData.forEach((q, i) => {
+    const s = state[i];
+    s.correct  = true;
+    s.wrong    = false;
+    s.selected = [...q.answer];
+  });
+  renderAll();
+  updateStats();
+  finalEl.style.display = 'block';
+  finalEl.innerHTML = `已显示全部正确答案 ✅<br><span class="score">23 / 23</span>可点击「重新开始」自行练习。`;
+});
+
+/* ============ 重新开始 ============ */
+document.getElementById('btnReset').addEventListener('click', function () {
+  state.forEach(s => { s.selected = []; s.correct = false; s.wrong = false; });
+  renderAll();
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ============ 初始化 ============ */
+renderAll();
+updateStats();
+</script>
+</body>
+</html>

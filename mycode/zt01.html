@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北京托幼机构保健医人员培训考试真题1 · 自动判题</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    max-width: 860px; margin: 0 auto; padding: 0 16px 80px;
+    line-height: 1.7; color: #333; background: #eef6fd;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: #eef6fd; padding: 16px 0 12px; margin: 0 -16px;
+    padding-left: 16px; padding-right: 16px;
+    box-shadow: 0 4px 12px rgba(0,120,220,.06);
+  }
+  h1 { font-size: 20px; text-align: center; color: #1a4d7a; margin: 0 0 12px; line-height:1.4; }
+  .stats {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .stat {
+    background: #fff; border-radius: 20px; padding: 4px 14px;
+    box-shadow: 0 2px 6px rgba(0,149,255,.1); font-weight: bold;
+  }
+  .stat.total { color: #1a4d7a; }
+  .stat.ok    { color: #1a9e4b; }
+  .stat.bad   { color: #d9534f; }
+  .progress {
+    height: 8px; background: #d9ecfb; border-radius: 5px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; width: 0%; border-radius: 5px;
+    background: linear-gradient(90deg, #0095ff, #4fc3f7);
+    transition: width .35s ease;
+  }
+
+  .section-title {
+    margin: 28px 0 12px; font-size: 17px; color: #1a4d7a;
+    border-left: 5px solid #0095ff; padding-left: 12px;
+  }
+
+  .question {
+    margin-top: 20px; padding: 18px 20px; background: #fff;
+    border-left: 5px solid #0095ff; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,149,255,.08);
+    transition: box-shadow .25s;
+  }
+  .question.done-ok  { border-left-color: #1a9e4b; }
+  .question.done-bad { border-left-color: #d9534f; }
+
+  .q-title { font-weight: bold; font-size: 15.5px; color: #1a4d7a; margin-bottom: 12px; }
+  .q-num { color: #0095ff; margin-right: 4px; }
+  .q-type {
+    display: inline-block; font-size: 11px; color: #fff; background: #0095ff;
+    border-radius: 3px; padding: 1px 7px; margin-left: 6px;
+    vertical-align: middle; font-weight: normal;
+  }
+  .q-type.multi { background: #ff8c00; }
+
+  .options { list-style: none; padding: 0; margin: 0; }
+  .option {
+    position: relative; margin: 8px 0; padding: 10px 14px 10px 40px;
+    border: 1.5px solid #dbeaf7; border-radius: 6px; background: #fafdff;
+    cursor: pointer; font-size: 14.5px; transition: all .18s;
+    user-select: none;
+  }
+  .option::before {
+    content: ""; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px; border: 2px solid #9fc9e8; background: #fff;
+  }
+  .option.single::before { border-radius: 50%; }
+  .option.multi::before  { border-radius: 3px; }
+  .option:not(.locked):hover { border-color: #0095ff; background: #f0f9ff; }
+  .option.selected { border-color: #0095ff; background: #e6f4ff; }
+  .option.selected::before { background: #0095ff; border-color: #0095ff; box-shadow: inset 0 0 0 3px #fff; }
+  .option.correct {
+    border-color: #1a9e4b; background: #e9f9ef; color: #14713a; font-weight: bold;
+  }
+  .option.correct::before {
+    background: #1a9e4b; border-color: #1a9e4b;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong {
+    border-color: #d9534f; background: #fdeceb; color: #a5322e;
+  }
+  .option.wrong::before {
+    background: #d9534f; border-color: #d9534f;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong:not(.locked):hover { border-color: #0095ff; background: #fff5f4; }
+  .option.locked { cursor: default; }
+
+  .confirm-btn {
+    display: inline-block; margin-top: 10px; padding: 8px 22px;
+    background: #ff8c00; color: #fff; border: none; border-radius: 20px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(255,140,0,.3); transition: all .2s;
+  }
+  .confirm-btn:hover { background: #e87d00; transform: translateY(-1px); }
+  .confirm-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .feedback.ok  { background: #e9f9ef; color: #14713a; border-left: 3px solid #1a9e4b; }
+  .feedback.bad { background: #fdeceb; color: #a5322e; border-left: 3px solid #d9534f; }
+  .feedback b { color: #c0392b; }
+  .feedback .tip { display: block; margin-top: 4px; color: #555; font-size: 13px; }
+
+  .toolbar { text-align: center; margin: 34px 0 10px; }
+  .toolbar button {
+    padding: 11px 30px; margin: 0 6px; border: none; border-radius: 24px;
+    font-size: 15px; font-weight: bold; cursor: pointer; transition: all .2s;
+  }
+  .btn-auto { background: linear-gradient(135deg,#0095ff,#4fc3f7); color:#fff; box-shadow:0 4px 12px rgba(0,149,255,.35); }
+  .btn-auto:hover { transform: translateY(-2px); }
+  .btn-reset { background: #fff; color: #1a4d7a; border: 1.5px solid #b7d8ef !important; }
+  .btn-reset:hover { background: #f0f9ff; }
+
+  .final {
+    margin-top: 20px; padding: 22px; text-align: center; border-radius: 10px;
+    font-size: 17px; font-weight: bold; display: none;
+    background: linear-gradient(135deg,#e8f6ff,#d0ecff); color:#1a4d7a;
+    box-shadow: 0 4px 14px rgba(0,149,255,.15);
+  }
+  .final .score { font-size: 30px; color: #0095ff; display: block; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .option { font-size: 14px; padding-left: 36px; }
+    h1 { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>北京托幼机构保健医人员培训考试真题1 · 自动判题</h1>
+  <div class="stats">
+    <span class="stat total">已掌握 <span id="sOk">0</span>/50</span>
+    <span class="stat bad">待订正 <span id="sBad">0</span></span>
+  </div>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+</header>
+
+<div id="quiz"></div>
+
+<div class="toolbar">
+  <button class="btn-auto" id="btnAuto">一键显示全部答案</button>
+  <button class="btn-reset" id="btnReset">重新开始</button>
+</div>
+
+<div class="final" id="final"></div>
+
+<script>
+/* ============ 题库数据 ============ */
+const quizData = [
+  /* ===== 单项选择题 1-34 ===== */
+  {
+    section: '一、单项选择题',
+    type: 'single',
+    title: '卫生保健室面积应≥（）平方米',
+    options: ['A、8', 'B、12', 'C、18', 'D、24'],
+    answer: [1],
+    tip: '卫生保健室面积应≥12平方米。'
+  },
+  {
+    type: 'single',
+    title: '按照《管理办法》要求，设立（），其设置应当符合本《规范》保健室设置基本要求。根据接收儿童数量配备符合相关资质的卫生保健人员，每（）名幼儿配备一名保健医。',
+    options: [
+      'A、保健室，250',
+      'B、卫生室，200',
+      'C、保健室或卫生室，150',
+      'D、保健室或卫生室，100'
+    ],
+    answer: [3],
+    tip: '设立保健室或卫生室，每100名幼儿配备一名保健医。'
+  },
+  {
+    type: 'single',
+    title: '托幼机构工作人员上岗前必须经县级人民政府卫生行政部门指定的（）进行健康检查，取得《托幼机构工作人员健康合格证》后方可上岗；在岗工作人员每年在县级人民政府卫生行政部门指定的医疗保健机构进行（）次健康检查。',
+    options: ['A、医疗保健机构　1', 'B、疾控中心　1', 'C、医疗机构　2', 'D、保健机构　2'],
+    answer: [0],
+    tip: '上岗前须经指定的医疗保健机构进行健康检查，在岗人员每年进行1次健康检查。'
+  },
+  {
+    type: 'single',
+    title: '新生入园体检率、建档率达（）。入托健康检查结果( )月内有效。在园（所）儿童应按照《托儿所幼儿园卫生保健工作规范》要求，定期进行健康体检。',
+    options: ['A、100%　1', 'B、100%　2', 'C、100%　3', 'D、100%　6'],
+    answer: [2],
+    tip: '新生入园体检率、建档率达100%，入托健康检查结果3个月内有效。'
+  },
+  {
+    type: 'single',
+    title: '幼儿每人( )条餐巾( )条毛巾，毛巾每天交替使用，有活动毛巾架，毛巾间距合理；一人一杯，每天消毒；餐具餐餐消毒；一人一床一被，被褥每( )天日光暴晒一次，每( )天清洗一次，传染病高发期每( )天暴晒一次。',
+    options: [
+      'A、1　2　15　30　7',
+      'B、2　2　30　15　7',
+      'C、1　2　15　20　5',
+      'D、1　2　30　15　5'
+    ],
+    answer: [0],
+    tip: '每人1条餐巾、2条毛巾，被褥每15天暴晒一次，每30天清洗一次，传染病高发期每7天暴晒一次。'
+  },
+  {
+    type: 'single',
+    title: '炊事人员与儿童配备比例：提供每日两餐一点的托幼机构应达到（）。',
+    options: ['A、1:50', 'B、1:60', 'C、1:70', 'D、1:80'],
+    answer: [0],
+    tip: '提供每日两餐一点的托幼机构炊事人员与儿童配备比例应达到1:50。'
+  },
+  {
+    type: 'single',
+    title: '（）是集体膳食的一种科学管理方法',
+    options: ['A、计划膳食', 'B、均衡膳食', 'C、营养膳食', 'D、平衡膳食'],
+    answer: [0],
+    tip: '计划膳食是集体膳食的一种科学管理方法。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园幼儿每餐进餐时间为（）分钟。幼儿园两餐时间间隔不少于（）小时。',
+    options: ['A、10-20　2', 'B、20-30　3.5', 'C、30-40　3', 'D、20-40　2.5'],
+    answer: [1],
+    tip: '每餐进餐时间为20-30分钟，两餐间隔不少于3.5小时。'
+  },
+  {
+    type: 'single',
+    title: '餐后安静活动或散步时间为（）分钟。',
+    options: ['A、5-10', 'B、10-15', 'C、15-20', 'D、20-25'],
+    answer: [1],
+    tip: '餐后安静活动或散步时间为10-15分钟。'
+  },
+  {
+    type: 'single',
+    title: '餐前，餐桌的消毒程序是（）。',
+    options: ['A、清、消、清', 'B、消、清、清', 'C、清、消', 'D、消、清'],
+    answer: [0],
+    tip: '餐桌消毒程序为：清、消、清。'
+  },
+  {
+    type: 'single',
+    title: '食品留样保存时间是（）小时以上。',
+    options: ['A、24', 'B、36', 'C、48', 'D、72'],
+    answer: [2],
+    tip: '食品留样保存时间为48小时以上。'
+  },
+  {
+    type: 'single',
+    title: '对幼儿园要求，平均每天摄入（）种以上食物。',
+    options: ['A、8', 'B、10', 'C、12', 'D、15'],
+    answer: [2],
+    tip: '幼儿园平均每天摄入12种以上食物。'
+  },
+  {
+    type: 'single',
+    title: '餐前餐桌的消毒程序是（）。',
+    options: ['A、清、消、清', 'B、消、清、清', 'C、清、消', 'D、消、清'],
+    answer: [0],
+    tip: '餐桌消毒程序为：清、消、清。'
+  },
+  {
+    type: 'single',
+    title: '幼儿伙食费专款专用，其中每学期膳食收支盈亏不超过（）。',
+    options: ['A、1%', 'B、2%', 'C、3%', 'D、4%'],
+    answer: [1],
+    tip: '每学期膳食收支盈亏不超过2%。'
+  },
+  {
+    type: 'single',
+    title: '三大产能营养素是（）',
+    options: [
+      'A、蛋白质、脂肪、碳水化合物',
+      'B、蛋白质、脂肪、维生素',
+      'C、蛋白质、碳水化合物、矿物质',
+      'D、脂肪、碳水化合物、矿物质'
+    ],
+    answer: [0],
+    tip: '三大产能营养素为：蛋白质、脂肪、碳水化合物。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园供餐时，早餐以（）为主、（）为辅。',
+    options: [
+      'A、主食，优质蛋白质',
+      'B、主食，蛋白质',
+      'C、优质蛋白质，主食',
+      'D、主食，果蔬类'
+    ],
+    answer: [0],
+    tip: '早餐以主食为主，优质蛋白质为辅。'
+  },
+  {
+    type: 'single',
+    title: '全园的实际消耗量为（）',
+    options: [
+      'A、结存数量+购入累计+剩余数量',
+      'B、结存数量-购入累计+剩余数量',
+      'C、结存数量+购入累计-剩余数量',
+      'D、结存数量-购入累计-剩余数量'
+    ],
+    answer: [2],
+    tip: '实际消耗量 = 结存数量 + 购入累计 - 剩余数量。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园测量体温的方法，一般是（）',
+    options: ['A、口测法', 'B、腋测法', 'C、肛测法', 'D、以上都是'],
+    answer: [1],
+    tip: '幼儿园测量体温一般采用腋测法。'
+  },
+  {
+    type: 'single',
+    title: '蛋白质过剩会引起（）',
+    options: ['A、肥胖', 'B、免疫力低下', 'C、创伤不易愈合', 'D、体重不增'],
+    answer: [0],
+    tip: '蛋白质过剩会引起肥胖。'
+  },
+  {
+    type: 'single',
+    title: '用餐人口数的计算是（）',
+    options: [
+      'A、全月各班每日每餐人数相加/3',
+      'B、全月各班每日每餐人数相加/2',
+      'C、全月各班每日每餐人数相加',
+      'D、全园各班每日人数相加'
+    ],
+    answer: [0],
+    tip: '用餐人口数 = 全月各班每日每餐人数相加 ÷ 3。'
+  },
+  {
+    type: 'single',
+    title: '平均每人每日进食量的计算方法是（）',
+    options: [
+      'A、全园各类食物总消耗量除以人口数',
+      'B、全园各类食物总采购量除以人口数',
+      'C、全园各类食物剩余量除以人数',
+      'D、全园各类食物总消耗量除以人数'
+    ],
+    answer: [0],
+    tip: '平均每人每日进食量 = 全园各类食物总消耗量 ÷ 人口数。'
+  },
+  {
+    type: 'single',
+    title: '幼儿园健康教育工作开展，其对保教人员进行健康讲座是每（）1次。',
+    options: ['A、半个月', 'B、1个月', 'C、2个月', 'D、3个月'],
+    answer: [3],
+    tip: '对保教人员进行健康讲座每3个月1次。'
+  },
+  {
+    type: 'single',
+    title: '平衡膳食要求，优质蛋白质占蛋白质总量的（）%以上。',
+    options: ['A、25', 'B、40', 'C、50', 'D、60'],
+    answer: [2],
+    tip: '优质蛋白质应占蛋白质总量的50%以上。'
+  },
+  {
+    type: 'single',
+    title: '幼儿检查视力时，受检者眼睛高度应与视力表（）行高度平行。',
+    options: ['A、0.6', 'B、0.8', 'C、1.0', 'D、1.2'],
+    answer: [2],
+    tip: '受检者眼睛高度应与视力表1.0行高度平行。'
+  },
+  {
+    type: 'single',
+    title: '深色蔬菜应达到蔬菜总量的（）%',
+    options: ['A、10-20', 'B、20-50', 'C、30-60', 'D、40-70'],
+    answer: [1],
+    tip: '深色蔬菜应达到蔬菜总量的20-50%。'
+  },
+  {
+    type: 'single',
+    title: '儿童活动室、卧室应当经常开窗通风，每日至少开窗通风2次，每次至少( )分钟。在不适宜开窗通风时，每日应当采取其他方法对室内空气消毒( )次。',
+    options: ['A、10-15　2', 'B、10-20　1', 'C、30　2', 'D、40　2'],
+    answer: [0],
+    tip: '每次开窗通风10-15分钟，空气消毒每日2次。'
+  },
+  {
+    type: 'single',
+    title: '紫外线冷光灯管的使用寿命为（）小时，即累计工作时间，超过此使用时间灯管两边发红，应立即更换灯管。每天消毒（）小时。',
+    options: ['A、1000　1', 'B、1000　2', 'C、500　1', 'D、500　2'],
+    answer: [0],
+    tip: '紫外线冷光灯管使用寿命为1000小时，每天消毒1小时。'
+  },
+  {
+    type: 'single',
+    title: '胸外按压的操作要点：在胸骨中下1/3交界处垂直下压（）厘米，每分钟（）次左右。',
+    options: ['A、3-4　150', 'B、3-4　100', 'C、2-5　150', 'D、2-5　100'],
+    answer: [1],
+    tip: '胸外按压深度3-4厘米，频率每分钟100次左右。'
+  },
+  {
+    type: 'single',
+    title: '肥胖儿童园内管理具体实施方法不正确的是（）',
+    options: [
+      'A、进餐时不建议限制患儿食量，改变进餐顺序，先喝汤，给予体积大、热量少的食物，多给蔬菜，最后少添主食',
+      'B、控制进食速度，在进餐中，保育员不断提醒患儿细嚼慢咽，放慢进食速度',
+      'C、家园配合：与家长配合，使患儿在家也能按上述饮食原则，经常树立家长及患儿的信心，持之以恒',
+      'D、建议家长药物干预治疗肥胖'
+    ],
+    answer: [3],
+    tip: '不建议家长药物干预治疗肥胖，应以饮食和运动管理为主。'
+  },
+  {
+    type: 'single',
+    title: '对身高、体重测量描述正确的是（）',
+    options: ['A、测量工具可用弹簧秤', 'B、测量身高时必须脱鞋', 'C、用手做挡板尺', 'D、不校验体重秤'],
+    answer: [1],
+    tip: '测量身高时必须脱鞋。'
+  },
+  {
+    type: 'single',
+    title: '（）是维持儿童心理健康的重要手段。',
+    options: ['A、想象', 'B、思维', 'C、记忆', 'D、语言'],
+    answer: [0],
+    tip: '想象是维持儿童心理健康的重要手段。'
+  },
+  {
+    type: 'single',
+    title: '家庭对儿童亲社会行为的发展的影响主要通过（）机制起作用。',
+    options: ['A、奖励和示范', 'B、批评', 'C、教育', 'D、表扬'],
+    answer: [0],
+    tip: '家庭影响主要通过奖励和示范机制起作用。'
+  },
+  {
+    type: 'single',
+    title: '有些幼儿看多了电视上的打打杀杀镜头，很容易增加其以后的攻击性行为。在此，影响幼儿攻击性行为的因素主要是（）',
+    options: ['A、挫折', 'B、榜样', 'C、惩罚', 'D、强化'],
+    answer: [1],
+    tip: '电视中的打打杀杀镜头属于榜样因素，影响幼儿攻击性行为。'
+  },
+  {
+    type: 'single',
+    title: '托幼机构从事卫生保健工作的医师，护士和保育员应当接受（）组织的岗前培训和考核，考核合格取得市级卫生行政部门颁发的《托幼机构卫生保健技术培训合格证》后，方可从事卫生保健工作，以后每三年由发证机构进行复核。',
+    options: ['A、市级妇幼保健机构', 'B、疾控中心', 'C、市级医疗卫生机构', 'D、其它医疗机构'],
+    answer: [0],
+    tip: '应接受市级妇幼保健机构组织的岗前培训和考核。'
+  },
+
+  /* ===== 多项选择题 1-16 ===== */
+  {
+    section: '二、多项选择题',
+    type: 'multi',
+    title: '根据国家最新要求，幼儿园搭建平均年龄在4-5岁的幼儿食谱，每天人均各类食物推荐进食量的标准是（）',
+    options: [
+      'A、肉禽鱼50-75g',
+      'B、鸡蛋50g',
+      'C、奶类350-500g',
+      'D、大豆10-20g'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为4-5岁幼儿每天人均各类食物推荐进食量标准。'
+  },
+  {
+    type: 'multi',
+    title: '卫生保健十项制度包括（）',
+    options: [
+      'A、一日生活安排、健康检查、健康教育',
+      'B、营养与膳食、卫生与消毒',
+      'C、传染病预防与管理',
+      'D、伤害预防、体格锻炼、常见疾病预防与管理',
+      'E、保健资料管理'
+    ],
+    answer: [0, 1, 2, 3, 4],
+    tip: '卫生保健十项制度包括以上全部内容。'
+  },
+  {
+    type: 'multi',
+    title: '以下关于幼儿进餐护理,描述正确的是（）',
+    options: [
+      'A、进餐前消毒餐桌',
+      'B、进餐环境应当卫生、整洁、舒适',
+      'C、进餐过程中,可以扫地、铺床',
+      'D、进餐时,纠正幼儿偏食、挑食的不良习惯'
+    ],
+    answer: [0, 1, 3],
+    tip: '进餐过程中不可以扫地、铺床，故 C 错误。'
+  },
+  {
+    type: 'multi',
+    title: '幼儿园一日早、中、晚三餐的能量占比为（）',
+    options: ['A、30%（早餐）', 'B、40%（午餐）', 'C、35%', 'D、30%（晚餐）'],
+    answer: [0, 1, 3],
+    tip: '早、中、晚三餐能量占比为 30%、40%、30%。'
+  },
+  {
+    type: 'multi',
+    title: '以下说法正确的是（）',
+    options: [
+      'A、剪刀、刀具要放在指定地点，不让儿童亲自去拿，要在老师的照顾下使用。',
+      'B、为儿童添饭用的热汤盆可以从儿童的面前及头的上方传递',
+      'C、儿童的床不应设有床栏',
+      'D、儿童外出及户外活动时，清点人数，出、回人数要相符。'
+    ],
+    answer: [0, 3],
+    tip: '热汤盆不可从儿童面前及头上方传递，儿童床应设床栏，故 B、C 错误。'
+  },
+  {
+    type: 'multi',
+    title: '以下是卫生保健人员工作职责的是（）',
+    options: [
+      'A、填写各项卫生保健表格登记和记录，做好资料的收集、整理和归档',
+      'B、做好儿童膳食，均衡营养，保证按量供给，定期做营养计算并分析',
+      'C、做好传染病管理，发现传染病要早隔离、早报告、早治疗，加强隔离室患儿的护理',
+      'D、组织保教人员参加卫生保健知识业务学习，提高保教人员的保健知识水平'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为卫生保健人员工作职责。'
+  },
+  {
+    type: 'multi',
+    title: '预防幼儿中暑的措施中，应该（）',
+    options: ['A、饮食清淡', 'B、合理增减衣物', 'C、注意室内通风', 'D、中午时外出'],
+    answer: [0, 1, 2],
+    tip: '中午时不宜外出，故 D 错误。'
+  },
+  {
+    type: 'multi',
+    title: '查阅因病缺勤登记记录：认真排查幼儿园因病缺勤情况，预防传染病做到（）',
+    options: ['A、早发现', 'B、早隔离', 'C、早诊断', 'D、早治疗'],
+    answer: [0, 1, 2, 3],
+    tip: '预防传染病要做到早发现、早隔离、早诊断、早治疗。'
+  },
+  {
+    type: 'multi',
+    title: '保教人员应当全面了解儿童健康状况，体育锻炼时应（）',
+    options: [
+      'A、患病儿童停止锻炼',
+      'B、病愈恢复期的儿童运动量要根据身体状况予以调整',
+      'C、体弱儿的体格锻炼进程应较健康儿缓慢中，时间缩短，并要对儿童进行仔细的观察',
+      'D、全部幼儿参加锻炼'
+    ],
+    answer: [0, 1, 2],
+    tip: '并非全部幼儿都参加锻炼，故 D 错误。'
+  },
+  {
+    type: 'multi',
+    title: '晨检及全日健康观察内容包括（）',
+    options: [
+      'A、摸: 用手触摸儿童额头，是否发热，腮腺有无肿大, 如有发热测量体温',
+      'B、看: 察看儿童精神状况，有无明显异常; 面部明显部位有无明显外伤、有无蚊虫叮咬，询问家长，双手指甲是否干净整洁。',
+      'C、问: 询问幼儿在家饮食、睡眠、大小便情况，是否有身体不适感',
+      'D、查: 查验幼儿有无携带不安全因素和贵重物品入园。',
+      'E、消毒: 对体温表每使用一次消毒一次'
+    ],
+    answer: [0, 1, 2, 3, 4],
+    tip: '晨检及全日健康观察内容包括摸、看、问、查、消毒五个方面。'
+  },
+  {
+    type: 'multi',
+    title: '关于毛巾类织物的消毒，下列说法正确的是（）',
+    options: [
+      'A、用洗涤剂清洗干净，置阳光直接照射下曝晒干燥, 曝晒时间不低于6小时',
+      'B、煮沸消毒15分钟或蒸汽消毒10分',
+      'C、冲洗消毒',
+      'D、使用次氯酸钠类消毒剂消毒, 使用浓度为有效氯250~400mg/L、浸泡消毒20分钟'
+    ],
+    answer: [0, 1, 3],
+    tip: '单纯冲洗消毒不达标，故 C 错误。'
+  },
+  {
+    type: 'multi',
+    title: '异物呛入气管的方法有：（）',
+    options: ['A、催吐法', 'B、倒提拍背法', 'C、海姆立克冲击法', 'D、手指扣除法'],
+    answer: [1, 2, 3],
+    tip: '异物呛入气管的方法包括倒提拍背法、海姆立克冲击法、手指扣除法。'
+  },
+  {
+    type: 'multi',
+    title: '跌倒后的处理（）',
+    options: [
+      'A、跌倒后蹭破表皮且有少量出血时，可先用自来水冲洗伤口，然后至医务室消毒处理',
+      'B、用干净纱布压迫伤口止血',
+      'C、如跌倒后出现局部血肿而皮肤无破损，可用手按压局部或用冷毛巾、冰块（冷敷）局部10分钟，切忌按揉',
+      'D、冲洗消毒'
+    ],
+    answer: [0, 1, 2],
+    tip: '以上 A、B、C 均为跌倒后的正确处理方式。'
+  },
+  {
+    type: 'multi',
+    title: '肥胖儿童的管理方法及内容（）',
+    options: ['A、建立专案', 'B、分析病因', 'C、定期检测', 'D、家长联系', 'E、运动治疗'],
+    answer: [0, 1, 2, 3, 4],
+    tip: '肥胖儿童管理包括建立专案、分析病因、定期检测、家长联系、运动治疗。'
+  },
+  {
+    type: 'multi',
+    title: '口腔保健预防措施（）',
+    options: [
+      'A、开展口腔卫生教育,通过各种形式，对儿童、家长及保教人员的口腔教育活动,预防龋齿。',
+      'B、控制糖摄入:儿童每人每天不超过30g为宜，提倡只在正餐时食用。',
+      'C、4岁可酌情少量食用，避免吞咽。',
+      'D、局部涂氟法：清洁牙面后，氟保护漆涂整个牙齿，涂后30分钟内不漱口，不进食。'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为口腔保健预防措施。'
+  },
+  {
+    type: 'multi',
+    title: '心理健康的标准（）',
+    options: [
+      'A、客观的认识自我，不断完善自我',
+      'B、具有良好的人际交往能力，人际关系和谐',
+      'C、具有健全的人格特征',
+      'D、协调和控制情绪能力强',
+      'E、具有良好的挫折承受能力和适应环境能力',
+      'F、行为表现与年龄特征一致'
+    ],
+    answer: [0, 1, 2, 3, 4, 5],
+    tip: '以上均为心理健康的标准。'
+  }
+];
+
+/* ============ 状态 ============ */
+const state = quizData.map(() => ({ selected: [], correct: false, wrong: false }));
+
+const quizEl  = document.getElementById('quiz');
+const sOkEl   = document.getElementById('sOk');
+const sBadEl  = document.getElementById('sBad');
+const barEl   = document.getElementById('bar');
+const finalEl = document.getElementById('final');
+
+/* ============ 渲染单题 ============ */
+function renderQuestion(qIdx) {
+  const q = quizData[qIdx];
+  const s = state[qIdx];
+  const isMulti = q.type === 'multi';
+
+  const optHtml = q.options.map((text, oIdx) => {
+    let cls = 'option ' + (isMulti ? 'multi' : 'single');
+    const isAnswer = q.answer.includes(oIdx);
+    const isSelected = s.selected.includes(oIdx);
+
+    if (s.correct) {
+      cls += ' locked';
+      if (isAnswer) cls += ' correct';
+    } else if (s.wrong) {
+      if (isSelected) cls += ' wrong';
+    } else {
+      if (isSelected) cls += ' selected';
+    }
+    return `<li class="${cls}" data-q="${qIdx}" data-o="${oIdx}">${text}</li>`;
+  }).join('');
+
+  let confirmHtml = '';
+  if (isMulti && !s.correct) {
+    confirmHtml = `<button class="confirm-btn" data-q="${qIdx}" ${s.selected.length === 0 ? 'disabled' : ''}>${s.wrong ? '再次确认' : '确认答案'}</button>`;
+  }
+
+  let fbHtml = '';
+  if (s.correct) {
+    fbHtml = `<div class="feedback ok">✓ 回答正确！<span class="tip">${q.tip}</span></div>`;
+  } else if (s.wrong) {
+    fbHtml = `<div class="feedback bad">✗ 回答错误，请重新选择后再试。</div>`;
+  }
+
+  const cardCls = s.correct ? 'done-ok' : (s.wrong ? 'done-bad' : '');
+  const numLabel = isMulti ? (qIdx - 34 + 1) : (qIdx + 1);
+
+  return `<div class="question ${cardCls}" id="card-${qIdx}">
+    <div class="q-title">
+      <span class="q-num">${numLabel}.</span>${q.title}
+      <span class="q-type ${isMulti ? 'multi' : ''}">${isMulti ? '多选题' : '单选题'}</span>
+    </div>
+    <ul class="options">${optHtml}</ul>
+    ${confirmHtml}
+    ${fbHtml}
+  </div>`;
+}
+
+function renderAll() {
+  let html = '';
+  let lastSection = '';
+  quizData.forEach((q, i) => {
+    if (q.section && q.section !== lastSection) {
+      html += `<h2 class="section-title">${q.section}</h2>`;
+      lastSection = q.section;
+    }
+    html += renderQuestion(i);
+  });
+  quizEl.innerHTML = html;
+}
+
+/* ============ 统计 ============ */
+function updateStats() {
+  let ok = 0, bad = 0;
+  state.forEach(s => {
+    if (s.correct) ok++;
+    else if (s.wrong) bad++;
+  });
+  sOkEl.textContent  = ok;
+  sBadEl.textContent = bad;
+  barEl.style.width  = (ok / quizData.length * 100) + '%';
+
+  if (ok === quizData.length) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `🎉 全部答对，太棒了！<span class="score">50 / 50</span>可点击「重新开始」再次练习。`;
+  } else {
+    finalEl.style.display = 'none';
+  }
+}
+
+/* ============ 单选 ============ */
+function handleSingle(qIdx, oIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct) return;
+  s.selected = [oIdx];
+  const right = (q.answer.length === 1 && q.answer[0] === oIdx);
+  s.correct = right;
+  s.wrong   = !right;
+  refreshCard(qIdx);
+}
+
+/* ============ 多选 ============ */
+function toggleMulti(qIdx, oIdx) {
+  const s = state[qIdx];
+  if (s.correct) return;
+  const pos = s.selected.indexOf(oIdx);
+  if (pos > -1) s.selected.splice(pos, 1);
+  else s.selected.push(oIdx);
+  s.wrong = false;
+  refreshCard(qIdx);
+}
+
+function confirmMulti(qIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct || s.selected.length === 0) return;
+  const a = [...s.selected].sort((x, y) => x - y).join(',');
+  const b = [...q.answer].sort((x, y) => x - y).join(',');
+  if (a === b) { s.correct = true; s.wrong = false; }
+  else         { s.wrong = true; }
+  refreshCard(qIdx);
+}
+
+/* ============ 刷新 ============ */
+function refreshCard(qIdx) {
+  const old = document.getElementById('card-' + qIdx);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderQuestion(qIdx);
+  const neu = tmp.firstElementChild;
+  if (old) old.replaceWith(neu);
+  updateStats();
+}
+
+/* ============ 事件 ============ */
+quizEl.addEventListener('click', function (e) {
+  const opt = e.target.closest('.option');
+  if (opt && !opt.classList.contains('locked')) {
+    const qIdx = +opt.dataset.q, oIdx = +opt.dataset.o;
+    if (quizData[qIdx].type === 'single') handleSingle(qIdx, oIdx);
+    else toggleMulti(qIdx, oIdx);
+    return;
+  }
+  const btn = e.target.closest('.confirm-btn');
+  if (btn && !btn.disabled) confirmMulti(+btn.dataset.q);
+});
+
+/* ============ 一键显示答案 ============ */
+document.getElementById('btnAuto').addEventListener('click', function () {
+  quizData.forEach((q, i) => {
+    const s = state[i];
+    s.correct  = true;
+    s.wrong    = false;
+    s.selected = [...q.answer];
+  });
+  renderAll();
+  updateStats();
+  finalEl.style.display = 'block';
+  finalEl.innerHTML = `已显示全部正确答案 ✅<br><span class="score">50 / 50</span>可点击「重新开始」自行练习。`;
+});
+
+/* ============ 重新开始 ============ */
+document.getElementById('btnReset').addEventListener('click', function () {
+  state.forEach(s => { s.selected = []; s.correct = false; s.wrong = false; });
+  renderAll();
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ============ 初始化 ============ */
+renderAll();
+updateStats();
+</script>
+</body>
+</html>

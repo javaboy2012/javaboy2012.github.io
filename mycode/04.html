@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5儿童常见病与症状 · 自动判题</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    max-width: 860px; margin: 0 auto; padding: 0 16px 80px;
+    line-height: 1.7; color: #333; background: #eef6fd;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: #eef6fd; padding: 16px 0 12px; margin: 0 -16px;
+    padding-left: 16px; padding-right: 16px;
+    box-shadow: 0 4px 12px rgba(0,120,220,.06);
+  }
+  h1 { font-size: 21px; text-align: center; color: #1a4d7a; margin: 0 0 12px; }
+  .stats {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .stat {
+    background: #fff; border-radius: 20px; padding: 4px 14px;
+    box-shadow: 0 2px 6px rgba(0,149,255,.1); font-weight: bold;
+  }
+  .stat.total { color: #1a4d7a; }
+  .stat.ok    { color: #1a9e4b; }
+  .stat.bad   { color: #d9534f; }
+  .progress {
+    height: 8px; background: #d9ecfb; border-radius: 5px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; width: 0%; border-radius: 5px;
+    background: linear-gradient(90deg, #0095ff, #4fc3f7);
+    transition: width .35s ease;
+  }
+
+  .question {
+    margin-top: 20px; padding: 18px 20px; background: #fff;
+    border-left: 5px solid #0095ff; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,149,255,.08);
+    transition: box-shadow .25s;
+  }
+  .question.done-ok  { border-left-color: #1a9e4b; }
+  .question.done-bad { border-left-color: #d9534f; }
+
+  .q-title { font-weight: bold; font-size: 15.5px; color: #1a4d7a; margin-bottom: 12px; }
+  .q-num { color: #0095ff; margin-right: 4px; }
+  .q-type {
+    display: inline-block; font-size: 11px; color: #fff; background: #0095ff;
+    border-radius: 3px; padding: 1px 7px; margin-left: 6px;
+    vertical-align: middle; font-weight: normal;
+  }
+  .q-type.multi { background: #ff8c00; }
+
+  .options { list-style: none; padding: 0; margin: 0; }
+  .option {
+    position: relative; margin: 8px 0; padding: 10px 14px 10px 40px;
+    border: 1.5px solid #dbeaf7; border-radius: 6px; background: #fafdff;
+    cursor: pointer; font-size: 14.5px; transition: all .18s;
+    user-select: none;
+  }
+  .option::before {
+    content: ""; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px; border: 2px solid #9fc9e8; background: #fff;
+  }
+  .option.single::before { border-radius: 50%; }
+  .option.multi::before  { border-radius: 3px; }
+  .option:not(.locked):hover { border-color: #0095ff; background: #f0f9ff; }
+  .option.selected { border-color: #0095ff; background: #e6f4ff; }
+  .option.selected::before { background: #0095ff; border-color: #0095ff; box-shadow: inset 0 0 0 3px #fff; }
+  .option.correct {
+    border-color: #1a9e4b; background: #e9f9ef; color: #14713a; font-weight: bold;
+  }
+  .option.correct::before {
+    background: #1a9e4b; border-color: #1a9e4b;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong {
+    border-color: #d9534f; background: #fdeceb; color: #a5322e;
+  }
+  .option.wrong::before {
+    background: #d9534f; border-color: #d9534f;
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+  .option.wrong:not(.locked):hover { border-color: #0095ff; background: #fff5f4; }
+  .option.locked { cursor: default; }
+
+  .confirm-btn {
+    display: inline-block; margin-top: 10px; padding: 8px 22px;
+    background: #ff8c00; color: #fff; border: none; border-radius: 20px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(255,140,0,.3); transition: all .2s;
+  }
+  .confirm-btn:hover { background: #e87d00; transform: translateY(-1px); }
+  .confirm-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .feedback {
+    margin-top: 12px; padding: 10px 14px; border-radius: 6px;
+    font-size: 13.5px; line-height: 1.65;
+  }
+  .feedback.ok  { background: #e9f9ef; color: #14713a; border-left: 3px solid #1a9e4b; }
+  .feedback.bad { background: #fdeceb; color: #a5322e; border-left: 3px solid #d9534f; }
+  .feedback b { color: #c0392b; }
+  .feedback .tip { display: block; margin-top: 4px; color: #555; font-size: 13px; }
+
+  .toolbar { text-align: center; margin: 34px 0 10px; }
+  .toolbar button {
+    padding: 11px 30px; margin: 0 6px; border: none; border-radius: 24px;
+    font-size: 15px; font-weight: bold; cursor: pointer; transition: all .2s;
+  }
+  .btn-auto { background: linear-gradient(135deg,#0095ff,#4fc3f7); color:#fff; box-shadow:0 4px 12px rgba(0,149,255,.35); }
+  .btn-auto:hover { transform: translateY(-2px); }
+  .btn-reset { background: #fff; color: #1a4d7a; border: 1.5px solid #b7d8ef !important; }
+  .btn-reset:hover { background: #f0f9ff; }
+
+  .final {
+    margin-top: 20px; padding: 22px; text-align: center; border-radius: 10px;
+    font-size: 17px; font-weight: bold; display: none;
+    background: linear-gradient(135deg,#e8f6ff,#d0ecff); color:#1a4d7a;
+    box-shadow: 0 4px 14px rgba(0,149,255,.15);
+  }
+  .final .score { font-size: 30px; color: #0095ff; display: block; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .option { font-size: 14px; padding-left: 36px; }
+    h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>5儿童常见病与症状 · 自动判题</h1>
+  <div class="stats">
+    <span class="stat total">已掌握 <span id="sOk">0</span>/32</span>
+    <span class="stat bad">待订正 <span id="sBad">0</span></span>
+  </div>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+</header>
+
+<div id="quiz"></div>
+
+<div class="toolbar">
+  <button class="btn-auto" id="btnAuto">一键显示全部答案</button>
+  <button class="btn-reset" id="btnReset">重新开始</button>
+</div>
+
+<div class="final" id="final"></div>
+
+<script>
+/* ============ 题库数据 ============ */
+const quizData = [
+  {
+    type: 'multi',
+    title: '常见发热出疹性传播病有哪些？',
+    options: ['麻疹、风疹', '水痘、手足口', '猩红热', '流行性腮腺炎'],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为常见发热出疹性传染病。'
+  },
+  {
+    type: 'multi',
+    title: '常见非出疹性传染病有哪些？',
+    options: ['乙型肝炎', '痢疾', '手足口', '流行性腮腺炎'],
+    answer: [0, 1],
+    tip: '乙型肝炎和痢疾属于非出疹性传染病。'
+  },
+  {
+    type: 'single',
+    title: '麻疹属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [1],
+    tip: '麻疹属于乙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '猩红热属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [1],
+    tip: '猩红热属于乙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '风疹属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [2],
+    tip: '风疹属于丙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '诺如属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [2],
+    tip: '诺如病毒感染属于丙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '手足口属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [2],
+    tip: '手足口病属于丙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '流行性腮腺炎属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [2],
+    tip: '流行性腮腺炎属于丙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '阿米巴性痢疾属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [1],
+    tip: '阿米巴性痢疾属于乙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '乙型病毒性肝炎属于我国法定管理哪类传染病',
+    options: ['甲类', '乙类', '丙类'],
+    answer: [1],
+    tip: '乙型病毒性肝炎属于乙类传染病。'
+  },
+  {
+    type: 'single',
+    title: '麻疹的疹型特点',
+    options: [
+      '柯氏斑，出现早，消退快。',
+      '充血性栗粒疹，疹间皮肤弥漫性充血，帕氏线及苍白压痕，草莓杨梅舌',
+      '充血性斑丘疹，疹间皮肤正常，发热1天后出疹，一天出齐。',
+      '圆或椭圆形丘疱疹，较硬3-7mm,分布口腔、手、足、臀部',
+      '丘疹、疱疹、痂疹共存，明显瘙痒感。'
+    ],
+    answer: [0],
+    tip: '麻疹的典型特点为柯氏斑。'
+  },
+  {
+    type: 'single',
+    title: '猩红热的疹型特点',
+    options: [
+      '柯氏斑，出现早，消退快。',
+      '充血性栗粒疹，疹间皮肤弥漫性充血，帕氏线及苍白压痕，草莓杨梅舌',
+      '充血性斑丘疹，疹间皮肤正常，发热1天后出疹，一天出齐。',
+      '圆或椭圆形丘疱疹，较硬3-7mm,分布口腔、手、足、臀部',
+      '丘疹、疱疹、痂疹共存，明显瘙痒感。'
+    ],
+    answer: [1],
+    tip: '猩红热为充血性栗粒疹，有帕氏线及草莓杨梅舌。'
+  },
+  {
+    type: 'single',
+    title: '风疹的疹型特点',
+    options: [
+      '柯氏斑，出现早，消退快。',
+      '充血性栗粒疹，疹间皮肤弥漫性充血，帕氏线及苍白压痕，草莓杨梅舌',
+      '充血性斑丘疹，疹间皮肤正常，发热1天后出疹，一天出齐。',
+      '圆或椭圆形丘疱疹，较硬3-7mm,分布口腔、手、足、臀部',
+      '丘疹、疱疹、痂疹共存，明显瘙痒感。'
+    ],
+    answer: [2],
+    tip: '风疹为充血性斑丘疹，发热1天后出疹，一天出齐。'
+  },
+  {
+    type: 'single',
+    title: '手足口的疹型特点',
+    options: [
+      '柯氏斑，出现早，消退快。',
+      '充血性栗粒疹，疹间皮肤弥漫性充血，帕氏线及苍白压痕，草莓杨梅舌',
+      '充血性斑丘疹，疹间皮肤正常，发热1天后出疹，一天出齐。',
+      '圆或椭圆形丘疱疹，较硬3-7mm,分布口腔、手、足、臀部',
+      '丘疹、疱疹、痂疹共存，明显瘙痒感。'
+    ],
+    answer: [3],
+    tip: '手足口为圆或椭圆形丘疱疹，分布在口腔、手、足、臀部。'
+  },
+  {
+    type: 'single',
+    title: '水痘的疹型特点',
+    options: [
+      '柯氏斑，出现早，消退快。',
+      '充血性栗粒疹，疹间皮肤弥漫性充血，帕氏线及苍白压痕，草莓杨梅舌',
+      '充血性斑丘疹，疹间皮肤正常，发热1天后出疹，一天出齐。',
+      '圆或椭圆形丘疱疹，较硬3-7mm,分布口腔、手、足、臀部',
+      '丘疹、疱疹、痂疹共存，明显瘙痒感。'
+    ],
+    answer: [4],
+    tip: '水痘为丘疹、疱疹、痂疹共存，明显瘙痒感。'
+  },
+  {
+    type: 'multi',
+    title: '麻疹的粘膜卡他症状有哪些？',
+    options: ['眼睑肿、流泪', '流涕、喷嚏', '刺激性咳嗽', '畏光'],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为麻疹的粘膜卡他症状。'
+  },
+  {
+    type: 'single',
+    title: '麻疹出疹顺序',
+    options: [
+      '发际-耳后-颈-躯干-四肢，自上而下顺向性发疹',
+      '离心性发疹，先躯干后四肢。',
+      '离心性发疹，面、躯干、四肢顺序发疹',
+      '手掌、足趾较多。四肢躯干较少。',
+      '向心性分布，躯干最多，其次面及四肢近端，手掌、足底很少'
+    ],
+    answer: [0],
+    tip: '麻疹出疹顺序为发际-耳后-颈-躯干-四肢，自上而下顺向性发疹。'
+  },
+  {
+    type: 'single',
+    title: '猩红热出疹顺序',
+    options: [
+      '发际-耳后-颈-躯干-四肢，自上而下顺向性发疹',
+      '离心性发疹，先躯干后四肢。',
+      '离心性发疹，面、躯干、四肢顺序发疹',
+      '手掌、足趾较多。四肢躯干较少。',
+      '向心性分布，躯干最多，其次面及四肢近端，手掌、足底很少'
+    ],
+    answer: [1],
+    tip: '猩红热为离心性发疹，先躯干后四肢。'
+  },
+  {
+    type: 'single',
+    title: '风疹出疹顺序',
+    options: [
+      '发际-耳后-颈-躯干-四肢，自上而下顺向性发疹',
+      '离心性发疹，先躯干后四肢。',
+      '离心性发疹，面、躯干、四肢顺序发疹',
+      '手掌、足趾较多。四肢躯干较少。',
+      '向心性分布，躯干最多，其次面及四肢近端，手掌、足底很少'
+    ],
+    answer: [2],
+    tip: '风疹为离心性发疹，面、躯干、四肢顺序发疹。'
+  },
+  {
+    type: 'single',
+    title: '手足口出疹顺序',
+    options: [
+      '发际-耳后-颈-躯干-四肢，自上而下顺向性发疹',
+      '离心性发疹，先躯干后四肢。',
+      '离心性发疹，面、躯干、四肢顺序发疹',
+      '手掌、足趾较多。四肢躯干较少。',
+      '向心性分布，躯干最多，其次面及四肢近端，手掌、足底很少'
+    ],
+    answer: [3],
+    tip: '手足口为手掌、足趾较多，四肢躯干较少。'
+  },
+  {
+    type: 'single',
+    title: '水痘出疹顺序',
+    options: [
+      '发际-耳后-颈-躯干-四肢，自上而下顺向性发疹',
+      '离心性发疹，先躯干后四肢。',
+      '离心性发疹，面、躯干、四肢顺序发疹',
+      '手掌、足趾较多。四肢躯干较少。',
+      '向心性分布，躯干最多，其次面及四肢近端，手掌、足底很少'
+    ],
+    answer: [4],
+    tip: '水痘为向心性分布，躯干最多，其次面及四肢近端。'
+  },
+  {
+    type: 'multi',
+    title: '病后能获终身免疫的疾病有哪些？',
+    options: ['麻疹', '猩红热', '风疹', '手足口', '水痘'],
+    answer: [0, 2, 4],
+    tip: '麻疹、风疹、水痘病后可获终身免疫，猩红热和手足口不能。'
+  },
+  {
+    type: 'multi',
+    title: '下面哪些疾病有疫苗可接种？',
+    options: ['麻疹', '猩红热', '风疹', '手足口', '水痘'],
+    answer: [0, 2, 3, 4],
+    tip: '麻疹、风疹、手足口、水痘均有疫苗可接种，猩红热目前无疫苗。'
+  },
+  {
+    type: 'multi',
+    title: '下面哪些疾病的疫苗是非计划免疫的。',
+    options: ['麻疹', '风疹', '手足口', '水痘'],
+    answer: [2, 3],
+    tip: '手足口和水痘疫苗属于非计划免疫（自费）疫苗。'
+  },
+  {
+    type: 'single',
+    title: '下面哪种疾病是细菌感染造成的？',
+    options: ['麻疹', '猩红热', '风疹', '手足口', '水痘'],
+    answer: [1],
+    tip: '猩红热由A组β型溶血性链球菌引起，是细菌感染。'
+  },
+  {
+    type: 'multi',
+    title: '乙肝病毒的传播途径有',
+    options: ['母婴传播', '血液传播', '体液传播', '粪口传播'],
+    answer: [0, 1, 2],
+    tip: '乙肝通过母婴、血液、体液传播，不通过粪口传播。'
+  },
+  {
+    type: 'single',
+    title: '犬吠样咳嗽、声嘶为特征的疾病是：',
+    options: ['支气管炎', '肺炎', '急性感染性喉炎', '咽炎'],
+    answer: [2],
+    tip: '急性感染性喉炎的典型表现为犬吠样咳嗽、声嘶。'
+  },
+  {
+    type: 'single',
+    title: '下列哪组食物含铁量最高',
+    options: ['猪肝、黑木耳、海带', '肉、蛋和豆类', '谷物和蔬菜'],
+    answer: [0],
+    tip: '猪肝、黑木耳、海带含铁量最高。'
+  },
+  {
+    type: 'single',
+    title: '婴幼儿期，缺铁性贫血的常见原因是',
+    options: ['未及时合理添加辅食', '母乳不足，牛奶喝得太多。'],
+    answer: [0],
+    tip: '未及时合理添加辅食是婴幼儿期缺铁性贫血的常见原因。'
+  },
+  {
+    type: 'multi',
+    title: '以下针对发热说法正确的是：',
+    options: ['低热：37.3~<38°C', '中热：38~<39°C', '高热：39~<41°C', '超高热≥41°C'],
+    answer: [0, 1, 2, 3],
+    tip: '以上发热分级均正确。'
+  },
+  {
+    type: 'multi',
+    title: '发热处理原则',
+    options: [
+      '一般中度以上发热才需处理（热惊厥者除外）',
+      '同一种退热药间隔须在4-6小时以上',
+      '高热及超高热用综合降温措施',
+      '忌用肾上腺皮质激素做退热药'
+    ],
+    answer: [0, 1, 2, 3],
+    tip: '以上均为正确的发热处理原则。'
+  },
+  {
+    type: 'multi',
+    title: '高热惊厥的紧急处理方法：',
+    options: [
+      '保持气道通畅，头侧卧、防止舌根后坠及误吸',
+      '保持气道通畅，头仰卧、防止舌根后坠及误吸',
+      '吸氧、降温',
+      '及时送医院'
+    ],
+    answer: [0, 2, 3],
+    tip: '高热惊厥时应头侧卧而非仰卧，防止误吸。'
+  }
+];
+
+/* ============ 状态 ============ */
+const state = quizData.map(() => ({ selected: [], correct: false, wrong: false }));
+
+const quizEl  = document.getElementById('quiz');
+const sOkEl   = document.getElementById('sOk');
+const sBadEl  = document.getElementById('sBad');
+const barEl   = document.getElementById('bar');
+const finalEl = document.getElementById('final');
+
+/* ============ 渲染单题 ============ */
+function renderQuestion(qIdx) {
+  const q = quizData[qIdx];
+  const s = state[qIdx];
+  const isMulti = q.type === 'multi';
+
+  const optHtml = q.options.map((text, oIdx) => {
+    let cls = 'option ' + (isMulti ? 'multi' : 'single');
+    const isAnswer = q.answer.includes(oIdx);
+    const isSelected = s.selected.includes(oIdx);
+
+    if (s.correct) {
+      cls += ' locked';
+      if (isAnswer) cls += ' correct';
+    } else if (s.wrong) {
+      if (isSelected) cls += ' wrong';
+    } else {
+      if (isSelected) cls += ' selected';
+    }
+    return `<li class="${cls}" data-q="${qIdx}" data-o="${oIdx}">${text}</li>`;
+  }).join('');
+
+  let confirmHtml = '';
+  if (isMulti && !s.correct) {
+    confirmHtml = `<button class="confirm-btn" data-q="${qIdx}" ${s.selected.length === 0 ? 'disabled' : ''}>${s.wrong ? '再次确认' : '确认答案'}</button>`;
+  }
+
+  let fbHtml = '';
+  if (s.correct) {
+    fbHtml = `<div class="feedback ok">✓ 回答正确！<span class="tip">${q.tip}</span></div>`;
+  } else if (s.wrong) {
+    fbHtml = `<div class="feedback bad">✗ 回答错误，请重新选择后再试。</div>`;
+  }
+
+  const cardCls = s.correct ? 'done-ok' : (s.wrong ? 'done-bad' : '');
+
+  return `<div class="question ${cardCls}" id="card-${qIdx}">
+    <div class="q-title">
+      <span class="q-num">${qIdx + 1}.</span>${q.title}
+      <span class="q-type ${isMulti ? 'multi' : ''}">${isMulti ? '多选题' : '单选题'}</span>
+    </div>
+    <ul class="options">${optHtml}</ul>
+    ${confirmHtml}
+    ${fbHtml}
+  </div>`;
+}
+
+function renderAll() {
+  quizEl.innerHTML = quizData.map((_, i) => renderQuestion(i)).join('');
+}
+
+/* ============ 统计 ============ */
+function updateStats() {
+  let ok = 0, bad = 0;
+  state.forEach(s => {
+    if (s.correct) ok++;
+    else if (s.wrong) bad++;
+  });
+  sOkEl.textContent  = ok;
+  sBadEl.textContent = bad;
+  barEl.style.width  = (ok / quizData.length * 100) + '%';
+
+  if (ok === quizData.length) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `🎉 全部答对，太棒了！<span class="score">32 / 32</span>可点击「重新开始」再次练习。`;
+  } else {
+    finalEl.style.display = 'none';
+  }
+}
+
+/* ============ 单选 ============ */
+function handleSingle(qIdx, oIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct) return;
+  s.selected = [oIdx];
+  const right = (q.answer.length === 1 && q.answer[0] === oIdx);
+  s.correct = right;
+  s.wrong   = !right;
+  refreshCard(qIdx);
+}
+
+/* ============ 多选 ============ */
+function toggleMulti(qIdx, oIdx) {
+  const s = state[qIdx];
+  if (s.correct) return;
+  const pos = s.selected.indexOf(oIdx);
+  if (pos > -1) s.selected.splice(pos, 1);
+  else s.selected.push(oIdx);
+  s.wrong = false;
+  refreshCard(qIdx);
+}
+
+function confirmMulti(qIdx) {
+  const q = quizData[qIdx], s = state[qIdx];
+  if (s.correct || s.selected.length === 0) return;
+  const a = [...s.selected].sort((x, y) => x - y).join(',');
+  const b = [...q.answer].sort((x, y) => x - y).join(',');
+  if (a === b) { s.correct = true; s.wrong = false; }
+  else         { s.wrong = true; }
+  refreshCard(qIdx);
+}
+
+/* ============ 刷新 ============ */
+function refreshCard(qIdx) {
+  const old = document.getElementById('card-' + qIdx);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderQuestion(qIdx);
+  const neu = tmp.firstElementChild;
+  if (old) old.replaceWith(neu);
+  updateStats();
+}
+
+/* ============ 事件 ============ */
+quizEl.addEventListener('click', function (e) {
+  const opt = e.target.closest('.option');
+  if (opt && !opt.classList.contains('locked')) {
+    const qIdx = +opt.dataset.q, oIdx = +opt.dataset.o;
+    if (quizData[qIdx].type === 'single') handleSingle(qIdx, oIdx);
+    else toggleMulti(qIdx, oIdx);
+    return;
+  }
+  const btn = e.target.closest('.confirm-btn');
+  if (btn && !btn.disabled) confirmMulti(+btn.dataset.q);
+});
+
+/* ============ 一键显示答案 ============ */
+document.getElementById('btnAuto').addEventListener('click', function () {
+  quizData.forEach((q, i) => {
+    const s = state[i];
+    s.correct  = true;
+    s.wrong    = false;
+    s.selected = [...q.answer];
+  });
+  renderAll();
+  updateStats();
+  finalEl.style.display = 'block';
+  finalEl.innerHTML = `已显示全部正确答案 ✅<br><span class="score">32 / 32</span>可点击「重新开始」自行练习。`;
+});
+
+/* ============ 重新开始 ============ */
+document.getElementById('btnReset').addEventListener('click', function () {
+  state.forEach(s => { s.selected = []; s.correct = false; s.wrong = false; });
+  renderAll();
+  updateStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ============ 初始化 ============ */
+renderAll();
+updateStats();
+</script>
+</body>
+</html>
